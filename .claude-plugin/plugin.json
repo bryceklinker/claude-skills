@@ -1,0 +1,16 @@
+{
+  "name": "craft",
+  "description": "A disciplined software development suite: every feature and bugfix flows through a single enforced pipeline — intake, planning, isolated worktree, strict classicist TDD, code-style enforcement, fresh-eyes self-review, and evidence-based verification.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Bryce Klinker"
+  },
+  "keywords": [
+    "tdd",
+    "clean-architecture",
+    "code-style",
+    "workflow",
+    "code-review",
+    "discipline"
+  ]
+}

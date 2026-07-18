@@ -1,0 +1,11 @@
+*-workspace/
+evals/
+.autoresearch/
+*.local.md
+
+.claude/skills/local-*/
+
+.DS_Store
+Thumbs.db
+__pycache__/
+**/*.pyc
