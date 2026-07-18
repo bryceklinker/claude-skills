@@ -1,0 +1,21 @@
+{
+  "name": "craft-marketplace",
+  "owner": {
+    "name": "Bryce Klinker",
+    "email": "bryce.klinker@gmail.com"
+  },
+  "metadata": {
+    "description": "Marketplace hosting the craft disciplined-development skill suite.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "craft",
+      "source": "./",
+      "description": "A disciplined software-development suite: every feature and bugfix flows through one enforced pipeline — intake, planning, isolated worktree, strict classicist TDD, code-style enforcement, fresh-eyes self-review, and evidence-based verification.",
+      "version": "0.1.0",
+      "author": { "name": "Bryce Klinker" },
+      "keywords": ["tdd", "clean-architecture", "code-style", "workflow", "cqrs", "discipline"]
+    }
+  ]
+}

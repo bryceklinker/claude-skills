@@ -10,6 +10,34 @@ intake → planning → worktree-setup → strict-tdd + code-style → self-revi
 
 `dev-workflow` is the orchestrator that routes work through these gates and dispatches parallel work via `subagent-execution`.
 
+## Installation (Claude Code)
+
+`craft` is distributed as a Claude Code plugin via a marketplace hosted in this repo. Install it in two steps from the Claude Code prompt:
+
+```
+/plugin marketplace add bryceklinker/claude-skills
+/plugin install craft@craft-marketplace
+```
+
+- The first command registers this repo's marketplace (`.claude-plugin/marketplace.json`).
+- The second installs the `craft` plugin, which makes all ten skills available.
+
+Verify the skills loaded with `/plugin` (they appear under the `craft` plugin) — `dev-workflow` triggers automatically the moment you start any feature, bugfix, or refactor.
+
+**Updating** to the latest version later:
+
+```
+/plugin marketplace update craft-marketplace
+/plugin install craft@craft-marketplace
+```
+
+To install from a local checkout instead (for development), point the marketplace at the repo path:
+
+```
+/plugin marketplace add /path/to/claude-skills
+/plugin install craft@craft-marketplace
+```
+
 ## Skills
 
 | Skill | Role |
