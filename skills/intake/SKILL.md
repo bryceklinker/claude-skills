@@ -1,6 +1,6 @@
 ---
 name: intake
-description: "Use at the very start of any development work, before planning or code — to pin down what is actually being built and how you'll know it's done. Trigger whenever a feature, change, or bug is described but acceptance criteria are not yet explicit. For bugs, this is where you reproduce the failure first. Invoked by dev-workflow as phase 1, but also use it directly any time requirements feel fuzzy."
+description: "Establish and lock down requirements before writing code. Use when a feature, change, or bug is described but you don't yet have concrete, agreed-upon acceptance criteria — including requests to define, clarify, or write out acceptance criteria (e.g. given/when/then), figure out what a vague ticket really means, or pin down scope and edge cases before coding starts. For bugs, use this to build a reliable reproduction — reproduce the failure, establish a solid repro, or capture a failing test — before any fix is attempted. Applies whenever someone says \"before I start coding,\" \"let's nail down what this needs to do,\" \"reproduce this first,\" or \"establish a repro.\" Do not use once criteria are already agreed and it's time to plan, break work into tasks, or verify a finished fix."
 ---
 
 # Intake — decide what "done" means before building

@@ -1,6 +1,6 @@
 ---
 name: worktree-setup
-description: "Use after planning and before writing any implementation code — to isolate the work item in its own git worktree and branch. Trigger whenever you're about to start the strict-TDD phase, or whenever development work would otherwise happen directly on a main/shared branch. Keeps the main working tree clean and gives parallel subagents room to operate without colliding. Invoked by dev-workflow as phase 3."
+description: "Set up an isolated git worktree and branch for a work item before implementation begins. Use whenever someone wants a dedicated workspace, sandbox, or separate branch to build a feature or bugfix in — especially phrased as \"off main,\" \"so I don't dirty/mess up my current tree,\" \"isolate this work,\" \"spin up a workspace for this,\" or \"get a worktree going.\" Also triggers when about to enter strict-TDD or write implementation code that would otherwise land on a main/shared branch, and gives parallel subagents room to work without colliding. Do NOT use for merging or tearing down worktrees, general questions about how worktrees/detached HEAD work, planning/breaking work into increments, or writing the actual tests and code. Invoked by dev-workflow as phase 3."
 ---
 
 # Worktree Setup — isolate the work before you build

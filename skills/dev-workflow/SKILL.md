@@ -1,6 +1,6 @@
 ---
 name: dev-workflow
-description: "Use this the moment ANY feature, bugfix, enhancement, refactor, or behavior change begins — the single entry point for all development work. Trigger it whenever the user asks to build, add, implement, fix, change, or refactor code, even for 'quick' or 'simple' changes. It routes the work through mandatory gates (intake → planning → worktree → strict TDD → code style → self-review → verification → finish) and refuses to let implementation start before intent and a plan exist. If you are about to write or edit production code and this skill has not run, stop and run it."
+description: "Use this to drive any change to application behavior or logic through a disciplined pipeline — features, enhancements, refactors, and bugfixes alike, including subtle runtime defects (race conditions, incorrect state, broken validation, wrong output) and changes that feel \"quick\" or \"simple.\" The moment the user asks you to build, add, implement, fix, correct, or change how the code behaves, run this BEFORE writing or editing production code; it enforces gates (intake → plan → worktree → TDD → review → verify → finish) so agreed intent and a plan exist first. Do NOT use it for maintenance that doesn't change product behavior — bumping dependency or tooling versions, editing config/lockfiles, formatting, or resolving config drift — nor for questions, explanations, naming, reviewing, or writing prose/notes about code."
 ---
 
 # Dev Workflow — the disciplined pipeline

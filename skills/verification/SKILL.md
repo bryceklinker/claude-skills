@@ -1,6 +1,6 @@
 ---
 name: verification
-description: "Use before claiming any work is complete, fixed, or passing, and before merging or opening a PR — to actually run the change and confirm it behaves as the acceptance criteria require, capturing real evidence. Trigger whenever you're about to say 'done', 'it works', or 'this fixes it'. Never assert success from reasoning alone; run it and show the output. Invoked by dev-workflow as phase 7."
+description: "Use to prove work actually behaves as required before you claim it \u2014 running the real change and reading the output, not reasoning about it. Applies whenever you're about to call something done, fixed, working, passing, or ready to merge/PR, and whenever a request asks you to *demonstrate, prove, confirm, or show* that something works: run the full test suite, start the app, drive a flow end to end, re-run a bug's original failing steps, or gather evidence that each acceptance criterion holds. The evidence \u2014 commands run and output observed this session \u2014 is the point; never assert success from inspection alone. Not for defining criteria, writing tests, decomposing work, or explaining concepts. Invoked by dev-workflow as phase 7."
 ---
 
 # Verification — evidence before any claim of done
