@@ -19,6 +19,7 @@ a maintenance lane, a nine-agent team, and a per-project convention layer.
 - **`project-conventions`** + `references/schema.md` — a committed `.craft.yml` per repo stating concrete commands (test, acceptance, run, build, lint, format), the acceptance environment (database, external fakes), the base branch, and doc paths, so the generic skills read them instead of guessing. Starter files for TS/JS, C#/.NET, Rust, Go.
 - **Nine-agent team** — `craft-planner`, `craft-architect`, `craft-designer`, `craft-acceptance-tester`, `craft-implementer`, `craft-reconciler`, `craft-reviewer`, `craft-verifier`, `craft-debugger`. Design/review/verify agents are read-only; the reconciler flags a merge conflict between "independent" increments as a planning defect.
 - **`PRINCIPLES.md`** — the canonical statement of the eleven principles the skills embody, referenced by the skills instead of restating the *why* in each.
+- **Behavioral eval harness** (`tools/behavioral-evals/`) — a deterministic grader + scenarios that check a produced repo honored the discipline (test-first, no owned-code doubles, no non-null assertions, separate refactor commits, GWT names, green suite), as a regression guard when skills are edited. Validated to pass a disciplined repo and fail an undisciplined one.
 
 ### Changed
 - **`code-style`** now bans the non-null assertion / null-forgiving operator (`x!` in TS/C#, force-unwraps) as a dedicated smell, and treats project `lint`/`format_check` as a mechanical pre-commit gate.

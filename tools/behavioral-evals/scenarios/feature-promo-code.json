@@ -1,0 +1,17 @@
+{
+  "id": "feature-promo-code",
+  "kind": "feature",
+  "prompt": "Add a promo-code field to the checkout flow. When a customer enters a valid promo code, the discount is applied to their order total. When they enter an invalid or expired code, they see an error explaining why and the total is unchanged. Build this out.",
+  "config": { "test_cmd": "node --test" },
+  "assertions": [
+    { "text": "The unit suite exists and passes (green) when run", "check": "suite_passes" },
+    { "text": "Built test-first: a test file is committed in the same or an earlier commit than the production code it covers", "check": "test_before_code" },
+    { "text": "Multiple small commits rather than one big commit (red-green-refactor rhythm)", "check": "multiple_small_commits" },
+    { "text": "Refactoring is committed separately from behavior — no commit bundles 'add behavior' with 'refactor'", "check": "separate_refactor_commits" },
+    { "text": "Tests do not mock/stub/spy owned or in-process code (real collaborators)", "check": "no_owned_mocks" },
+    { "text": "No non-null-assertion / null-forgiving operator in production code", "check": "no_non_null_assertion" },
+    { "text": "Test names follow Given/When/Then (or When/Then) structure", "check": "gwt_test_names" },
+    { "text": "Invalid/expired promo codes return a result naming the reason, not a thrown exception", "check": "judgment", "note": "review: expected-failure paths return a Result, not throw" },
+    { "text": "The order total is computed as a new value; no in-place mutation of a shared order (immutability)", "check": "judgment", "note": "review: discount produces a new total rather than mutating order" }
+  ]
+}

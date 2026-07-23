@@ -1,0 +1,17 @@
+{
+  "id": "refactor-orderservice",
+  "kind": "refactor",
+  "prompt": "We have a large OrderService class that validates the order, looks up prices, applies discounts, and computes totals all in one place, with several methods well over 30 lines. Refactor it toward our house style (small units, CQRS message+handler, immutability, results over exceptions) without changing behavior.",
+  "config": { "test_cmd": "node --test" },
+  "assertions": [
+    { "text": "The unit suite exists and passes (green) after the refactor — behavior preserved", "check": "suite_passes" },
+    { "text": "Existing tests were in place before the refactor (refactor is covered by tests)", "check": "test_before_code" },
+    { "text": "The refactor lands as multiple small commits, not one sweeping rewrite", "check": "multiple_small_commits" },
+    { "text": "Refactor commits are labeled/committed separately from any behavior change", "check": "separate_refactor_commits" },
+    { "text": "Tests still use real collaborators — the refactor did not introduce mocks of owned code", "check": "no_owned_mocks" },
+    { "text": "No non-null-assertion / null-forgiving operator introduced while refactoring", "check": "no_non_null_assertion" },
+    { "text": "Test names follow Given/When/Then (or When/Then) structure", "check": "gwt_test_names" },
+    { "text": "The god-class is decomposed into small, single-responsibility units (CQRS handlers, no method doing validation+pricing+discount together)", "check": "judgment", "note": "review: no remaining large multi-responsibility method" },
+    { "text": "Immutability preserved/improved — values returned new rather than mutated in place", "check": "judgment", "note": "review: no new in-place mutation introduced" }
+  ]
+}

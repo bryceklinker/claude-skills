@@ -1,0 +1,17 @@
+{
+  "id": "bug-empty-email",
+  "kind": "bug",
+  "prompt": "Bug report: our signup accepts an empty email address and creates the account anyway, then downstream notifications fail. Empty (or whitespace-only) emails should be rejected at signup with a clear validation error. Fix it.",
+  "config": { "test_cmd": "node --test" },
+  "assertions": [
+    { "text": "The unit suite exists and passes (green) when run", "check": "suite_passes" },
+    { "text": "Reproduced as a failing test first: a test capturing the bug is committed at or before the fix", "check": "test_before_code" },
+    { "text": "The fix is a small, focused change rather than one large commit", "check": "multiple_small_commits" },
+    { "text": "Any cleanup is a separate commit from the fix", "check": "separate_refactor_commits" },
+    { "text": "The regression test does not mock/stub owned or in-process validation code", "check": "no_owned_mocks" },
+    { "text": "No non-null-assertion / null-forgiving operator introduced in the fix", "check": "no_non_null_assertion" },
+    { "text": "Test names follow Given/When/Then (or When/Then) structure", "check": "gwt_test_names" },
+    { "text": "The empty-email rejection is returned as a named validation result, not a thrown exception", "check": "judgment", "note": "review: rejection is a Result/validation error, not a throw" },
+    { "text": "A regression test asserts the exact reported scenario (empty/whitespace email rejected)", "check": "judgment", "note": "review: test reproduces the original reported failure" }
+  ]
+}

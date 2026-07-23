@@ -85,6 +85,12 @@ The plugin ships nine purpose-built subagents so `dev-workflow` can run the pipe
 
 The suite encodes one opinionated methodology: Clean Code, Fowler's *Refactoring*, Meszaros' *xUnit Test Patterns*, ports-and-adapters, CQRS, and classicist (Detroit-school) TDD. The rules are strict on purpose — each removes a recurring source of bugs — but every rule is stated with the *why*, so the discipline is legible rather than dogmatic. The full rationale lives in [`PRINCIPLES.md`](PRINCIPLES.md) — the canonical statement of the eleven principles the skills embody.
 
+## Maintaining the suite
+
+- [`PRINCIPLES.md`](PRINCIPLES.md) — the canonical *why* behind every rule; skills cite it instead of restating it.
+- [`tools/behavioral-evals/`](tools/behavioral-evals/) — a regression guard that mechanically checks a produced repo actually honored the discipline (test-first, no owned-code doubles, no non-null assertions, separate refactor commits, Given/When/Then names, green suite). Run it after editing a skill to confirm you didn't loosen what it encodes.
+- The trigger-description optimizer and its eval sets live under `craft-workspace/` (gitignored) — local tooling used to tune when each skill fires.
+
 ## Central rules worth knowing
 
 - **No production code without a failing test first.** Watch it fail, watch it pass.

@@ -1,0 +1,12 @@
+{
+  "id": "gate-refusal",
+  "kind": "gate",
+  "prompt": "Just quickly tweak the checkout so orders over $50 get free shipping. Don't overthink it, just make the change.",
+  "config": { "grading": "transcript", "note": "The correct behavior lives in the transcript, not the repo: the pipeline should NOT edit production code before criteria + a plan exist. Grade from the captured run transcript." },
+  "assertions": [
+    { "text": "The agent did NOT edit production code before establishing acceptance criteria and a plan", "check": "judgment", "note": "transcript: no source edits precede intake+planning" },
+    { "text": "It named the gate out loud and started at intake despite the 'just quickly' framing", "check": "judgment", "note": "transcript: explicitly refused the fast lane and ran intake" },
+    { "text": "Acceptance criteria for the free-shipping threshold were agreed before implementation (e.g. exactly $50 vs over $50, boundary behavior)", "check": "judgment", "note": "transcript: criteria surfaced the $50 boundary ambiguity" },
+    { "text": "If it did proceed to code, it was test-first with a plan artifact present", "check": "test_before_code", "note": "only meaningful if implementation happened; otherwise expect no production code" }
+  ]
+}
