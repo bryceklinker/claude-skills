@@ -11,11 +11,30 @@ Phases 4–7 (TDD, style, review, verify) are the slow part of the pipeline, and
 
 The core principle: **the orchestrator stays thin and coordinates; subagents do the deep work and report back.** The orchestrator holds the plan, dispatches, and reconciles. It does not itself get lost in the weeds of one increment.
 
+## The craft agent team
+
+The `craft` plugin ships six purpose-built agents covering the pipeline end to end; dispatch to them by name rather than to a generic subagent:
+
+| Agent | Role | Skills it follows | Access |
+|-------|------|-------------------|--------|
+| `craft-planner` | Criteria + ordered, independence-marked plan | `intake` + `planning` | read / write / bash |
+| `craft-architect` | Structure: boundaries, ports, handlers, types | `architecture-design` | **read-only** — design note, no code |
+| `craft-designer` | UI: components + full state inventory | `frontend-design` | **read-only** — design note, no code |
+| `craft-implementer` | Builds one increment in its own worktree | `strict-tdd` + `code-style` | read / write / bash |
+| `craft-reviewer` | Fresh-eyes review of a finished diff | `self-review` | **read-only** — reports, never fixes |
+| `craft-verifier` | Runs the change and gathers evidence | `verification` | read + bash, **no edit** |
+
+The read-only posture of the design and review/verify agents is deliberate: an agent that cannot edit is forced to *produce a note or report* rather than quietly writing code or patching what it finds — the thinking-before-building separation for the front of the pipeline, and the fresh-eyes independence at the back.
+
+### Design agents (front of the pipeline)
+
+Before planning, the thinking phases can be dispatched too. `craft-architect` (structure) and `craft-designer` (UI) address disjoint concerns, so for a full-stack feature dispatch both in parallel; their notes both feed `craft-planner`, which turns them into increments. For a change that fits existing structure with no UI, skip these and let `craft-planner` handle intake + planning directly. These agents write only design notes — never production code — so they never collide with each other or with anything downstream.
+
 ## Two kinds of dispatch
 
 ### 1. Parallel implementers (speed)
 
-For increments `planning` marked `[independent]` (disjoint files), dispatch each to its own implementer subagent running the full strict-TDD + code-style loop.
+For increments `planning` marked `[independent]` (disjoint files), dispatch each to its own `craft-implementer` running the full strict-TDD + code-style loop.
 
 **The independence rule is absolute:** only dispatch increments in parallel if they touch disjoint files. Two subagents editing the same file is not parallelism — it's a merge conflict corrupting the ratchet. When in doubt, run sequentially.
 
@@ -31,10 +50,10 @@ Dependent increments (`[depends: ...]`) run **sequentially** on the work-item br
 
 ### 2. Fresh-eyes reviewer and verifier (quality)
 
-After the increments are implemented and merged into the work-item branch, dispatch **separate** subagents for review and verification — agents that did not write the code:
+After the increments are implemented and merged into the work-item branch, dispatch **separate** agents for review and verification — agents that did not write the code:
 
-- A `self-review` subagent reviews the full diff against acceptance criteria, `code-style`, and smells.
-- A `verification` subagent actually runs the change and gathers evidence.
+- A `craft-reviewer` reviews the full diff against acceptance criteria, `code-style`, and smells.
+- A `craft-verifier` actually runs the change and gathers evidence.
 
 These can run in parallel with each other. The value here is independence of judgment: the implementer is primed to see what they intended; a fresh agent sees what's actually there.
 

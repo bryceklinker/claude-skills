@@ -5,7 +5,7 @@ A disciplined software-development skill suite for Claude Code. Every feature an
 ## The pipeline
 
 ```
-intake → planning → worktree-setup → strict-tdd + code-style → self-review → verification → finish-work
+intake → design (architecture / frontend, as needed) → planning → worktree-setup → strict-tdd + code-style → self-review → verification → finish-work
 ```
 
 `dev-workflow` is the orchestrator that routes work through these gates and dispatches parallel work via `subagent-execution`.
@@ -20,7 +20,7 @@ intake → planning → worktree-setup → strict-tdd + code-style → self-revi
 ```
 
 - The first command registers this repo's marketplace (`.claude-plugin/marketplace.json`).
-- The second installs the `craft` plugin, which makes all ten skills available.
+- The second installs the `craft` plugin, which makes all twelve skills and six agents available.
 
 Verify the skills loaded with `/plugin` (they appear under the `craft` plugin) — `dev-workflow` triggers automatically the moment you start any feature, bugfix, or refactor.
 
@@ -44,6 +44,8 @@ To install from a local checkout instead (for development), point the marketplac
 |-------|------|
 | `dev-workflow` | Orchestrator. Entry point for all dev work; enforces the gates; dispatches subagents. |
 | `intake` | Pin down intent, scope, and acceptance criteria. Reproduce bugs first. |
+| `architecture-design` | Decide the shape before slicing: domain boundary, ports/adapters, CQRS handlers, shared types. As needed. |
+| `frontend-design` | Design the UI before building: component breakdown and a complete state inventory. As needed. |
 | `planning` | Slice work into small, independently testable increments; mark independence for parallelism. |
 | `worktree-setup` | Isolate the work item in its own git worktree before any code. |
 | `strict-tdd` | Classicist TDD: no code before red, one test at a time, red→green, commit at green + after refactor, real collaborators over doubles. |
@@ -52,6 +54,21 @@ To install from a local checkout instead (for development), point the marketplac
 | `verification` | Run it; evidence before any claim of done. |
 | `finish-work` | Integrate (PR/merge), settle history, remove worktrees. |
 | `subagent-execution` | Dispatch independent increments in parallel and run fresh-eyes review/verify, without breaking discipline. |
+
+## Agent team
+
+The plugin ships six purpose-built subagents so `dev-workflow` can run the pipeline end to end — and much of it in parallel — without loosening the discipline. The orchestrator (main thread) dispatches to them by name:
+
+| Agent | Role | Follows | Access |
+|-------|------|---------|--------|
+| `craft-planner` | Criteria + ordered, independence-marked plan | `intake` + `planning` | read / write / bash |
+| `craft-architect` | Structure: boundaries, ports, CQRS handlers, types | `architecture-design` | read-only — design note, no code |
+| `craft-designer` | UI: component breakdown + full state inventory | `frontend-design` | read-only — design note, no code |
+| `craft-implementer` | Builds one increment in its own sibling worktree | `strict-tdd` + `code-style` | read / write / bash |
+| `craft-reviewer` | Fresh-eyes review of a finished diff | `self-review` | read-only — reports, never fixes |
+| `craft-verifier` | Runs the change and captures evidence | `verification` | read + bash, no edit |
+
+**Front of the pipeline:** `craft-architect` and `craft-designer` address disjoint concerns, so a full-stack feature dispatches both in parallel; their notes feed `craft-planner`. **Back of the pipeline:** independent increments each go to their own `craft-implementer`, then a `craft-reviewer` and `craft-verifier` give it fresh eyes. The design, review, and verify agents are deliberately read-only so they *produce notes or report* rather than quietly write or patch code — the thinking-before-building and fresh-eyes independence the pipeline depends on. See `subagent-execution` for the dispatch and reconciliation choreography.
 
 ## Design philosophy
 

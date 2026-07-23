@@ -17,20 +17,23 @@ The reason for a single enforced path is simple: the failures that cost the most
 digraph pipeline {
     rankdir=TB;
     intake      [label="1. intake\n(intent, scope, acceptance criteria)", shape=box];
-    planning    [label="2. planning\n(decompose into testable increments)", shape=box];
-    worktree    [label="3. worktree-setup\n(isolate the work)", shape=box];
-    tdd         [label="4. strict-tdd + 5. code-style\n(per increment, red-green-refactor)", shape=box];
+    design      [label="2. design — as needed\n(architecture-design / frontend-design)", shape=box, style=dashed];
+    planning    [label="3. planning\n(decompose into testable increments)", shape=box];
+    worktree    [label="4. worktree-setup\n(isolate the work)", shape=box];
+    tdd         [label="5. strict-tdd + code-style\n(per increment, red-green-refactor)", shape=box];
     review      [label="6. self-review\n(fresh eyes vs criteria + style)", shape=box];
     verify      [label="7. verification\n(run it, gather evidence)", shape=box];
     finish      [label="8. finish-work\n(integrate, PR, clean up)", shape=box];
 
-    intake -> planning -> worktree -> tdd -> review -> verify -> finish;
+    intake -> design -> planning -> worktree -> tdd -> review -> verify -> finish;
     verify -> tdd [label="defects found", style=dashed];
     review -> tdd [label="issues found", style=dashed];
 }
 ```
 
-Each numbered phase has a dedicated skill: `intake`, `planning`, `worktree-setup`, `strict-tdd`, `code-style`, `self-review`, `verification`, `finish-work`. Dispatch and parallelism are handled by `subagent-execution`.
+Each phase has a dedicated skill: `intake`, `architecture-design` / `frontend-design`, `planning`, `worktree-setup`, `strict-tdd`, `code-style`, `self-review`, `verification`, `finish-work`. Dispatch and parallelism are handled by `subagent-execution`.
+
+**Design (phase 2) is conditional.** Run it when the change adds new structure or a user-facing surface: `architecture-design` when there are new moving parts (a module, integration, persistence/transport concern, non-trivial structural refactor), `frontend-design` when a user sees or does something new. Both can run — a full-stack feature needs each. Skip design entirely for a change that fits cleanly into existing, well-shaped structure with no UI. When in doubt, a two-line design note ("fits existing checkout feature, one new command handler") is cheap; a wrong structure discovered mid-TDD is not.
 
 ## The gate you must honor
 
@@ -61,19 +64,23 @@ Track the work item's progress with a task list — one task per phase — so th
 | Phase | Skill | Precondition (gate) | Exit condition |
 |-------|-------|---------------------|----------------|
 | 1 | `intake` | A change is requested | Acceptance criteria agreed; bugs have a reproduction |
-| 2 | `planning` | Criteria exist | Ordered increments written, independence marked |
-| 3 | `worktree-setup` | Plan exists | Isolated worktree + branch created |
-| 4 | `strict-tdd` + `code-style` | Inside the worktree | Every increment green; committed at green + after refactor |
-| 5 | `self-review` | Increments implemented | Diff reviewed against criteria, style, smells |
-| 6 | `verification` | Review passed | The change actually ran; evidence captured |
-| 7 | `finish-work` | Verified | Integrated (PR/merge), worktree cleaned up |
+| 2 | `architecture-design` / `frontend-design` *(as needed)* | Criteria exist; change adds structure or UI | Design note: boundaries/ports/handlers and/or components/states |
+| 3 | `planning` | Criteria (and design, if any) exist | Ordered increments written, independence marked |
+| 4 | `worktree-setup` | Plan exists | Isolated worktree + branch created |
+| 5 | `strict-tdd` + `code-style` | Inside the worktree | Every increment green; committed at green + after refactor |
+| 6 | `self-review` | Increments implemented | Diff reviewed against criteria, style, smells |
+| 7 | `verification` | Review passed | The change actually ran; evidence captured |
+| 8 | `finish-work` | Verified | Integrated (PR/merge), worktree cleaned up |
 
 ## Speeding it up with subagents
 
 Phases 4–7 are the slow part, and much of it parallelizes. The orchestrator's job is to dispatch aggressively **without breaking the discipline**:
 
-- **Independent increments run in parallel.** If `planning` marked two increments as touching disjoint files, dispatch each to its own implementer subagent (each in a sibling worktree, each running the full strict-TDD + code-style loop). Increments with dependencies run in order.
-- **Review and verification run as fresh-eyes subagents.** Hand the diff to a `self-review` subagent and a `verification` subagent that did *not* write the code. A reviewer without implementation bias catches more — this is a quality win, not only a speed one.
+- **The front of the pipeline runs as focused agents.** Dispatch a `craft-planner` for intake + planning; when the change adds structure, a `craft-architect` for `architecture-design`; when it's user-facing, a `craft-designer` for `frontend-design`. Architecture and UI design touch disjoint concerns, so for a full-stack feature they can run in parallel, then feed the planner.
+- **Independent increments run in parallel.** If `planning` marked two increments as touching disjoint files, dispatch each to its own `craft-implementer` (each in a sibling worktree, each running the full strict-TDD + code-style loop). Increments with dependencies run in order.
+- **Review and verification run as fresh-eyes agents.** Hand the diff to a `craft-reviewer` and a `craft-verifier` that did *not* write the code. A reviewer without implementation bias catches more — this is a quality win, not only a speed one.
+
+The `craft` plugin ships six agents — `craft-planner`, `craft-architect`, `craft-designer`, `craft-implementer`, `craft-reviewer`, `craft-verifier` — covering the pipeline end to end. `subagent-execution` covers exactly what each needs and how to reconcile their output.
 
 See `subagent-execution` for exactly how to parcel the work, what context each subagent needs, and how to reconcile their results. The rule that never bends: parallelism is allowed only where the work is genuinely independent. Two subagents editing the same file is not speed, it's a merge conflict waiting to corrupt the discipline.
 
