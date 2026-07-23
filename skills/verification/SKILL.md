@@ -23,6 +23,8 @@ Verify against the **acceptance criteria** from `intake`, not against a vague se
 
 4. **The change runs in something close to the real environment**, not only in unit tests, when the criteria imply integration — start the app, hit the endpoint, drive the flow. If there's a project skill or command for running the app, use it.
 
+5. **The acceptance suite passes**, where the feature has one (`acceptance-testing`). Run the outer, user-level tests against the production-like deployment and read their output — this is the strongest single piece of evidence that the feature works end to end. `acceptance-testing` authors and owns those tests up front; verification executes them here as proof of done.
+
 ## Capturing evidence
 
 For each criterion or check, record what you ran and what you observed — the command and the salient output. This is what lets you (and the user, and a reviewer) trust the "done" claim instead of taking it on faith. Vague summaries ("tests pass, looks good") defeat the purpose; the specific observed output is the point.

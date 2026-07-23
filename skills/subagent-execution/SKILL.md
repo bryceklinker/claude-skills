@@ -7,19 +7,20 @@ description: "Use when executing the implementation, review, and verification ph
 
 ## Why this exists
 
-Phases 4–7 (TDD, style, review, verify) are the slow part of the pipeline, and much of it is parallelizable — but only if you dispatch carefully. Done well, subagents make the pipeline both faster (independent increments run at once) and better (a reviewer who didn't write the code is less biased). Done carelessly, they collide on shared files and produce merge conflicts that quietly corrupt the discipline. This skill is the choreography that keeps the speed and drops the risk.
+Phases 5–8 (acceptance-testing, TDD, style, review, verify) are the slow part of the pipeline, and much of it is parallelizable — but only if you dispatch carefully. Done well, subagents make the pipeline both faster (independent increments run at once) and better (a reviewer who didn't write the code is less biased). Done carelessly, they collide on shared files and produce merge conflicts that quietly corrupt the discipline. This skill is the choreography that keeps the speed and drops the risk.
 
 The core principle: **the orchestrator stays thin and coordinates; subagents do the deep work and report back.** The orchestrator holds the plan, dispatches, and reconciles. It does not itself get lost in the weeds of one increment.
 
 ## The craft agent team
 
-The `craft` plugin ships six purpose-built agents covering the pipeline end to end; dispatch to them by name rather than to a generic subagent:
+The `craft` plugin ships seven purpose-built agents covering the pipeline end to end; dispatch to them by name rather than to a generic subagent:
 
 | Agent | Role | Skills it follows | Access |
 |-------|------|-------------------|--------|
 | `craft-planner` | Criteria + ordered, independence-marked plan | `intake` + `planning` | read / write / bash |
 | `craft-architect` | Structure: boundaries, ports, handlers, types | `architecture-design` | **read-only** — design note, no code |
 | `craft-designer` | UI: components + full state inventory | `frontend-design` | **read-only** — design note, no code |
+| `craft-acceptance-tester` | Outer-loop user-level tests + prod-like env | `acceptance-testing` | read / write / bash |
 | `craft-implementer` | Builds one increment in its own worktree | `strict-tdd` + `code-style` | read / write / bash |
 | `craft-reviewer` | Fresh-eyes review of a finished diff | `self-review` | **read-only** — reports, never fixes |
 | `craft-verifier` | Runs the change and gathers evidence | `verification` | read + bash, **no edit** |
@@ -29,6 +30,10 @@ The read-only posture of the design and review/verify agents is deliberate: an a
 ### Design agents (front of the pipeline)
 
 Before planning, the thinking phases can be dispatched too. `craft-architect` (structure) and `craft-designer` (UI) address disjoint concerns, so for a full-stack feature dispatch both in parallel; their notes both feed `craft-planner`, which turns them into increments. For a change that fits existing structure with no UI, skip these and let `craft-planner` handle intake + planning directly. These agents write only design notes — never production code — so they never collide with each other or with anything downstream.
+
+### The acceptance loop (runs alongside implementation)
+
+For a user-facing feature, dispatch a `craft-acceptance-tester` at the start of implementation to write the outer, user-level acceptance tests from the criteria (left failing) and stand up the production-like environment. It runs **in parallel with the implementers**: they drive the inner unit loop on the increments while its outer test is the shared red target the whole feature is aiming at. It touches only the separate acceptance-test suite and environment harness — never production source — so it doesn't collide with implementers editing that source. Once the increments land and merge, it re-runs the outer test; its green is the feature-level proof, and `craft-verifier` later executes that same suite as part of gathering done-evidence. Skip it for a pure internal refactor already covered by the existing acceptance suite.
 
 ## Two kinds of dispatch
 

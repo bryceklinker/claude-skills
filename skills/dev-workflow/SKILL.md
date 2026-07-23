@@ -20,20 +20,26 @@ digraph pipeline {
     design      [label="2. design — as needed\n(architecture-design / frontend-design)", shape=box, style=dashed];
     planning    [label="3. planning\n(decompose into testable increments)", shape=box];
     worktree    [label="4. worktree-setup\n(isolate the work)", shape=box];
-    tdd         [label="5. strict-tdd + code-style\n(per increment, red-green-refactor)", shape=box];
-    review      [label="6. self-review\n(fresh eyes vs criteria + style)", shape=box];
-    verify      [label="7. verification\n(run it, gather evidence)", shape=box];
-    finish      [label="8. finish-work\n(integrate, PR, clean up)", shape=box];
+    accept      [label="5. acceptance-testing — as needed\n(outer loop: write user-level test, watch it fail)", shape=box, style=dashed];
+    tdd         [label="6. strict-tdd + code-style\n(inner loop: drive increments green)", shape=box];
+    review      [label="7. self-review\n(fresh eyes vs criteria + style)", shape=box];
+    verify      [label="8. verification\n(run it, gather evidence)", shape=box];
+    finish      [label="9. finish-work\n(integrate, PR, clean up)", shape=box];
 
-    intake -> design -> planning -> worktree -> tdd -> review -> verify -> finish;
+    intake -> design -> planning -> worktree -> accept -> tdd;
+    tdd -> accept [label="re-run outer test → green", style=dashed];
+    accept -> review [label="feature proven"];
+    review -> verify -> finish;
     verify -> tdd [label="defects found", style=dashed];
     review -> tdd [label="issues found", style=dashed];
 }
 ```
 
-Each phase has a dedicated skill: `intake`, `architecture-design` / `frontend-design`, `planning`, `worktree-setup`, `strict-tdd`, `code-style`, `self-review`, `verification`, `finish-work`. Dispatch and parallelism are handled by `subagent-execution`.
+Each phase has a dedicated skill: `intake`, `architecture-design` / `frontend-design`, `planning`, `worktree-setup`, `acceptance-testing`, `strict-tdd`, `code-style`, `self-review`, `verification`, `finish-work`. Dispatch and parallelism are handled by `subagent-execution`.
 
 **Design (phase 2) is conditional.** Run it when the change adds new structure or a user-facing surface: `architecture-design` when there are new moving parts (a module, integration, persistence/transport concern, non-trivial structural refactor), `frontend-design` when a user sees or does something new. Both can run — a full-stack feature needs each. Skip design entirely for a change that fits cleanly into existing, well-shaped structure with no UI. When in doubt, a two-line design note ("fits existing checkout feature, one new command handler") is cheap; a wrong structure discovered mid-TDD is not.
+
+**Acceptance testing (phase 5) is the outer loop, and conditional.** For a user-facing feature or a change to a user flow, write a user-level acceptance test up front — against a production-like deployment (real UI + API, real database in a container, external deployed fakes, never code-level doubles) — and watch it fail. It stays red while the inner `strict-tdd` increments (phase 6) are built, and its going green is what proves the feature works end to end. Skip it for a pure internal refactor already covered by the existing acceptance suite. This is double-loop TDD: the outer acceptance test brackets the inner unit cycle.
 
 ## The gate you must honor
 
@@ -67,20 +73,22 @@ Track the work item's progress with a task list — one task per phase — so th
 | 2 | `architecture-design` / `frontend-design` *(as needed)* | Criteria exist; change adds structure or UI | Design note: boundaries/ports/handlers and/or components/states |
 | 3 | `planning` | Criteria (and design, if any) exist | Ordered increments written, independence marked |
 | 4 | `worktree-setup` | Plan exists | Isolated worktree + branch created |
-| 5 | `strict-tdd` + `code-style` | Inside the worktree | Every increment green; committed at green + after refactor |
-| 6 | `self-review` | Increments implemented | Diff reviewed against criteria, style, smells |
-| 7 | `verification` | Review passed | The change actually ran; evidence captured |
-| 8 | `finish-work` | Verified | Integrated (PR/merge), worktree cleaned up |
+| 5 | `acceptance-testing` *(as needed — outer loop)* | User-facing feature or user-flow change | User-level acceptance test written, watched failing against a production-like deployment |
+| 6 | `strict-tdd` + `code-style` | Inside the worktree | Every increment green; committed at green + after refactor; outer acceptance test now green |
+| 7 | `self-review` | Increments implemented | Diff reviewed against criteria, style, smells |
+| 8 | `verification` | Review passed | The change actually ran (incl. the acceptance suite); evidence captured |
+| 9 | `finish-work` | Verified | Integrated (PR/merge), worktree cleaned up |
 
 ## Speeding it up with subagents
 
-Phases 4–7 are the slow part, and much of it parallelizes. The orchestrator's job is to dispatch aggressively **without breaking the discipline**:
+Phases 5–8 are the slow part, and much of it parallelizes. The orchestrator's job is to dispatch aggressively **without breaking the discipline**:
 
 - **The front of the pipeline runs as focused agents.** Dispatch a `craft-planner` for intake + planning; when the change adds structure, a `craft-architect` for `architecture-design`; when it's user-facing, a `craft-designer` for `frontend-design`. Architecture and UI design touch disjoint concerns, so for a full-stack feature they can run in parallel, then feed the planner.
+- **The outer acceptance loop runs alongside the inner work.** For a user-facing feature, dispatch a `craft-acceptance-tester` to write the user-level acceptance tests up front (left failing) and stand up the production-like environment. It works in parallel with the implementers — they drive the inner unit loop while its outer test is the shared red target — and it confirms green once the increments land.
 - **Independent increments run in parallel.** If `planning` marked two increments as touching disjoint files, dispatch each to its own `craft-implementer` (each in a sibling worktree, each running the full strict-TDD + code-style loop). Increments with dependencies run in order.
 - **Review and verification run as fresh-eyes agents.** Hand the diff to a `craft-reviewer` and a `craft-verifier` that did *not* write the code. A reviewer without implementation bias catches more — this is a quality win, not only a speed one.
 
-The `craft` plugin ships six agents — `craft-planner`, `craft-architect`, `craft-designer`, `craft-implementer`, `craft-reviewer`, `craft-verifier` — covering the pipeline end to end. `subagent-execution` covers exactly what each needs and how to reconcile their output.
+The `craft` plugin ships seven agents — `craft-planner`, `craft-architect`, `craft-designer`, `craft-acceptance-tester`, `craft-implementer`, `craft-reviewer`, `craft-verifier` — covering the pipeline end to end. `subagent-execution` covers exactly what each needs and how to reconcile their output.
 
 See `subagent-execution` for exactly how to parcel the work, what context each subagent needs, and how to reconcile their results. The rule that never bends: parallelism is allowed only where the work is genuinely independent. Two subagents editing the same file is not speed, it's a merge conflict waiting to corrupt the discipline.
 
