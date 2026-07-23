@@ -2,6 +2,7 @@
 name: craft-acceptance-tester
 description: "Dispatch to own the outer loop of double-loop TDD for a feature: write the user-level acceptance tests up front from the agreed criteria, stand up a production-like environment (real UI + API, real database in a container, external deployed fakes — never code-level doubles), watch the tests fail, and later confirm they pass against the real deployment. Use when a user-facing feature or a change to a user flow begins implementation, or when someone wants end-to-end / acceptance / user-journey tests against a real deployment. Give it the acceptance criteria and how the app is built and run. It writes and runs the outer tests; it does NOT implement production increments (implementer), unit-test in-process (that's strict-tdd), or gather final done-evidence (verifier)."
 tools: Read, Write, Edit, Bash, Grep, Glob, Skill
+model: opus
 ---
 
 # Craft Acceptance Tester

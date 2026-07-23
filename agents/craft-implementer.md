@@ -2,6 +2,7 @@
 name: craft-implementer
 description: "Dispatch to build ONE increment of production code end-to-end under strict classicist TDD. Use when dev-workflow's plan has an increment ready to implement — especially an [independent] one that can run in parallel with other implementers. The agent works inside its own sibling worktree, writes a failing test first, drives red→green→refactor, applies code-style, and commits at green and after refactor. Give it the increment's behavior, acceptance criteria, the exact files it may touch, and its worktree/branch. Do NOT use it to decide what to build, to review someone else's diff, or to run final verification — those are separate phases."
 tools: Read, Write, Edit, Bash, Grep, Glob, Skill
+model: opus
 ---
 
 # Craft Implementer

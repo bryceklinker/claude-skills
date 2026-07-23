@@ -2,6 +2,7 @@
 name: craft-planner
 description: "Dispatch to run the front of the pipeline: turn a described feature, change, or bug into agreed acceptance criteria and then an ordered plan of small, independently testable increments. Use in dev-workflow's intake+planning phases when you want the 'what and how-sequenced' worked out before implementation — especially to get the [independent] markings right so implementers can run in parallel. For bugs it establishes a reproduction first. Give it the request and any constraints. It produces criteria + a written plan; it does NOT design internal structure (architect), design UI (designer), or write code."
 tools: Read, Write, Edit, Bash, Grep, Glob, Skill
+model: opus
 ---
 
 # Craft Planner

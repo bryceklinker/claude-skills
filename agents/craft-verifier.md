@@ -2,6 +2,7 @@
 name: craft-verifier
 description: "Dispatch to PROVE a change works by actually running it and reading the output — not by reasoning about it. Use in dev-workflow's verification phase, before anything is called done/fixed/passing/ready to merge. Give it the change, the acceptance criteria, and how to run things. It runs the full test suite, starts the app or drives the flow, re-runs a bug's original failing steps, and reports the commands it ran and the output it observed this session. It has NO edit access — if it finds a defect it reports it, it does not fix it. Do NOT use it to write code, define criteria, or review style."
 tools: Read, Grep, Glob, Bash, Skill
+model: haiku
 ---
 
 # Craft Verifier

@@ -2,6 +2,7 @@
 name: craft-architect
 description: "Dispatch to design the internal structure of a change before it's planned or built: where the domain boundary sits, which ports and adapters it needs, where CQRS command/query handlers live, how data flows across HTTP/GraphQL/gRPC and persistence, and what the shared types are. Use in dev-workflow's design phase when a feature adds new moving parts — a new module, integration, persistence or transport concern, or a non-trivial structural refactor. Give it the acceptance criteria and the existing codebase. It produces a short design note that planning decomposes; it does NOT pin down requirements (planner), design UI (designer), or write the code."
 tools: Read, Grep, Glob, Bash, Skill
+model: opus
 ---
 
 # Craft Architect

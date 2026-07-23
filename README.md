@@ -20,7 +20,7 @@ intake → design (architecture / frontend, as needed) → planning → worktree
 ```
 
 - The first command registers this repo's marketplace (`.claude-plugin/marketplace.json`).
-- The second installs the `craft` plugin, which makes all fifteen skills and seven agents available.
+- The second installs the `craft` plugin, which makes all fifteen skills and nine agents available.
 
 Verify the skills loaded with `/plugin` (they appear under the `craft` plugin) — `dev-workflow` triggers automatically the moment you start any feature, bugfix, or refactor.
 
@@ -60,19 +60,23 @@ To install from a local checkout instead (for development), point the marketplac
 
 ## Agent team
 
-The plugin ships seven purpose-built subagents so `dev-workflow` can run the pipeline end to end — and much of it in parallel — without loosening the discipline. The orchestrator (main thread) dispatches to them by name:
+The plugin ships nine purpose-built subagents so `dev-workflow` can run the pipeline end to end — and much of it in parallel — without loosening the discipline. The orchestrator (main thread) dispatches to them by name:
 
-| Agent | Role | Follows | Access |
-|-------|------|---------|--------|
-| `craft-planner` | Criteria + ordered, independence-marked plan | `intake` + `planning` | read / write / bash |
-| `craft-architect` | Structure: boundaries, ports, CQRS handlers, types | `architecture-design` | read-only — design note, no code |
-| `craft-designer` | UI: component breakdown + full state inventory | `frontend-design` | read-only — design note, no code |
-| `craft-acceptance-tester` | Outer-loop user-level tests + production-like env | `acceptance-testing` | read / write / bash |
-| `craft-implementer` | Builds one increment in its own sibling worktree | `strict-tdd` + `code-style` | read / write / bash |
-| `craft-reviewer` | Fresh-eyes review of a finished diff | `self-review` | read-only — reports, never fixes |
-| `craft-verifier` | Runs the change and captures evidence | `verification` | read + bash, no edit |
+| Agent | Role | Follows | Access | Model |
+|-------|------|---------|--------|-------|
+| `craft-planner` | Criteria + ordered, independence-marked plan | `intake` + `planning` | read / write / bash | opus |
+| `craft-architect` | Structure: boundaries, ports, CQRS handlers, types | `architecture-design` | read-only — design note, no code | opus |
+| `craft-designer` | UI: component breakdown + full state inventory | `frontend-design` | read-only — design note, no code | opus |
+| `craft-acceptance-tester` | Outer-loop user-level tests + production-like env | `acceptance-testing` | read / write / bash | opus |
+| `craft-implementer` | Builds one increment in its own sibling worktree | `strict-tdd` + `code-style` | read / write / bash | opus |
+| `craft-reconciler` | Merges parallel increment branches back | *(git integration)* | read + bash, no edit | sonnet |
+| `craft-reviewer` | Fresh-eyes review of a finished diff | `self-review` | read-only — reports, never fixes | opus |
+| `craft-verifier` | Runs the change and captures evidence | `verification` | read + bash, no edit | haiku |
+| `craft-debugger` | Root-cause investigation of a defect | `systematic-debugging` | read / write / bash | opus |
 
-**Front of the pipeline:** `craft-architect` and `craft-designer` address disjoint concerns, so a full-stack feature dispatches both in parallel; their notes feed `craft-planner`. **Implementation:** a `craft-acceptance-tester` writes the outer, user-level test up front (left failing) and runs it in parallel with the `craft-implementer`s, who each drive one increment's inner unit loop in its own worktree — the outer test is the shared red target that goes green when the increments land. **Back of the pipeline:** a `craft-reviewer` and `craft-verifier` give the merged diff fresh eyes. The design, review, and verify agents are deliberately read-only so they *produce notes or report* rather than quietly write or patch code — the thinking-before-building and fresh-eyes independence the pipeline depends on. See `subagent-execution` for the dispatch and reconciliation choreography.
+**Front of the pipeline:** `craft-architect` and `craft-designer` address disjoint concerns, so a full-stack feature dispatches both in parallel; their notes feed `craft-planner`. **Implementation:** a `craft-acceptance-tester` writes the outer, user-level test up front (left failing) and runs it in parallel with the `craft-implementer`s, who each drive one increment's inner unit loop in its own worktree — the outer test is the shared red target that goes green when the increments land; a `craft-reconciler` then merges their branches back. **Back of the pipeline:** a `craft-reviewer` and `craft-verifier` give the merged diff fresh eyes, and a `craft-debugger` finds the root cause of any defect whose cause isn't obvious before the fix returns to an implementer. The design, review, and verify agents are deliberately read-only so they *produce notes or report* rather than quietly write or patch code.
+
+**Model tiering is conservative:** every agent that writes code or makes design/decomposition/review judgments runs on `opus`; only the mechanical evidence-gatherer (`craft-verifier`) drops to `haiku`, and the git-integration role (`craft-reconciler`) to `sonnet` — quality is kept where decisions are made, cost trimmed only where the work is mechanical. See `subagent-execution` for the dispatch and reconciliation choreography.
 
 ## Design philosophy
 

@@ -13,17 +13,21 @@ The core principle: **the orchestrator stays thin and coordinates; subagents do 
 
 ## The craft agent team
 
-The `craft` plugin ships seven purpose-built agents covering the pipeline end to end; dispatch to them by name rather than to a generic subagent:
+The `craft` plugin ships nine purpose-built agents covering the pipeline end to end; dispatch to them by name rather than to a generic subagent:
 
-| Agent | Role | Skills it follows | Access |
-|-------|------|-------------------|--------|
-| `craft-planner` | Criteria + ordered, independence-marked plan | `intake` + `planning` | read / write / bash |
-| `craft-architect` | Structure: boundaries, ports, handlers, types | `architecture-design` | **read-only** — design note, no code |
-| `craft-designer` | UI: components + full state inventory | `frontend-design` | **read-only** — design note, no code |
-| `craft-acceptance-tester` | Outer-loop user-level tests + prod-like env | `acceptance-testing` | read / write / bash |
-| `craft-implementer` | Builds one increment in its own worktree | `strict-tdd` + `code-style` | read / write / bash |
-| `craft-reviewer` | Fresh-eyes review of a finished diff | `self-review` | **read-only** — reports, never fixes |
-| `craft-verifier` | Runs the change and gathers evidence | `verification` | read + bash, **no edit** |
+| Agent | Role | Skills it follows | Access | Model |
+|-------|------|-------------------|--------|-------|
+| `craft-planner` | Criteria + ordered, independence-marked plan | `intake` + `planning` | read / write / bash | opus |
+| `craft-architect` | Structure: boundaries, ports, handlers, types | `architecture-design` | **read-only** — design note, no code | opus |
+| `craft-designer` | UI: components + full state inventory | `frontend-design` | **read-only** — design note, no code | opus |
+| `craft-acceptance-tester` | Outer-loop user-level tests + prod-like env | `acceptance-testing` | read / write / bash | opus |
+| `craft-implementer` | Builds one increment in its own worktree | `strict-tdd` + `code-style` | read / write / bash | opus |
+| `craft-reconciler` | Merges parallel increment branches back | *(git integration)* | read + bash, **no edit** | sonnet |
+| `craft-reviewer` | Fresh-eyes review of a finished diff | `self-review` | **read-only** — reports, never fixes | opus |
+| `craft-verifier` | Runs the change and gathers evidence | `verification` | read + bash, **no edit** | haiku |
+| `craft-debugger` | Root-cause investigation of a defect | `systematic-debugging` | read / write / bash | opus |
+
+**Model tiering** is conservative: every agent that writes code or exercises design/decomposition/review judgment runs on the strong model (`opus`); the mechanical evidence-gatherer (`craft-verifier`) runs on `haiku`, and the git-integration role (`craft-reconciler`) on `sonnet`. Quality is kept where it's decided; cost is trimmed only where the work is mechanical.
 
 The read-only posture of the design and review/verify agents is deliberate: an agent that cannot edit is forced to *produce a note or report* rather than quietly writing code or patching what it finds — the thinking-before-building separation for the front of the pipeline, and the fresh-eyes independence at the back.
 
@@ -75,8 +79,8 @@ Include:
 
 ## Reconciling results
 
-- **Implementers:** merge each increment branch back into the work-item branch. Because increments were disjoint, conflicts shouldn't occur; if one does, the plan's independence marking was wrong — treat it as a planning defect, not something to paper over with a manual merge.
-- **Reviewer / verifier:** collect their findings. Any defect sends you back to `strict-tdd` — write a failing test that reproduces it, then fix. Never hand-patch a finding without a test.
+- **Implementers → reconciler:** dispatch a `craft-reconciler` to merge each increment branch back into the work-item branch. Because increments were disjoint, conflicts shouldn't occur; if one does, the plan's independence marking was wrong — the reconciler stops and flags it as a planning defect rather than papering over it with a manual merge, and the orchestrator re-marks the colliding increments dependent and re-sequences them.
+- **Reviewer / verifier:** collect their findings. Any defect sends you back to `strict-tdd` — write a failing test that reproduces it, then fix. Never hand-patch a finding without a test. When the defect's cause isn't obvious, dispatch a `craft-debugger` to find the root cause first (it reproduces, narrows, and confirms one hypothesis at a time, reverting its probes), then hand the confirmed cause to a `craft-implementer` to capture as a failing test and fix.
 - **Then advance** to `finish-work` only when review is clean and verification produced real evidence.
 
 ## When NOT to use subagents
