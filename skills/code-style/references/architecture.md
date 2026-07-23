@@ -85,6 +85,8 @@ type Result<T> =
 
 Rather than returning null and forcing every caller to guard, return a **null object** — a real instance of the type whose behavior is the safe "nothing" case: a `NoDiscount` that subtracts zero, an `AnonymousUser` with no permissions, an empty collection. Callers treat it uniformly; the null check disappears because there's nothing null to check. Where an absence must cross a boundary, use an explicit optional at that boundary and resolve it (to a null object or a handled failure) before it reaches the domain.
 
+Never paper over an absence with a **non-null assertion / null-forgiving operator** (`x!` in TypeScript, `!` in C#, force-unwraps, non-null casts). It suppresses the compiler's nullability check without eliminating the null, so a wrong assumption becomes a runtime crash instead of a caught type error. When the type system says a value may be absent, honor it: narrow it with a guard, resolve it to a null object, return a failure, or model the field as non-nullable at construction so the absence never exists. See the smell entry in `smells.md` for the fixes in detail.
+
 ## Consistent data structures across boundaries
 
 Define common domain data structures and let the externally-facing interfaces (HTTP DTOs, GraphQL types, gRPC messages) mirror them closely. When the wire shapes track the domain shapes, mapping stays trivial and mechanical; when they drift apart arbitrarily, every boundary becomes a translation layer that hides bugs. Keep a single vocabulary of types from the domain outward, adapting only where a protocol genuinely demands it.

@@ -15,7 +15,7 @@ These rules are framework- and language-agnostic; they're about how code should 
 
 **Results over exceptions.** Model expected failure as a returned result that carries success or a named reason for failure. Exceptions are for the truly exceptional — genuinely unrecoverable conditions — not for control flow the caller is expected to handle. A result type makes the failure path visible in the signature; an exception hides it and invites the caller to forget it. See `references/architecture.md` for the result-type shape.
 
-**Avoid nulls; use null objects.** A null is an absence that every caller must remember to check, and forgets. Where a value can be "nothing," prefer a null object — a real instance with safe, do-nothing behavior — or an explicit optional at the boundary, so nulls stay rare and never propagate into the domain.
+**Avoid nulls; use null objects.** A null is an absence that every caller must remember to check, and forgets. Where a value can be "nothing," prefer a null object — a real instance with safe, do-nothing behavior — or an explicit optional at the boundary, so nulls stay rare and never propagate into the domain. **Never suppress an absence with a non-null assertion / null-forgiving operator** (`x!` in TypeScript, `x!` in C#, `!!` casts, force-unwraps) — they silence the compiler without removing the null, so the crash just moves to runtime. Handle the absence: narrow it, resolve it to a null object, or return a failure.
 
 **Names carry meaning.** Variables are nouns. Functions are verbs. Booleans and boolean-returning functions announce themselves: `isActive`, `hasBalance`, `shouldRetry`, `canEdit`. A file's name matches its contents. Full rules and examples: `references/naming.md`.
 

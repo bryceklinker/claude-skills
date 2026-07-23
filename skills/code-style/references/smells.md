@@ -14,6 +14,7 @@ A smell is a surface symptom of a deeper design problem. None is automatically a
 - Mutable state
 - Comments that explain *what*
 - Nulls
+- Non-null assertions (null-forgiving operator)
 
 ## Long method (> 10 lines)
 
@@ -58,3 +59,13 @@ A smell is a surface symptom of a deeper design problem. None is automatically a
 ## Nulls
 
 **Smell:** methods returning null; callers guarding with null checks; nulls flowing into the domain. **Why it hurts:** every null is a check someone will forget, and the failure surfaces far from the cause. **Fix:** return null objects or empty collections for the "nothing" case; use an explicit optional at the boundary and resolve it before the value enters the domain (`architecture.md`). The aim is that null checks become rare because nulls are rare.
+
+## Non-null assertions (null-forgiving operator)
+
+**Smell:** a non-null assertion used to silence the type checker about a possible absence — TypeScript's `x!` and `!` postfix, C#'s `!` null-forgiving operator, force-unwraps, or a cast that asserts non-null. **Why it hurts:** it doesn't remove the null, it removes the *warning about* the null. The type system was telling you a value can be absent, and the operator overrides that judgment with your unverified word; when you're wrong, the null-safety net you were handed is gone and the failure resurfaces at runtime — a `NullReferenceException` / `undefined is not an object` far from where the assumption was made. It's the null smell made invisible. **Fix:** treat the compiler's nullability warning as correct and handle the absence honestly:
+- **Narrow it** — a guard clause or early return that proves non-null to the type checker, so no assertion is needed.
+- **Resolve it to a null object** or a sensible default before use, so there is genuinely nothing null to assert.
+- **Return a failure** (result type) when absence is an expected outcome the caller must handle.
+- **Fix the type** — if a field is truly always present, model it as non-nullable at construction rather than asserting it at every use.
+
+The one narrow exception is a *test* asserting a value must exist to make the failure obvious (`expect(x).toBeDefined()` then use), and even there prefer the assertion library's own non-null helper. In production code, an `!` is a bug the compiler already found and you told it to ignore.
