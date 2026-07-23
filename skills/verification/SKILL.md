@@ -13,7 +13,7 @@ The discipline is simple and absolute: **assertions of success must be backed by
 
 ## What to verify
 
-Verify against the **acceptance criteria** from `intake`, not against a vague sense that things look fine. For each criterion, produce evidence that the behavior it describes actually happens.
+Verify against the **acceptance criteria** from `intake`, not against a vague sense that things look fine. For each criterion, produce evidence that the behavior it describes actually happens. Use the project's configured commands — `commands.test`, `commands.acceptance`, `commands.run` from `.craft.yml` (see `project-conventions`) — rather than guessing how this repo runs its suite or app.
 
 1. **The full test suite passes, with pristine output.** Run it — all of it, not just the new tests. Read the output: green, no new warnings, no skipped tests quietly hiding failures. A suite you didn't just run is a suite you're guessing about.
 

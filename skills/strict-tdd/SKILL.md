@@ -9,6 +9,8 @@ description: "Use when implementing ANY increment of production code — feature
 
 Write one failing test. Watch it fail for the right reason. Write the minimum code to pass. Watch it pass. **Commit the green — then** refactor, production *and* test code, and commit that separately. Then the next test. The order matters: green is committed before any refactoring, so it's always a point you can fall back to.
 
+Run the suite with the project's `commands.test` from `.craft.yml` (see `project-conventions`) — the fast inner-loop unit command, not the acceptance suite — so "run it" means the right thing on this repo.
+
 **If you didn't watch the test fail, you don't know that it tests anything.** A test written after the code passes immediately, which proves nothing — not that the behavior is right, not that the test would ever catch a regression.
 
 ## The iron law

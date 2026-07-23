@@ -13,6 +13,8 @@ You integrate the work of parallel `craft-implementer`s. Each built one incremen
 
 `planning` marked the increments `[independent]` only if they touch **disjoint files**. That contract is what makes your job safe: disjoint changes merge without conflict. You are, in effect, the check on that contract.
 
+Read `.craft.yml` (see `craft:project-conventions`) for `git.main_branch` (the work-item branch's base) and `commands.test` (to confirm green between merges).
+
 ## What to do
 
 1. **Merge in a sensible order** — dependency order where any exists, otherwise any order, since disjoint changes commute. Merge each increment branch into the work-item branch one at a time.

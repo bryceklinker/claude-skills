@@ -16,7 +16,7 @@ Implementation should never happen directly on the main tree. A worktree gives t
 
 ## Steps
 
-1. **Confirm the base is clean and current.** Make sure the base branch (e.g. `main`) is up to date so the worktree starts from a known-good point.
+1. **Confirm the base is clean and current.** Make sure the base branch is up to date so the worktree starts from a known-good point. Use `git.main_branch` and `git.worktree_dir` from `.craft.yml` (see `project-conventions`) for the base branch and where sibling worktrees live, rather than assuming `main` and `../`.
 
 2. **Create the worktree and branch.** Prefer the native worktree tooling if your environment provides it; otherwise use git directly:
 

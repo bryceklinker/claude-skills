@@ -43,7 +43,7 @@ To make the core concrete before you dive into references, a sketch of what "goo
 ## Using this skill
 
 - **While writing (inside `strict-tdd`'s refactor step):** apply the core rules and pull up the relevant reference when a specific decision arises.
-- **As a pre-commit gate:** scan the diff against the core rules and the smell list. A commit that adds a comment-that-explains-what, a mutable-by-default structure, a thrown exception for an expected failure, or a method over ~10 lines isn't ready.
+- **As a pre-commit gate:** scan the diff against the core rules and the smell list, and run the project's `commands.lint` and `commands.format_check` from `.craft.yml` (see `project-conventions`) — the linter enforces mechanically what this page enforces by judgment. A commit that adds a comment-that-explains-what, a mutable-by-default structure, a thrown exception for an expected failure, or a method over ~10 lines isn't ready.
 - **During `self-review`:** the reviewer checks the whole diff against `references/smells.md` explicitly.
 
 The point of the strictness is not conformity for its own sake — it's that each rule removes a recurring source of bugs or friction, and applying them by reflex frees attention for the actual problem. When a rule genuinely fights the problem in front of you, that tension is worth a conscious note (a *why* comment is literally the escape hatch), not a silent abandonment of the style.

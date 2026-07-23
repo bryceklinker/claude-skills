@@ -20,7 +20,7 @@ intake → design (architecture / frontend, as needed) → planning → worktree
 ```
 
 - The first command registers this repo's marketplace (`.claude-plugin/marketplace.json`).
-- The second installs the `craft` plugin, which makes all fifteen skills and nine agents available.
+- The second installs the `craft` plugin, which makes all sixteen skills and nine agents available.
 
 Verify the skills loaded with `/plugin` (they appear under the `craft` plugin) — `dev-workflow` triggers automatically the moment you start any feature, bugfix, or refactor.
 
@@ -57,6 +57,7 @@ To install from a local checkout instead (for development), point the marketplac
 | `systematic-debugging` | Find a defect's root cause by disciplined investigation — reproduce, narrow, confirm one hypothesis at a time — before changing anything. The front half of the defect loop. |
 | `dependency-maintenance` | The sibling lane for version/tooling updates dev-workflow excludes: one update per commit, read the changelog, run unit + acceptance suites. |
 | `subagent-execution` | Dispatch independent increments in parallel and run fresh-eyes review/verify, without breaking discipline. |
+| `project-conventions` | Record this project's concrete commands (test, acceptance, run, lint, DB) in a committed `.craft.yml` so the generic skills read them instead of guessing. The portability layer. |
 
 ## Agent team
 
@@ -91,3 +92,4 @@ The suite encodes one opinionated methodology: Clean Code, Fowler's *Refactoring
 - **No comments except to explain *why* awkward code exists.**
 - **CQRS by default** — commands and queries, never a growing `Service`/`Manager`. Commands may return the data the caller needs; queries never mutate.
 - **Every feature/bug goes through the full pipeline** — including the "simple" ones.
+- **Portable by design.** The skills never hardcode commands; a committed `.craft.yml` per repo states the concrete ones (test, acceptance, run, lint, DB, base branch) and every skill/agent reads it. The discipline is universal; the commands are per-project.

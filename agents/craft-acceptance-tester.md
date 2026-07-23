@@ -19,7 +19,7 @@ Invoke and follow `craft:acceptance-testing`. The core rules:
 
 ## The environment is yours to own
 
-Follow `craft:acceptance-testing`'s `references/environment.md`. Stand up a deployment indistinguishable from production *to the app itself*:
+Follow `craft:acceptance-testing`'s `references/environment.md`, and read `.craft.yml` (see `craft:project-conventions`) for the project's `acceptance_env` (up/down commands, database engine, external fakes, base URL) and `commands.acceptance`. Stand up a deployment indistinguishable from production *to the app itself*:
 
 - **Run what ships** — the real built artifact/image, real config, real entry point. Never an in-process test host or a special test build.
 - **A real database** — same engine as production, in a container (Compose/Testcontainers-style) with real migrations applied, or a deployed instance. Never SQLite-for-Postgres or an in-memory provider.

@@ -48,7 +48,7 @@ Put plainly: `strict-tdd` asks *"can the real thing run deterministically in-pro
 ## How to use it (the outer-loop procedure)
 
 1. **Derive the acceptance test from the agreed criteria.** Take the Given/When/Then criteria from `intake` and write them as executable user-journey tests. One test per meaningful flow; assert only on user-observable outcomes.
-2. **Stand up the production-like environment.** Compose the app, a real database, and any external fakes (see `references/environment.md`). Apply real migrations. Confirm the app is reachable through its real interface.
+2. **Stand up the production-like environment.** Compose the app, a real database, and any external fakes (see `references/environment.md`). Use the project's `acceptance_env` and `commands.acceptance` from `.craft.yml` (see `project-conventions`) — the `up`/`down` commands, the database engine, the external fakes — rather than inventing them. Apply real migrations. Confirm the app is reachable through its real interface.
 3. **Watch the acceptance test FAIL.** Run it against the environment before the feature exists. It must fail for the right reason — the behavior is missing, not the harness is broken. A red you never saw is not a spec.
 4. **Leave it red and hand off to the inner loop.** `strict-tdd` builds the increments from `planning`, each with its own unit red-green-refactor. The acceptance test stays red throughout — that's expected; it's the target.
 5. **Drive it green.** As increments land, periodically re-run the acceptance test. When the feature is believed done, it must pass against the real deployment. That green is the feature-level proof.

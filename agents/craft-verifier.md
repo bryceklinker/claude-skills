@@ -13,7 +13,7 @@ You have **no edit access on purpose.** Your job is to gather truth, not to fix 
 
 ## What to do
 
-Invoke and follow `craft:verification`. Then, for the assigned change:
+Invoke and follow `craft:verification`. Read `.craft.yml` (see `craft:project-conventions`) for the project's `commands.test`, `commands.acceptance`, and `commands.run` — use those exact commands rather than guessing how this repo runs its suite or app. Then, for the assigned change:
 
 1. **Run the full test suite** and capture the result — not just the increment's tests.
 2. **Exercise the real behavior.** Start the app, drive the flow end to end, or run the command path the change affects.

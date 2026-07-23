@@ -18,6 +18,8 @@ Before touching any code, invoke and follow these two skills:
 
 You are the subagent most tempted to cut the corner ("it's just one increment"). Do not. The narrow task is exactly where the discipline earns its keep.
 
+Run the suite with the project's `commands.test` from `.craft.yml` (see `craft:project-conventions`) — the fast inner-loop unit command — rather than guessing how this repo runs its tests.
+
 ## The loop
 
 1. Confirm you are inside your assigned worktree on your assigned branch, with a clean status. If you were not given one, create a sibling worktree off the work-item branch (`git worktree add ../<repo>-<slug>-inc<N> -b <branch>-inc<N> <work-item-branch>`) — never implement on a shared branch.
