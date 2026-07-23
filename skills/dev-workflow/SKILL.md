@@ -11,6 +11,8 @@ Every change to production code — a feature, a bugfix, a refactor, a "tiny" tw
 
 The reason for a single enforced path is simple: the failures that cost the most — building the wrong thing, untested code, style drift, regressions — all come from skipping a phase because it "felt unnecessary this time." The pipeline removes that decision. There is no fast lane, because the fast lane is where the bugs live.
 
+**What this pipeline is *not* for:** work that changes no product behavior. Updating dependency or tooling versions, lockfiles, and config drift go through `dependency-maintenance`, a lighter sibling lane — not this pipeline. And when a defect's cause is unknown, `systematic-debugging` finds it first, then feeds the fix back into this pipeline. Both are covered below under "When phases send you backward" and the maintenance lane.
+
 ## The pipeline
 
 ```dot
@@ -95,6 +97,8 @@ See `subagent-execution` for exactly how to parcel the work, what context each s
 ## When phases send you backward
 
 The dashed arrows are normal, not failures. If `self-review` or `verification` finds a defect, you return to `strict-tdd`: write a failing test that reproduces the defect, then fix it. You never patch a defect without a test that would have caught it — that's how the pipeline stays a ratchet that only tightens.
+
+When the defect's cause isn't obvious — a failure you can't yet explain, a flaky test, a regression, a race — don't guess your way back through `strict-tdd`. Use `systematic-debugging` first to find the root cause (reproduce, narrow, confirm one hypothesis at a time), then hand the confirmed cause to `strict-tdd` to capture as a failing test and fix. Debugging finds the cause; the pipeline captures and fixes it.
 
 ## Rationalizations to reject
 

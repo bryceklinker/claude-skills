@@ -20,7 +20,7 @@ intake → design (architecture / frontend, as needed) → planning → worktree
 ```
 
 - The first command registers this repo's marketplace (`.claude-plugin/marketplace.json`).
-- The second installs the `craft` plugin, which makes all thirteen skills and seven agents available.
+- The second installs the `craft` plugin, which makes all fifteen skills and seven agents available.
 
 Verify the skills loaded with `/plugin` (they appear under the `craft` plugin) — `dev-workflow` triggers automatically the moment you start any feature, bugfix, or refactor.
 
@@ -54,6 +54,8 @@ To install from a local checkout instead (for development), point the marketplac
 | `self-review` | Fresh-eyes review of the diff against criteria, style, and smells. |
 | `verification` | Run it; evidence before any claim of done. |
 | `finish-work` | Integrate (PR/merge), settle history, remove worktrees. |
+| `systematic-debugging` | Find a defect's root cause by disciplined investigation — reproduce, narrow, confirm one hypothesis at a time — before changing anything. The front half of the defect loop. |
+| `dependency-maintenance` | The sibling lane for version/tooling updates dev-workflow excludes: one update per commit, read the changelog, run unit + acceptance suites. |
 | `subagent-execution` | Dispatch independent increments in parallel and run fresh-eyes review/verify, without breaking discipline. |
 
 ## Agent team
