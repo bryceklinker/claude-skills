@@ -25,7 +25,7 @@ Walk each acceptance criterion from `intake` and find the code and the test that
 ### 2. Code style (is it shaped right?)
 
 Check the diff against `code-style` and its references, especially the `smells.md` catalog. Concretely scan for:
-- Methods over ~10 lines; large classes; a `Service`/`Manager` that should be commands/queries.
+- Methods over ~10 lines; large classes; a `Service`/`Manager`/`Utility` that should be split into operations (input data object + its own handler).
 - Mutable state that could be immutable (the highest-priority check).
 - Comments explaining *what* instead of *why*.
 - Thrown exceptions where a result was expected; nulls where a null object belongs.

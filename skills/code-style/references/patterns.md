@@ -1,27 +1,27 @@
 # Patterns
 
-The patterns worth reaching for in this codebase, and the signal that calls for each. Most patterns are tools you apply when their signal appears — but **CQRS is different: it's the default structure for application logic, adopted up front, not a remedy applied later.** The rest are applied when their signal shows up; a pattern used without its signal is just ceremony.
+The patterns worth reaching for in this codebase, and the signal that calls for each. Most patterns are tools you apply when their signal appears — but **separating a behavior's inputs from its handling is different: it's the default structure for application logic, adopted up front, not a remedy applied later.** The rest are applied when their signal shows up; a pattern used without its signal is just ceremony.
 
 ## Table of contents
-- CQRS — the default structure for application logic
+- Separate inputs from behavior — the default structure for application logic
 - Factory — creating simple data structures / dispatching on type
 - Builder — creating complex data structures
 - Strategy — swapping an algorithm at runtime
 - Repository — abstracting where data lives
 - Unit of Work — one atomic save
 
-## CQRS — the default structure for application logic
+## Separate inputs from behavior — the default structure for application logic
 
-**This is how application logic is organized by default.** Do not create `Service` or `Manager` classes. They start small and always grow — every new bit of behavior gets one more method until the class is an unbounded grab-bag with a dozen reasons to change. Head that off structurally: express each operation as a **message** plus a dedicated **handler**.
+**This is how application logic is organized by default: separate *what* from *how*.** Do not create `Service`, `Manager`, `Utility`, `Helper`, or similarly-named grab-bag classes. They start small and always grow — every new bit of behavior gets one more method until the class is an unbounded pile with a dozen reasons to change. Head that off structurally by splitting every operation into two parts:
 
-### Message + handler — the shape
+- **The inputs — the *what*.** An **immutable data object that captures exactly the data the behavior needs to run** — nothing more. No dependencies, no behavior.
+- **The handling — the *how*.** A **separate, dedicated unit** (a class or function), one per behavior, that holds the collaborators and does the work. It takes the input data and returns a `Result` or the data the caller needs.
 
-Separate the *inputs* of an operation from the *logic* that runs it:
+This separation — inputs are data, handling is a distinct unit — **is the rule**. Don't collapse the two into one class that both carries the inputs and does the work, and don't let a single class accumulate many unrelated operations. The input object is a plain, serializable record of "what was asked"; the handler is where collaborators are injected and the operation executes.
 
-- **The message** (Command or Query) is an **immutable data object that captures the inputs** — nothing more. No dependencies, no behavior. A Command names a state change (`CreateOrderCommand`); a Query names a read (`GetOrderQuery`).
-- **The handler** is a **dedicated class or function, one per message**, that holds the dependencies and does the work: `CreateOrderCommandHandler` handles `CreateOrderCommand`. It takes the message and returns a `Result` (for commands) or the data (for queries).
+### One common shape: message + handler (Command/Query)
 
-This message/handler split is the key structural rule: the message is a plain, serializable record of "what was asked"; the handler is where collaborators are injected and the operation executes. Don't collapse them into one class that both carries inputs and does the work.
+A widely used way to express this separation is a **message + handler** pair — often called CQRS. The message is the input data; the handler runs it. This is a good default *shape*, but it's one instantiation of the rule above, not the only acceptable one.
 
 **C#:**
 ```csharp
@@ -55,15 +55,14 @@ export class CreateOrderCommandHandler {
 }
 ```
 
-A query mirrors this: `GetOrderQuery` (the message) + `GetOrderQueryHandler` with `handle(query): Promise<OrderSummary>`. A handler may be a plain function instead of a class where there's no ceremony to justify one — the message/handler separation is what matters, not whether the handler is a class.
+Under this naming, a *Command* names a state change (`CreateOrderCommand` → `CreateOrderCommandHandler`) and a *Query* names a read (`GetOrderQuery` → `GetOrderQueryHandler`, `handle(query): Promise<OrderSummary>`). The handler may be a plain function rather than a class where there's no ceremony to justify one. **Other shapes honor the same separation equally well** — a use-case/interactor taking a request object, a pure function taking a parameter object and returning a result. Pick the shape that fits; what's non-negotiable is that the inputs are a data object and the handling is a separate unit. The Command/Query names are a convenience, not a requirement.
 
-### Why this is the default rather than a fix-it
-- **One operation, one message, one handler, one reason to change.** Each handler does exactly one thing, so nothing becomes the sprawling class you'd later have to break up. You prevent the growth instead of untangling it.
-- **Read/write intent is explicit.** A Command message means "this mutates"; a Query message means "this only reads." The intent is visible at the call site and in the type.
-- **The message is a clean boundary object.** Because it's just data, it maps directly to an HTTP/GraphQL/gRPC request body, is trivial to construct in tests, and can be logged, queued, or dispatched (e.g. via a mediator) without dragging dependencies along.
-- **Reads and writes evolve independently** — different scaling, caching, and validation needs, cleanly separated.
+### Why separate what from how
+- **One behavior, one input type, one handler, one reason to change.** Each handler does exactly one thing, so nothing becomes the sprawling class you'd later have to break up. You prevent the growth instead of untangling it.
+- **The input is a clean boundary object.** Because it's just data, it maps directly to an HTTP/GraphQL/gRPC request body, is trivial to construct in tests, and can be logged, queued, or dispatched (e.g. via a mediator) without dragging dependencies along.
+- **Intent stays legible.** The handler's name and its single input announce what the operation is; you never hunt through a `Manager` to find which of twenty methods you meant.
 
-**Commands may return data.** A query must never mutate — that separation is firm. But a command handler is allowed to return the data the caller genuinely needs: the id of a created entity, the resulting state, a `Result` carrying success or a named failure. Forcing every command to return nothing (and making callers issue a follow-up query for the id they just created) adds round-trips and complexity for no benefit. The rule is *return what the caller needs, nothing gratuitous* — not *return nothing*. Keep the return value purposeful and small; don't let a command handler double as a general read endpoint.
+**Splitting reads from writes (the CQRS discipline) is a worthwhile *additional* separation when it fits** — a read-only operation and a mutating one have different scaling, caching, and validation needs. Where you adopt it, keep the rule firm: **a query must never mutate.** A write handler, on the other hand, may return the data the caller genuinely needs — the id of a created entity, the resulting state, a `Result` carrying success or a named failure. Forcing every write to return nothing (and making callers issue a follow-up read for the id they just created) adds round-trips for no benefit. The rule is *return what the caller needs, nothing gratuitous* — not *return nothing*. Keep the return value purposeful and small; don't let a write handler double as a general read endpoint.
 
 ## Factory
 
@@ -124,4 +123,4 @@ unitOfWork.begin()
 unitOfWork.commit()   // all-or-nothing
 ```
 
-It keeps transaction boundaries explicit and out of the domain logic, and ensures a partial failure doesn't leave half-written state. Command handlers are the natural home for a Unit of Work — a handler that mutates multiple aggregates wraps them in one.
+It keeps transaction boundaries explicit and out of the domain logic, and ensures a partial failure doesn't leave half-written state. A write handler is the natural home for a Unit of Work — a handler that mutates multiple aggregates wraps them in one.

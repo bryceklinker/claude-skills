@@ -22,7 +22,7 @@ A smell is a surface symptom of a deeper design problem. None is automatically a
 
 ## Large class
 
-**Smell:** a class with many fields/methods and several unrelated reasons to change — classically a `Service` or `Manager`. **Why it hurts:** it violates single responsibility, becomes a merge magnet, and grows without bound. **Fix:** this is exactly what CQRS prevents — split the responsibilities into focused commands and queries (`patterns.md`). Don't refactor a `Manager` into a slightly smaller `Manager`; decompose it into operations.
+**Smell:** a class with many fields/methods and several unrelated reasons to change — classically a `Service`, `Manager`, or `Utility`. **Why it hurts:** it violates single responsibility, becomes a merge magnet, and grows without bound. **Fix:** this is exactly what separating inputs from handling prevents — split the responsibilities into focused operations, each an input data object plus its own handler (`patterns.md`). Don't refactor a `Manager` into a slightly smaller `Manager`; decompose it into operations.
 
 ## Duplicate code
 

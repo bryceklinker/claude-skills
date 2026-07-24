@@ -5,6 +5,14 @@ All notable changes to the `craft` plugin are recorded here. The format follows
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new skills and agents; the pipeline's core discipline stays stable.
 
+## [0.3.0] — 2026-07-23
+
+Reframed the core structural rule from "CQRS by default" to the underlying
+intent it was really enforcing.
+
+### Changed
+- **Separate *what* from *how* (was: CQRS by default).** The rule is now the *input-data/handler separation*: a behavior's inputs are an immutable data object, and the handling lives in a separate, dedicated unit (one operation, one handler) — never a growing `Service`/`Manager`/`Utility`. The message + handler pair (Command/Query, CQRS) is presented as **one common shape and a fine default, not the only acceptable one**; other shapes (use-case/interactor with a request object, a pure function taking a parameter object) honor the same separation. Splitting reads from writes is demoted to a worthwhile *additional* discipline "when it fits" — where adopted, a query still must never mutate and a write handler may return what the caller needs. The `Service`/`Manager`/`Utility` grab-bag ban stays firm. Updated across `code-style` (`references/patterns.md`, `naming.md`, `smells.md`), `architecture-design`, `craft-architect`, `self-review`, `dev-workflow`, `PRINCIPLES.md` (principle 7), and `README.md`.
+
 ## [0.2.0] — 2026-07-23
 
 A large expansion from the initial process skills into a full, portable suite:
@@ -38,5 +46,6 @@ Initial release of the craft process suite.
 - Classicist TDD, clean/hexagonal architecture, CQRS, and a strict house style, with empirically optimized trigger descriptions.
 - Marketplace configuration for installation from the GitHub repo.
 
+[0.3.0]: https://github.com/bryceklinker/claude-skills/releases/tag/v0.3.0
 [0.2.0]: https://github.com/bryceklinker/claude-skills/releases/tag/v0.2.0
 [0.1.0]: https://github.com/bryceklinker/claude-skills/releases/tag/v0.1.0

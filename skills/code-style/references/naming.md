@@ -20,7 +20,7 @@ A function does something, so it starts with a verb: `calculateTotal`, `sendInvo
 
 Command functions (side effect) read as imperatives: `save`, `publish`, `retry`. Query functions (return a value, no side effect) read as questions or noun-returning verbs: `findOrder`, `getBalance`. A **query must never mutate**; a **command may return the data the caller needs** (a created id, a result). The naming still signals intent — an imperative name warns the reader that state changes, a noun/question name promises it doesn't.
 
-For CQRS message/handler pairs (see `patterns.md`), name the handler after its message with a `Handler` suffix: `CreateOrderCommand` → `CreateOrderCommandHandler`; `GetOrderQuery` → `GetOrderQueryHandler`. The message is a noun phrase naming the operation's inputs; the handler's method is the verb (`Handle`/`handle`).
+When you use the message + handler shape (see `patterns.md`), name the handler after its input: name the input for the operation and give the handler a `Handler` suffix — `CreateOrderCommand` → `CreateOrderCommandHandler`; `GetOrderQuery` → `GetOrderQueryHandler`. The input is a noun phrase naming the operation's data; the handler's method is the verb (`Handle`/`handle`). The point is that the input's name says *what* is being asked and the handler's name says *who runs it* — never a `Service`/`Manager`/`Utility` name that says neither.
 
 ## Booleans — announce themselves
 

@@ -46,13 +46,13 @@ To install from a local checkout instead (for development), point the marketplac
 |-------|------|
 | `dev-workflow` | Orchestrator. Entry point for all dev work; enforces the gates; dispatches subagents. |
 | `intake` | Pin down intent, scope, and acceptance criteria. Reproduce bugs first. |
-| `architecture-design` | Decide the shape before slicing: domain boundary, ports/adapters, CQRS handlers, shared types. As needed. |
+| `architecture-design` | Decide the shape before slicing: domain boundary, ports/adapters, operations (inputs + handlers), shared types. As needed. |
 | `frontend-design` | Design the UI before building: component breakdown and a complete state inventory. As needed. |
 | `planning` | Slice work into small, independently testable increments; mark independence for parallelism. |
 | `worktree-setup` | Isolate the work item in its own git worktree before any code. |
 | `acceptance-testing` | Outer-loop ATDD: user-level test against a production-like deployment (real UI+API, real DB, external fakes), written up front and left failing. As needed. |
 | `strict-tdd` | Classicist TDD: no code before red, one test at a time, red→green, commit at green + after refactor, real collaborators over doubles. |
-| `code-style` | Immutability, no *what*-comments, results over exceptions, null objects, small units, clean/hexagonal architecture, CQRS. |
+| `code-style` | Immutability, no *what*-comments, results over exceptions, null objects, small units, clean/hexagonal architecture, inputs-as-data separated from handlers. |
 | `self-review` | Fresh-eyes review of the diff against criteria, style, and smells. |
 | `verification` | Run it; evidence before any claim of done. |
 | `finish-work` | Integrate (PR/merge), settle history, remove worktrees. |
@@ -68,7 +68,7 @@ The plugin ships nine purpose-built subagents so `dev-workflow` can run the pipe
 | Agent | Role | Follows | Access | Model |
 |-------|------|---------|--------|-------|
 | `craft-planner` | Criteria + ordered, independence-marked plan | `intake` + `planning` | read / write / bash | opus |
-| `craft-architect` | Structure: boundaries, ports, CQRS handlers, types | `architecture-design` | read-only — design note, no code | opus |
+| `craft-architect` | Structure: boundaries, ports, operations (inputs + handlers), types | `architecture-design` | read-only — design note, no code | opus |
 | `craft-designer` | UI: component breakdown + full state inventory | `frontend-design` | read-only — design note, no code | opus |
 | `craft-acceptance-tester` | Outer-loop user-level tests + production-like env | `acceptance-testing` | read / write / bash | opus |
 | `craft-implementer` | Builds one increment in its own sibling worktree | `strict-tdd` + `code-style` | read / write / bash | opus |
@@ -98,6 +98,6 @@ The suite encodes one opinionated methodology: Clean Code, Fowler's *Refactoring
 - **Use the real thing wherever it runs deterministically in-process** — including real third-party libraries. Doubles only at genuine external/non-deterministic seams (network, filesystem, clock, randomness).
 - **Immutability by default.** The highest-priority style rule.
 - **No comments except to explain *why* awkward code exists.**
-- **CQRS by default** — commands and queries, never a growing `Service`/`Manager`. Commands may return the data the caller needs; queries never mutate.
+- **Separate *what* from *how*** — a behavior's inputs are an immutable data object; the handling lives in a separate, dedicated unit (one operation, one handler), never a growing `Service`/`Manager`/`Utility`. A message + handler pair (CQRS) is one common shape and a fine default, but the input-data/handler separation is the rule, not the Command/Query names. Where you split reads from writes, a query never mutates and a write handler may return the data the caller needs.
 - **Every feature/bug goes through the full pipeline** — including the "simple" ones.
 - **Portable by design.** The skills never hardcode commands; a committed `.craft.yml` per repo states the concrete ones (test, acceptance, run, lint, DB, base branch) and every skill/agent reads it. The discipline is universal; the commands are per-project.

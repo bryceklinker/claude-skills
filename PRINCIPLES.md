@@ -43,9 +43,9 @@ HTTP, GraphQL, gRPC, the database, the queue — details at the edge. The core d
 
 *Embodied by:* `architecture-design`, `code-style/references/architecture.md`.
 
-## 7. Small, single-purpose units — and messages over managers
+## 7. Small, single-purpose units — separate *what* from *how*
 
-Methods over ~10 lines are a smell; extract until each does one thing at one level of abstraction. Structure behavior as CQRS — an immutable message plus a dedicated handler per operation — rather than a `Service`/`Manager` that only ever grows. Commands may return the data the caller needs; queries never mutate. Isolate branching behind factories and strategies; keep control flow reading top-to-bottom as guard clauses.
+Methods over ~10 lines are a smell; extract until each does one thing at one level of abstraction. Structure behavior by separating *what* from *how*: a behavior's inputs are an immutable data object, and the handling lives in a separate, dedicated unit — one per operation — rather than a `Service`/`Manager`/`Utility` that only ever grows. A message + handler pair (CQRS) is one common shape of this and a fine default, but it's the input-data/handler separation that's the rule, not the Command/Query names. When you do split reads from writes, keep it firm — a query never mutates — while a write handler may return the data the caller needs. Isolate branching behind factories and strategies; keep control flow reading top-to-bottom as guard clauses.
 
 *Embodied by:* `code-style` (+ `references/patterns.md`, `references/smells.md`).
 
