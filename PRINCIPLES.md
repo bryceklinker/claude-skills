@@ -4,7 +4,7 @@ The one place the *why* behind the whole methodology is stated. Individual skill
 
 ## 1. Discipline over the speed that isn't
 
-The failures that cost the most — building the wrong thing, untested code, style drift, regressions — almost always come from skipping a step because it "felt unnecessary this time." There is no fast lane, because the fast lane is where the bugs live. The pipeline removes the per-change decision to skip; the gate is cheap, the missed assumption is not.
+The failures that cost the most — building the wrong thing, untested code, style drift, regressions — almost always come from skipping a step because it "felt unnecessary this time." There is no lane that skips the failing test or the fresh-eyes review, because that's where the bugs live. The pipeline removes the per-change decision to skip; the gate is cheap, the missed assumption is not. The one sanctioned lightening — `dev-workflow`'s in-session follow-up lane — collapses only the *paperwork* of intake and planning for work whose criteria were already agreed this session; it never collapses the test or the review. A lighter path for agreed follow-ups is honest; a fast lane past the tests is the trap.
 
 *Embodied by:* `dev-workflow` and its gates.
 

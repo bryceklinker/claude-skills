@@ -5,6 +5,27 @@ All notable changes to the `craft` plugin are recorded here. The format follows
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new skills and agents; the pipeline's core discipline stays stable.
 
+## [0.4.0] — 2026-08-06
+
+Closed discipline gaps surfaced by real retrospectives on branches built with the
+pipeline (`haus#18`, `#12`, `#17`): the gates that held only "in spirit" but were
+never structurally enforced. No new phases; the existing ones are made harder to
+bypass and cheaper to honor.
+
+### Added
+- **`refactoring` skill** — a first-class home for behavior-preserving structural change. Encodes Fowler's discipline (small steps, tests green throughout, one technique at a time, refactor commits separately), a curated catalog of ~30 named techniques across the six Fowler/refactoring.guru categories with their safe mechanics (`references/techniques.md`), and a smell → technique map. It defers to `strict-tdd` for the green/commit ratchet and to `code-style` for the target style; it owns the named moves between them. Triggers on "refactor/clean up/restructure/simplify/de-duplicate this code" and on smell-finding — behavior-preserving only (a behavior change is still dev-workflow/strict-tdd).
+- **Smell ↔ technique correlation.** Each entry in `code-style/references/smells.md` gained a **Resolve with →** pointer naming the technique that fixes it; `strict-tdd`'s refactor step and `self-review`'s findings now reach for named techniques rather than freehand cleanup. Finding a smell and choosing its fix are one step.
+- **Trigger-eval sets** for the feedback/adjustment phrasings: `dev-workflow` and `strict-tdd` eval sets extended with casual "adjust/change/fix X" should-trigger cases and near-miss should-not-trigger cases (docs/config/comment/rename edits); new `refactoring` trigger-eval set. (Description-optimization loop is run out-of-session via `run_loop.py`.)
+
+### Changed
+- **`dev-workflow` / `strict-tdd` / `self-review` — feedback and adjustments are change requests.** The most common mid-session leak: a request phrased as feedback or "just adjust/change/fix X" went straight to a production edit with no failing test and no review. Added a `STOP-BEFORE-YOU-EDIT` rule (any edit to production code in direct response to a message needs a red test first, `self-review` after), framed around the insight that the failing test also *proves the adjustment was needed*. Extended `strict-tdd`'s trigger/red-flags and `self-review`'s trigger to catch the casual-adjustment and feedback-driven phrasings that previously slipped past both.
+- **`dependency-maintenance` — escalate uncovered work, don't smuggle it.** Rewrote the escalation section to name the three cases a maintenance task pushes into the pipeline (seen in `#12`'s .NET 10 upgrade): an upgrade that forces API-adaptation code (→ `strict-tdd`), replacing a dropped dependency with first-party code (→ full `dev-workflow`, behavior parity as the criterion), and a latent bug the upgrade surfaces (→ `systematic-debugging` then `strict-tdd`, as its own commit — never patched inline in the bump).
+- **`dev-workflow` — in-session follow-up lane.** The intake+plan HARD-GATE was binary, so well-scoped follow-ups during a live work item skipped it *every time* rather than take a path that didn't fit. Added an explicit lane, keyed to an observable predicate (active worktree this session + already-agreed criteria + a bounded, unambiguous ask): it collapses intake to one spoken line and the plan to the increment itself, while `strict-tdd`'s red test, worktree isolation, fresh-eyes `self-review`, and `verification` stay hard. A cold start — even "just quickly" — is never eligible and still starts at phase 1. Rationalization table updated so "too small" points to the lane instead of to a silent skip.
+- **`subagent-execution` / `self-review` — review dispatches go to a fresh agent, never a `fork`.** A fork inherits the author's context (defeating fresh eyes) and carries write access with no barrier against fixing what it should only report — which happened, and initially read as unattributed external edits. Steered review/verify to the read-only `craft-reviewer`/`craft-verifier` with the reasoning stated.
+- **`subagent-execution` — verify a prompted constraint actually held.** A "read-only"/"don't commit" brief is a request, not a boundary. Added a required post-return check (`git status --porcelain` / `git log` on the worktree) before a read-only agent's output is trusted, plus how to recover when it wrote anyway.
+- **`strict-tdd` / `project-conventions` — scoped inner loop vs. full aggregate suite.** Running the whole multi-project unit suite on every change is slow enough that the loop stops being run. The inner loop now runs the narrowest command covering the code under change; the full `commands.test` runs before committing a green and before handoff. `schema.md` clarifies `commands.test` as the aggregate suite the inner loop scopes down from.
+- **`worktree-setup` — verify `cwd` before destructive/environment commands.** A worktree isolates files, not the shell; a `docker compose down` from the main tree tore down production containers. Added a guardrail to confirm `pwd` (or scope commands with `-C` / `-f`) before any teardown or destructive command.
+
 ## [0.3.0] — 2026-07-23
 
 Reframed the core structural rule from "CQRS by default" to the underlying
@@ -46,6 +67,7 @@ Initial release of the craft process suite.
 - Classicist TDD, clean/hexagonal architecture, CQRS, and a strict house style, with empirically optimized trigger descriptions.
 - Marketplace configuration for installation from the GitHub repo.
 
+[0.4.0]: https://github.com/bryceklinker/claude-skills/releases/tag/v0.4.0
 [0.3.0]: https://github.com/bryceklinker/claude-skills/releases/tag/v0.3.0
 [0.2.0]: https://github.com/bryceklinker/claude-skills/releases/tag/v0.2.0
 [0.1.0]: https://github.com/bryceklinker/claude-skills/releases/tag/v0.1.0

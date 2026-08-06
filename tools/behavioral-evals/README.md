@@ -15,6 +15,8 @@ scenarios/          one JSON per scenario: prompt + assertions
   bug-empty-email.json      a bug   (reproduce-first, regression test, minimal fix)
   refactor-orderservice.json a refactor (behavior preserved, decomposed, style improved)
   gate-refusal.json         the gate ("just quickly…" must NOT skip intake+plan)
+  followup-lane.json        the follow-up lane (in-session follow-up takes the lighter lane, still test-first + reviewed)
+  feedback-adjustment.json  feedback is a change request ("adjust X" goes RED-first, not straight to a production edit)
 grade.py            deterministic grader → grading.json (same shape the benchmark aggregator reads)
 run.sh              grade every scenario's produced repo, print a pass/fail table
 ```

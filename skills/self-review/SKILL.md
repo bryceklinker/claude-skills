@@ -1,6 +1,6 @@
 ---
 name: self-review
-description: "Use after implementing increments and before verification or merge — to review the full diff against the acceptance criteria, code-style, and the smell catalog with fresh eyes. Trigger whenever a feature or bugfix's implementation is complete and you're tempted to call it done. Best run as a subagent that did NOT write the code, so the review is unbiased. Invoked by dev-workflow as phase 6."
+description: "Use after implementing increments and before verification or merge — to review the full diff against the acceptance criteria, code-style, and the smell catalog with fresh eyes. Trigger whenever an implementation is complete and you're tempted to call it done — a feature, a bugfix, and just as much a small in-session adjustment or a change made in response to feedback, which skip review most often and need it just as much. Best run as a subagent that did NOT write the code, so the review is unbiased. Invoked by dev-workflow as phase 6."
 ---
 
 # Self-Review — fresh eyes on the diff before it ships
@@ -8,6 +8,8 @@ description: "Use after implementing increments and before verification or merge
 ## Why this exists
 
 The person who wrote the code is the worst-placed to review it: they see what they *meant*, not what's *there*. Self-review is a deliberate mode switch out of authoring and into critique, ideally performed by a fresh agent (see `subagent-execution`) who reads the diff cold. Its job is to catch — before verification and merge — the three things that most often slip through: a criterion left unmet, a style violation, and a design smell.
+
+**If you dispatch this to a subagent, use a fresh, read-only reviewer — never a `fork`.** "Fresh eyes" is the entire mechanism, and a fork inherits the author's context, so it reviews with exactly the bias this phase exists to escape. A fork also carries write access with no barrier against fixing what it finds and committing it — which both defeats the report-don't-patch rule below and quietly corrupts the diff under review. The read-only `craft-reviewer` starts cold and cannot edit; that is the point. `subagent-execution` covers how to dispatch it and how to verify the read-only constraint actually held.
 
 This is not a rubber stamp. A review that finds nothing on a non-trivial diff usually means the review wasn't done, not that the code was flawless.
 
@@ -41,7 +43,7 @@ Check the diff against `code-style` and its references, especially the `smells.m
 
 ## How to report findings
 
-Produce a findings list, each entry keyed to `file:line`, stating the problem and the specific standard it violates. Separate must-fix (a violated rule, an unmet criterion) from suggestions (a judgment call). Be concrete — "extract lines 40–58 into `applyDiscount`; the method is doing validation and calculation" beats "this method is long."
+Produce a findings list, each entry keyed to `file:line`, stating the problem and the specific standard it violates. Separate must-fix (a violated rule, an unmet criterion) from suggestions (a judgment call). Be concrete — "extract lines 40–58 into `applyDiscount`; the method is doing validation and calculation" beats "this method is long." For a smell, name the resolving technique from `refactoring` (its smell → technique map) so the fix is unambiguous — "Extract Function", "Hide Delegate", "Replace Conditional with Polymorphism" — not just "clean this up."
 
 If reviewing as a subagent, return the findings to the orchestrator; don't fix them yourself, so the fix goes back through `strict-tdd`.
 

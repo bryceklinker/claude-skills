@@ -57,7 +57,7 @@ paths:
 
 ## Field reference
 
-- **`commands.test` vs `commands.acceptance`** — the single most important distinction. `test` is the fast, in-process unit suite the inner `strict-tdd` loop and `verification` run constantly. `acceptance` is the slow, out-of-process outer suite that boots the real deployment. Keeping them as separate commands is what lets the pipeline run the fast one often and the slow one deliberately.
+- **`commands.test` vs `commands.acceptance`** — the single most important distinction. `test` is the in-process unit suite the inner `strict-tdd` loop and `verification` run; `acceptance` is the slow, out-of-process outer suite that boots the real deployment. Keeping them separate is what lets the pipeline run the fast one often and the slow one deliberately. `commands.test` names the **full aggregate** unit suite — the one run before committing a green and before handoff. While iterating on a single behavior, `strict-tdd` runs a *narrower slice* of it (one project or test file) so the red→green loop stays fast; that scoped command is derived per-change from where you're working (`dotnet test tests/<Project>.Tests`, `pnpm test <path>`, `cargo test -p <crate>`), not a separate config field. Scope tight to iterate; run the full `commands.test` to commit.
 - **`commands.run`** — how `verification` starts the app to drive a flow by hand when a criterion needs it.
 - **`commands.format_check`** — used as a pre-commit gate by `code-style`; the `_check` variant verifies without modifying so it can fail CI.
 - **`acceptance_env.database`** — the real engine (e.g. `postgres:16`), matching production. Acceptance tests never substitute this with an in-memory or different database.
