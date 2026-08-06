@@ -1,6 +1,6 @@
 ---
 name: dependency-maintenance
-description: "Use to update dependencies and tooling safely — the work dev-workflow deliberately excludes because it changes no product behavior. Trigger whenever bumping package/library versions, updating a lockfile, applying a security/CVE patch, upgrading a framework, runtime, or build tool, or resolving dependency drift. The discipline: one logical update per commit, read the changelog for breaking changes, and run the full unit AND acceptance suites after each so the existing tests prove nothing broke. Not for adding features or changing behavior (that's dev-workflow) — but if an upgrade forces code changes, that portion graduates into the strict-tdd cycle."
+description: "Use to update dependencies and tooling safely — the work dev-workflow deliberately excludes because it changes no product behavior. Trigger whenever bumping package/library versions, updating a lockfile, applying a security/CVE patch, upgrading a framework, runtime, or build tool, or resolving dependency drift. The discipline: one logical update per commit, read the changelog for breaking changes, and run the full unit AND acceptance suites after each so the existing tests prove nothing broke. Not for adding features or changing behavior (that's dev-workflow) — but when an upgrade forces code changes, reimplements a dropped dependency in-house, or surfaces a latent bug, that portion escalates into strict-tdd or the full dev-workflow rather than hiding inside the bump commit."
 ---
 
 # Dependency Maintenance — update without breaking
@@ -30,15 +30,17 @@ Run the suites and checks below with the project's configured commands — `comm
 5. **Confirm the build, lint, and format still pass** under the new versions — toolchain updates especially can shift these.
 6. **Commit the single update** with a message naming the version delta and why (routine bump, security patch + CVE, unblock a feature).
 
-## When an upgrade forces code changes
+## When maintenance uncovers real work — escalate, don't smuggle
 
-Sometimes a major bump changes an API you call, and the code must change to compile or pass. That portion is no longer pure maintenance — it's a behavior-adjacent change, and it **graduates into the strict-tdd cycle**:
+A dependency update stays in this lane only while it changes no behavior. Three things routinely push part of the work *out* of this lane and into the pipeline — and the failure mode every time is smuggling them through inside a "bump" commit instead of escalating them honestly:
 
-- If existing tests now fail because the *contract* changed, adjust them deliberately (understand why the library changed the behavior; don't just make the test green).
-- If you must write new adapter code against the new API, do it test-first via `strict-tdd`.
-- Keep that code change in its own commit, separate from the mechanical bump, so the "update" and the "adapt to the update" are independently reviewable.
+1. **The upgrade forces code changes.** A major bump changes an API you call, so code must change to compile or pass. This portion **graduates into the `strict-tdd` cycle**. If existing tests fail because the *contract* changed, adjust them deliberately — understand why the library changed the behavior, don't just make the test green. New code written against the new API is written test-first. Keep it in its own commit, separate from the mechanical bump, so "update" and "adapt to the update" are independently reviewable.
 
-A large migration (a framework major, a runtime jump) that ripples through the codebase may be big enough to deserve the full `dev-workflow` treatment — intake its scope, plan the increments, do it in a worktree. Use judgment: a routine patch is this lane; a migration that reshapes code is the pipeline.
+2. **You're replacing a dropped dependency with first-party code.** When a library is removed and you reimplement its behavior in-house — it went commercial, was abandoned, or you're deliberately cutting the dependency — that is not maintenance. It's building a feature that happens to preserve an existing contract, and it gets the full **`dev-workflow`** treatment: intake the exact semantics you must match, plan the increments, build it test-first in a worktree. **Behavior parity is the acceptance criterion**, and the old dependency's own tests or docs are where you read that criterion from.
+
+3. **The upgrade surfaces a latent bug.** Building or verifying against new versions often exposes a defect that was there all along. It is *not* part of the bump — resist patching it inline to get the suite green. Route it through **`systematic-debugging`** to find the cause, then **`strict-tdd`** to capture it as a failing test and fix, as its own change with its own commit. A bug fix hidden inside a version-bump commit is invisible to review and impossible to bisect later.
+
+A large migration (a framework major, a runtime jump) that ripples through the codebase may be big enough that the *whole* thing deserves `dev-workflow` — intake its scope, plan the increments, do it in a worktree. Use judgment: a routine patch is this lane; a migration that reshapes code, a dependency you're reimplementing, or a bug you uncovered is the pipeline.
 
 ## Prioritization
 

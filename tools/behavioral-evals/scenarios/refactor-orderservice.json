@@ -12,6 +12,7 @@
     { "text": "No non-null-assertion / null-forgiving operator introduced while refactoring", "check": "no_non_null_assertion" },
     { "text": "Test names follow Given/When/Then (or When/Then) structure", "check": "gwt_test_names" },
     { "text": "The god-class is decomposed into small, single-responsibility units (CQRS handlers, no method doing validation+pricing+discount together)", "check": "judgment", "note": "review: no remaining large multi-responsibility method" },
-    { "text": "Immutability preserved/improved — values returned new rather than mutated in place", "check": "judgment", "note": "review: no new in-place mutation introduced" }
+    { "text": "Immutability preserved/improved — values returned new rather than mutated in place", "check": "judgment", "note": "review: no new in-place mutation introduced" },
+    { "text": "The refactor applied named techniques matched to the smells (e.g. Extract Class / Extract Function for the god-class and long methods, Replace Conditional with Polymorphism for type-branching), not a freehand rewrite", "check": "judgment", "note": "transcript/commits: smells correlated to catalog techniques per the refactoring skill" }
   ]
 }

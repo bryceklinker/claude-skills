@@ -1,6 +1,6 @@
 ---
 name: strict-tdd
-description: "Use when implementing ANY increment of production code — features, bugfixes, refactors, behavior changes — before writing implementation. This is a strict, classicist form of TDD: no code before a failing test, one test at a time, watch it go red then green, commit at green AND after refactor, and use real implementations wherever they run deterministically in-process (no mocking/stubbing your own code OR real in-process libraries; doubles only at genuine external/non-deterministic seams). Trigger it for every increment in the plan. If you're about to write implementation and haven't watched a test fail, stop and use this."
+description: "Use when implementing ANY increment of production code — features, bugfixes, refactors, behavior changes, and adjustments requested as feedback or a casual 'just change/tweak/fix X' — before writing or editing implementation. This is a strict, classicist form of TDD: no code before a failing test, one test at a time, watch it go red then green, commit at green AND after refactor, and use real implementations wherever they run deterministically in-process (no mocking/stubbing your own code OR real in-process libraries; doubles only at genuine external/non-deterministic seams). Trigger it for every increment in the plan. If you're about to edit production code in response to any request — a feature, a bug, or a small adjustment/correction — and you haven't watched a test fail, stop and use this."
 ---
 
 # Strict TDD — the classicist discipline
@@ -9,7 +9,12 @@ description: "Use when implementing ANY increment of production code — feature
 
 Write one failing test. Watch it fail for the right reason. Write the minimum code to pass. Watch it pass. **Commit the green — then** refactor, production *and* test code, and commit that separately. Then the next test. The order matters: green is committed before any refactoring, so it's always a point you can fall back to.
 
-Run the suite with the project's `commands.test` from `.craft.yml` (see `project-conventions`) — the fast inner-loop unit command, not the acceptance suite — so "run it" means the right thing on this repo.
+Run the unit suite from `.craft.yml`'s `commands.test` (see `project-conventions`) — never the acceptance suite in this loop. Two scopes matter, and conflating them is where the discipline quietly erodes:
+
+- **While iterating on one behavior**, run the *narrowest* command that covers the code you're touching — a single project or test file (`dotnet test tests/Haus.Zigbee.Tests`, `pnpm test src/checkout`, `cargo test -p checkout`). This is the tight red→green loop, and it has to be fast enough to run on *every* change without thinking about it.
+- **Before you commit a green, and before you hand off**, run the full `commands.test` unit suite so you know the increment didn't break something outside the file you were watching.
+
+The reason to split them is human, not cosmetic: if "run it" means booting the whole multi-project aggregate suite on every keystroke, it's slow enough that you stop running it — and a red→green loop you don't actually run is no loop at all. Scope tight to move; widen to commit. Neither scope is the acceptance suite.
 
 **If you didn't watch the test fail, you don't know that it tests anything.** A test written after the code passes immediately, which proves nothing — not that the behavior is right, not that the test would ever catch a regression.
 
@@ -53,7 +58,7 @@ Reach green → commit → THEN refactor. Never refactor before the green is com
 
 ### REFACTOR — clean up, staying green
 
-With the green committed, improve the design without changing behavior: remove duplication, sharpen names, extract methods, apply the patterns in `code-style`. **Refactor the test code too** — test code is real code and decays the same way. Duplicated setup, unclear arrange steps, and copy-pasted assertions are smells in a test just as in production. Extract them into the shared test utilities (see `references/test-utilities.md`).
+With the green committed, improve the design without changing behavior: remove duplication, sharpen names, extract methods, apply the patterns in `code-style`. Reach for a **named technique** rather than a freehand cleanup — match the smell to its technique via `refactoring` (its smell → technique map and `references/techniques.md` give the safe, small-step mechanics), keeping the suite green after each step. **Refactor the test code too** — test code is real code and decays the same way. Duplicated setup, unclear arrange steps, and copy-pasted assertions are smells in a test just as in production. Extract them into the shared test utilities (see `references/test-utilities.md`).
 
 Keep the suite green throughout the refactor. If it goes red, the last change was behavior, not refactoring — revert and reconsider.
 
@@ -88,6 +93,7 @@ Refactoring is a behavior-preserving change, so it's covered by existing tests: 
 ## Red flags — stop and restart the cycle
 
 - Production code exists with no test that failed first → delete it, start from RED.
+- You were asked to *adjust / change / fix* existing code and reached for the editor without a failing test → stop. That adjustment is a behavior change; it needs its RED first, and the red test is also what proves the change was actually needed.
 - A test passed the moment you wrote it → it's testing existing behavior or nothing; fix it.
 - You can't say why the test failed → you didn't watch it fail; re-run and read the failure.
 - You doubled something that could have run for real (your code, or a real in-process library) → remove the double, use the real thing or invert the dependency.
@@ -99,6 +105,7 @@ Refactoring is a behavior-preserving change, so it's covered by existing tests: 
 | Excuse | Reality |
 |--------|---------|
 | "Too simple to test" | Simple code still breaks, and the test costs seconds. |
+| "The user asked for a specific change, I'll just make it" | A requested change is a spec for behavior. Write it as a failing test first: that proves the change is needed AND that it's covered. Going straight to the edit is how you "fix" something that wasn't actually broken. |
 | "I'll write the tests after" | Tests-after pass immediately and prove nothing. You never saw them catch anything. |
 | "I'll mock this library to keep the test isolated" | If it runs in-process and deterministically, use it for real. Doubling it tests your mock, not your code. |
 | "I need to mock this, it's my own service" | Ownership isn't the question — determinism is. If it can run here, run it. If it can't, the coupling is the bug. |

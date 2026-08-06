@@ -35,6 +35,7 @@ Implementation should never happen directly on the main tree. A worktree gives t
 - If a worktree for this work item already exists, reuse it — don't spawn duplicates.
 - Never start `strict-tdd` while sitting on the base branch. If you catch yourself about to edit source on `main`, stop and create the worktree first.
 - Keep the worktree focused on one work item. A second unrelated change gets its own worktree.
+- **Verify `cwd` before any destructive or environment command.** A worktree isolates *files* — it does not move your shell. A `docker compose down`, `rm -rf`, `git clean -fdx`, or `git reset --hard` run from the wrong directory (the main tree, or a sibling worktree) hits the wrong target: one such `docker compose down` from the main repo has torn down running *production* containers. Before any command that destroys state or tears down an environment, confirm `pwd` is this worktree — or scope the command explicitly (`git -C <worktree>`, `docker compose -f <this-worktree's-compose-file>`) so it can't reach outside. The isolation guarantee is only as real as the directory you're actually standing in.
 
 ## Exit condition
 

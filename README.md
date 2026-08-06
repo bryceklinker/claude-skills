@@ -53,6 +53,7 @@ To install from a local checkout instead (for development), point the marketplac
 | `acceptance-testing` | Outer-loop ATDD: user-level test against a production-like deployment (real UI+API, real DB, external fakes), written up front and left failing. As needed. |
 | `strict-tdd` | Classicist TDD: no code before red, one test at a time, red→green, commit at green + after refactor, real collaborators over doubles. |
 | `code-style` | Immutability, no *what*-comments, results over exceptions, null objects, small units, clean/hexagonal architecture, inputs-as-data separated from handlers. |
+| `refactoring` | Behavior-preserving structure change: named techniques (Fowler / refactoring.guru catalog), their safe mechanics, and the map from each smell to the technique that resolves it. Defers to `strict-tdd` for green/commit. |
 | `self-review` | Fresh-eyes review of the diff against criteria, style, and smells. |
 | `verification` | Run it; evidence before any claim of done. |
 | `finish-work` | Integrate (PR/merge), settle history, remove worktrees. |

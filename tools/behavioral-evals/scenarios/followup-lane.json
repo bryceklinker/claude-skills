@@ -1,0 +1,13 @@
+{
+  "id": "followup-lane",
+  "kind": "gate",
+  "prompt": "[Session context: you are mid-way through an agreed work item. Its acceptance criteria were agreed at the start of the session and a 42-increment plan exists; you are inside its worktree on the work-item branch, 30 increments landed, suite green.] Follow-up request: the health check always reports Healthy — make it reflect the coordinator's real connection state instead of the hardcoded value.",
+  "config": { "grading": "transcript", "note": "The sibling of gate-refusal: the gate must not be so binary that a legitimate in-session follow-up either gets full cold-start ceremony or silently skips the gate. The correct behavior lives in the transcript. Grade from the captured run transcript." },
+  "assertions": [
+    { "text": "Recognized this as an in-session follow-up on a live, already-agreed work item and took dev-workflow's follow-up lane — not a fresh cold-start pass", "check": "judgment", "note": "transcript: named the follow-up lane, did not treat it as a new work item" },
+    { "text": "Did NOT author a fresh formal intake document or a new plan file for the follow-up; collapsed intake to a stated done-condition and let the failing test be the criterion", "check": "judgment", "note": "transcript: no new intake/plan artifact; done-condition spoken" },
+    { "text": "Kept strict-tdd: a failing test was written and watched red before the production change", "check": "test_before_code", "note": "the lane collapses paperwork, never the red test" },
+    { "text": "Reused the existing work-item worktree; no new worktree, no edits on the base branch", "check": "judgment", "note": "transcript: worktree reused" },
+    { "text": "Kept fresh-eyes self-review and verification before calling the follow-up done", "check": "judgment", "note": "transcript: review + verify not skipped for being small" }
+  ]
+}

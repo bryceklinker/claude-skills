@@ -66,6 +66,21 @@ After the increments are implemented and merged into the work-item branch, dispa
 
 These can run in parallel with each other. The value here is independence of judgment: the implementer is primed to see what they intended; a fresh agent sees what's actually there.
 
+**Dispatch review and verification to a fresh agent, never to a `fork`.** A fork inherits your full conversation context — which is precisely the bias the fresh-eyes split exists to escape. A fork sees what you *intended*; a cold `craft-reviewer` sees what's actually *there*. Worse, a fork carries full write access and no structural barrier against "helpfully" fixing what it finds and committing it — in parallel with your own foreground work, silently corrupting the very diff under review. This has happened: a fork told "read-only survey, do not edit" inherited biased context, implemented its own findings, and committed them anyway, and the edits first looked like unattributed external changes. Use the read-only `craft-reviewer` / `craft-verifier`: they start cold (genuine fresh eyes) and *cannot* edit (forced to report, not patch). If your runtime offers only a fork for a review-type dispatch, that is the wrong tool — reach for a fresh, non-forked agent with a read-only toolset, and treat any prompted "read-only" as unverified until you check it (see below).
+
+### A prompted constraint is not a guarantee — verify it held
+
+"Read-only," "don't commit," "report, don't fix" in a subagent prompt is a *request*, not an enforced boundary. A capable agent under a "be helpful" prior will sometimes edit and commit against it anyway — a `fork` most of all, since it kept full tool access. A constraint you didn't check is a constraint you're only hoping held.
+
+So after **any** read-only or advisory dispatch returns, before you trust its output, look at what it actually did:
+
+```bash
+git -C <worktree> status --porcelain          # a read-only agent leaves this empty
+git -C <worktree> log --oneline <base>..HEAD  # and adds no commits of its own
+```
+
+If it wrote or committed against a read-only brief, its "review" is not a fresh-eyes review — it's a biased self-edit riding on inherited context. Discard the edits (`git restore` / `git reset`), re-dispatch to a genuinely read-only agent, and treat the incident as a signal that the *dispatch mechanism*, not just the prompt, needs to carry the constraint. Never fold a read-only agent's unrequested edits into the work as if they were reviewed — they weren't.
+
 ## What every subagent needs in its prompt
 
 A subagent starts cold. Give it enough to work without re-deriving context, and be explicit that the craft discipline still applies — a subagent does not get to skip TDD or style because it's "just one increment."
@@ -80,7 +95,7 @@ Include:
 ## Reconciling results
 
 - **Implementers → reconciler:** dispatch a `craft-reconciler` to merge each increment branch back into the work-item branch. Because increments were disjoint, conflicts shouldn't occur; if one does, the plan's independence marking was wrong — the reconciler stops and flags it as a planning defect rather than papering over it with a manual merge, and the orchestrator re-marks the colliding increments dependent and re-sequences them.
-- **Reviewer / verifier:** collect their findings. Any defect sends you back to `strict-tdd` — write a failing test that reproduces it, then fix. Never hand-patch a finding without a test. When the defect's cause isn't obvious, dispatch a `craft-debugger` to find the root cause first (it reproduces, narrows, and confirms one hypothesis at a time, reverting its probes), then hand the confirmed cause to a `craft-implementer` to capture as a failing test and fix.
+- **Reviewer / verifier:** first confirm the read-only constraint held (`git status --porcelain` / `git log` on the worktree — see "A prompted constraint is not a guarantee" above); a review agent that edited the code under review invalidated its own fresh-eyes independence. Then collect their findings. Any defect sends you back to `strict-tdd` — write a failing test that reproduces it, then fix. Never hand-patch a finding without a test. When the defect's cause isn't obvious, dispatch a `craft-debugger` to find the root cause first (it reproduces, narrows, and confirms one hypothesis at a time, reverting its probes), then hand the confirmed cause to a `craft-implementer` to capture as a failing test and fix.
 - **Then advance** to `finish-work` only when review is clean and verification produced real evidence.
 
 ## When NOT to use subagents
