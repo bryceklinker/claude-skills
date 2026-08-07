@@ -16,6 +16,14 @@
       "version": "0.1.0",
       "author": { "name": "Bryce Klinker" },
       "keywords": ["tdd", "clean-architecture", "code-style", "workflow", "cqrs", "discipline"]
+    },
+    {
+      "name": "craft-ops",
+      "source": "./craft-ops",
+      "description": "An opinionated DevOps skill suite: a library of domain skills (CI/CD, infrastructure as code, deployment & release, observability & incident response) extending craft's disciplined worldview into operations.",
+      "version": "0.1.0",
+      "author": { "name": "Bryce Klinker" },
+      "keywords": ["devops", "cicd", "continuous-delivery", "infrastructure-as-code", "deployment", "observability"]
     }
   ]
 }
