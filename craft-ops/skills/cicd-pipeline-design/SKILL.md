@@ -15,6 +15,11 @@ It is a **thinking** phase, not a building one. The output is a short design not
 
 Work from the repo's actual build, test, and deploy needs, and settle only what they demand. Each decision below ties back to a principle in `craft-ops/PRINCIPLES.md`.
 
+The seven areas are a **coverage checklist, not a required table of contents.** How much each gets depends on the ask:
+
+- **Designing a whole pipeline** (greenfield, or a redesign): decide all seven — they're all in play.
+- **A targeted change** (reviewing or reorganizing an existing pipeline — reordering stages, fixing a rebuild, tightening one gate): go deep on the areas the change actually touches, and dispatch the rest in a **single one-line "not implicated" note** naming them together. The checklist exists so you don't *silently* skip an area that turns out to matter — a one-liner confirming an area is untouched discharges it completely. A paragraph defending why each unrelated area is unchanged is noise that buries the decision the person actually asked for.
+
 - **Artifact strategy** — the single immutable artifact this pipeline produces, where it's stored, and how it's identified (a content or commit digest, never a mutable tag alone). *Build once.*
 - **Stage ordering for fast feedback** — cheapest and most-likely-to-fail first: lint/format → unit tests → build the artifact → integration/acceptance → deploy. *Fail early.* (see `references/stage-ordering.md`)
 - **The gate map** — which stages are hard automated gates that block the pipeline outright, and which are human promotion gates; where "green main is sacred" stop-the-line applies.
@@ -32,7 +37,8 @@ Save a short design note where the work lives (e.g. `docs/craft-ops/pipelines/YY
 - **YAGNI on stages and environments.** Don't add a stage or an environment "in case" — only what the repo's actual delivery needs demand today.
 - **Never write the pipeline code or configurations here.** If you catch yourself drafting the actual pipeline definition, stop — that belongs to the authoring skill, behind its own review.
 - **Prefer the existing shape.** If a pipeline already fits the conventions, the right design note is short: confirm it, note the one thing that changed, and move on. Not every change needs a redesign.
+- **Match the note's length to the change.** A targeted fix gets a targeted note — depth on the implicated areas, one line for the rest. If you find yourself writing a full section explaining why an area the ask never touched is "unchanged," collapse it into the one-line not-implicated note. Length signals importance; padding every area to equal weight hides which decision actually mattered.
 
 ## Exit condition
 
-A written pipeline design note covering all seven checklist items — artifact strategy, stage ordering, gate map, promotion flow, reproducibility seams, secrets & config boundary, and evidence of done — each with its *why*. Hand off to the (future) `pipeline-authoring` skill to implement it.
+A written pipeline design note that accounts for all seven checklist items — artifact strategy, stage ordering, gate map, promotion flow, reproducibility seams, secrets & config boundary, and evidence of done — with the implicated ones decided in depth (each with its *why*) and any the change doesn't touch acknowledged in a single one-line not-implicated note. Nothing silently skipped; nothing padded. Hand off to the (future) `pipeline-authoring` skill to implement it.
