@@ -74,7 +74,7 @@ Given a choice, prefer tools not bound to one cloud — Terraform, OpenTofu, Pul
 
 ### 10. State the why; keep the escape hatch
 
-Inherited verbatim from craft: every strict rule here is legible rather than dogmatic because it comes with its reason, and when a rule genuinely fights the problem in front of you, that tension is worth a conscious, recorded note — not a silent abandonment of the discipline.
+Every strict rule here is legible rather than dogmatic because it comes with its reason. When a rule genuinely fights the problem in front of you, that tension is worth a conscious, recorded note — not a silent abandonment of the discipline. The rules are strict so that applying them by reflex frees attention for the actual problem in front of you. *(craft: state the why; keep the escape hatch.)*
 
 ## Coming domains
 

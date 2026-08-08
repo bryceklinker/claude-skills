@@ -2,8 +2,9 @@
 
 A sibling to [`craft`](../README.md): a library of opinionated DevOps skills, not a
 pipeline. There is no orchestrator here — reach for the skill whose domain concern
-is in front of you (CI/CD today; infrastructure, deployment, and observability as
-the suite grows) and it produces a short, principled design note for that concern.
+is in front of you (CI/CD and Infrastructure as Code today; deployment and
+observability as the suite grows) and it produces a short, principled design note
+for that concern.
 
 ## Installation (Claude Code)
 
@@ -57,6 +58,15 @@ a *thinking* skill: it produces a design note, never the pipeline code or
 configuration itself. That authoring step is left to the future
 `pipeline-authoring` skill, behind its own review.
 
+`infrastructure-design` decides the shape of infrastructure before anything is
+provisioned — or reviews infrastructure code already in place: resource tiering
+(disposable versus durable), module boundaries, environment parity through
+inputs, the state backend, drift handling, and the least-privilege boundary for
+apply-time credentials — each decision tied back to a principle. It is
+deliberately a *thinking* skill: it produces a design note, never the
+infrastructure code or configuration itself. That authoring step is left to the
+future `infrastructure-authoring` skill, behind its own review.
+
 ## Design philosophy
 
 The suite's rationale lives in [`PRINCIPLES.md`](PRINCIPLES.md) — the canonical
@@ -70,6 +80,6 @@ standing on its own, so `craft-ops` never requires `craft` to be installed.
 
 `craft-ops` reads its own `.craft-ops.yml` — never `craft`'s `.craft.yml`. This
 keeps the plugin installable and usable on its own, without any dependency on
-`craft`'s conventions file or its schema. `cicd-pipeline-design` reads
-`.craft-ops.yml`, when present, for a repo's build/test commands and target
-environments.
+`craft`'s conventions file or its schema. The craft-ops design skills —
+`cicd-pipeline-design` and `infrastructure-design` — read `.craft-ops.yml`, when
+present, for a repo's build/test commands and target environments.
