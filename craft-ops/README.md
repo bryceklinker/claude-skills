@@ -44,7 +44,8 @@ at the repo path:
 |--------|-------|--------|
 | CI/CD pipelines | `cicd-pipeline-design` | Built |
 | CI/CD pipelines | `pipeline-authoring` (writes the definition) | Planned |
-| Infrastructure as Code | — | Planned |
+| Infrastructure as Code | `infrastructure-design` | Built |
+| Infrastructure as Code | `infrastructure-authoring` (writes the config) | Planned |
 | Deployment & release | — | Planned |
 | Observability & incident response | — | Planned |
 

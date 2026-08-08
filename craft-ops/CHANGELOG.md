@@ -5,6 +5,25 @@ All notable changes to the `craft-ops` plugin are recorded here. The format foll
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new domains and skills; the suite's core discipline stays stable.
 
+## [0.2.0] — 2026-08-08
+
+### Added
+- **Infrastructure as Code principles** — a new `## Infrastructure as Code`
+  section in `PRINCIPLES.md`: declarative desired state, idempotent &
+  convergent, immutable where disposable and protected where durable, review
+  before apply (catching a destroy/replace of a durable resource), state as
+  shared/locked/sensitive, no manual drift, small composable modules with
+  environment parity through inputs, least privilege with secrets never in
+  code or state, preferring portable cloud-agnostic tooling, and the same
+  state-the-why/escape-hatch discipline as the CI/CD principles.
+- **`infrastructure-design` skill** — decides an infrastructure change's shape
+  before anything is applied. Ships with three references:
+  `references/state-and-modules.md`, `references/review-before-apply.md`, and
+  `references/resource-tiers.md`.
+- **README domain table** — Infrastructure as Code marked `Built` with the
+  `infrastructure-design` skill; the future `infrastructure-authoring` skill
+  (writes the config) added as a `Planned` row.
+
 ## [0.1.0] — 2026-08-06
 
 Initial release of the craft-ops DevOps suite, covering the CI/CD domain first.
@@ -30,4 +49,5 @@ Initial release of the craft-ops DevOps suite, covering the CI/CD domain first.
   `.claude-plugin/marketplace.json`, installable independently via
   `/plugin install craft-ops@craft-marketplace`.
 
+[0.2.0]: https://github.com/bryceklinker/claude-skills/releases/tag/craft-ops-v0.2.0
 [0.1.0]: https://github.com/bryceklinker/claude-skills/releases/tag/craft-ops-v0.1.0
