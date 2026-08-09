@@ -44,7 +44,7 @@ at the repo path:
 | Domain | Skill | Status |
 |--------|-------|--------|
 | CI/CD pipelines | `cicd-pipeline-design` | Built |
-| CI/CD pipelines | `pipeline-authoring` (writes the definition) | Planned |
+| CI/CD pipelines | `pipeline-authoring` | Built |
 | Infrastructure as Code | `infrastructure-design` | Built |
 | Infrastructure as Code | `infrastructure-authoring` (writes the config) | Planned |
 | Deployment & release | `deployment-design` | Built |
@@ -81,6 +81,25 @@ built, diagnose with method (deferring root-cause mechanics to craft's
 `systematic-debugging`), verify resolution on the real signal, and close with
 a blameless postmortem that ratchets — a tracked action item and a new test or
 alert every time.
+
+## Agents
+
+Two agents dispatch the design and authoring skills above as a team, mirroring
+how `craft` splits planning from implementation. Authoring skills are named
+generically and defer the production loop to `craft` — they degrade
+gracefully when `craft` isn't installed, falling back to running the
+discipline directly rather than failing outright.
+
+- **`craft-ops-designer`** — runs the matching `-design` skill
+  (`cicd-pipeline-design`, `infrastructure-design`, `deployment-design`, or
+  `observability-design`) for a given domain and writes the resulting design
+  note. It is read-only over the target system: no pipeline code, IaC,
+  rollout automation, or instrumentation comes out of it.
+- **`craft-ops-author`** — turns a design note into the real code or config,
+  in its own worktree, under `craft`'s production discipline: non-trivial
+  step logic is extracted into script files and driven through
+  `strict-tdd`, the declarative glue is proven by `verification`, and both
+  are reviewed and checked the way `craft`'s reviewer and verifier already do.
 
 ## Design philosophy
 

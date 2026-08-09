@@ -5,6 +5,36 @@ All notable changes to the `craft-ops` plugin are recorded here. The format foll
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new domains and skills; the suite's core discipline stays stable.
 
+## [0.5.0] — 2026-08-09
+
+### Added
+- **`pipeline-authoring` skill** — turns a `cicd-pipeline-design` note into the
+  real pipeline-as-code and its step scripts: build once and promote the same
+  artifact, pinned/hermetic/idempotent steps, no secrets in the definition, DRY
+  across stages, fail-fast ordering matching the design. It is the first
+  `-authoring` skill to write real code, so it draws a hard line on how that
+  code gets proven: prefer script files over inline scripts, so non-trivial
+  step logic is never buried un-testable in the pipeline definition; and a
+  production-discipline split where extracted logic (scripts, generators,
+  policy code) goes through TDD while the declarative pipeline glue is proven
+  by verification — running the real pipeline against a test artifact. Both
+  halves defer to `craft`'s `strict-tdd` and `verification` skills rather than
+  reimplementing them, named generically so the skill degrades gracefully
+  without `craft` installed. Ships with two references:
+  `references/pipeline-as-code-hygiene.md` and
+  `references/testing-and-verifying-pipelines.md`.
+- **`craft-ops-designer` and `craft-ops-author` agents** — a new
+  `craft-ops/agents/` directory. `craft-ops-designer` dispatches the matching
+  `-design` skill for a domain and writes the design note, read-only over the
+  target system. `craft-ops-author` turns that note into real code/config in
+  its own worktree, extracting non-trivial step logic under `craft`'s
+  `strict-tdd`, verifying the declarative glue by running it, and reusing
+  `craft`'s reviewer and verifier agents where present — falling back to their
+  underlying skills directly when they aren't.
+- **README** — the CI/CD row's `pipeline-authoring` skill marked `Built`; a
+  new `## Agents` section describing `craft-ops-designer` and
+  `craft-ops-author`. Plugin version bumped to `0.5.0`.
+
 ## [0.4.0] — 2026-08-09
 
 ### Added

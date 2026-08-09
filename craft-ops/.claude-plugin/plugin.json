@@ -1,7 +1,7 @@
 {
   "name": "craft-ops",
   "description": "An opinionated DevOps skill suite \u2014 a library of domain skills (CI/CD, infrastructure as code, deployment & release, observability & incident response) that extends craft's disciplined worldview into operations. Reach for a skill when that concern is in front of you; no single pipeline.",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "author": {
     "name": "Bryce Klinker"
   },
