@@ -140,7 +140,7 @@ Structured, high-cardinality, correlatable signals — wide events, trace contex
 
 ### 6. Signals cost
 
-Cardinality and retention are a budget, not a free good. Sample and aggregate deliberately rather than emitting everything and hoping the bill sorts itself out. *(craft-ops IaC cost-awareness.)*
+Cardinality and retention are a budget, not a free good. Sample and aggregate deliberately rather than emitting everything and hoping the bill sorts itself out. *(craft-ops IaC 9: lock-in is a deliberate, recorded cost — same discipline, by analogy: spend deliberately, don't default into the bill.)*
 
 *Incident response*
 

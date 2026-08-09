@@ -23,7 +23,7 @@ Every incident has contributing conditions, and they sort into two categories: *
 
 ## The ratchet: action items plus at least one new test or alert
 
-A postmortem is not complete as a document, however accurate its timeline — it has to change something. This is the operational form of the same test-ratchet discipline applies to a codebase: every incident either leaves the system measurably harder to break the same way again, or it was time spent writing an autopsy nobody acts on. Concretely, the review produces:
+A postmortem is not complete as a document, however accurate its timeline — it has to change something. This is the operational form of the same test-ratchet discipline that applies to a codebase: every incident either leaves the system measurably harder to break the same way again, or it was time spent writing an autopsy nobody acts on. Concretely, the review produces:
 
 - **Tracked action items** — each one addressing a specific contributing condition identified above, filed as real, visible work rather than a bullet point that dies at the bottom of a document.
 - **At least one new test or alert that would have caught this incident earlier** — not generic hardening, but something that, had it existed before this incident, would have shortened the time to detection or prevented the incident outright. If the postmortem can't identify one, that's a sign the contributing-conditions analysis didn't go deep enough, not a sign this incident was uniquely uncatchable.

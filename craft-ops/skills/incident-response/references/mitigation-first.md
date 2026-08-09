@@ -26,7 +26,7 @@ Try them in this order because each one is cheaper and more reversible than the 
 
 ## Turn observability up in parallel, not after
 
-While a lever is being pulled, ramp observability up at the same time — raise verbosity, sampling, and trace detail using the levers `observability-design` already built for exactly this moment (see that skill's incident-vs-default settings). This isn't sequenced after mitigation; it happens alongside it, because the facts needed for diagnosis are far easier to capture while the incident is still live than to reconstruct afterward from whatever happened to be logged at default verbosity. Mitigating without also ramping observability up trades away the evidence the postmortem will need, for no additional speed — the two actions don't compete for the same time.
+While a lever is being pulled, ramp observability up at the same time — raise verbosity, sampling, and trace detail using the levers `observability-design` already built for exactly this moment (see `observability-design`'s `observability-levers.md`, which sets each lever's default and incident settings). This isn't sequenced after mitigation; it happens alongside it, because the facts needed for diagnosis are far easier to capture while the incident is still live than to reconstruct afterward from whatever happened to be logged at default verbosity. Mitigating without also ramping observability up trades away the evidence the postmortem will need, for no additional speed — the two actions don't compete for the same time.
 
 ## When roll-forward is genuinely the only path
 

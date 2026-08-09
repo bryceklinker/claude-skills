@@ -9,7 +9,7 @@ description: "Use when an incident is active or imminent — production down, er
 
 Under an active incident, the instinct is to start debugging the interesting puzzle while users are still hurting — chasing root cause on a hunch, digging through logs at default verbosity, treating the outage as a mystery to solve rather than harm to stop. The discipline forces mitigation first, method second, and a review that makes the next occurrence less likely, in that order, every time.
 
-It is a **doing** phase, not a design one. Nothing here is decided under pressure for the first time — the reversible levers, the observability dials, and the debugging method were all designed and built earlier. This skill is the wrapper that reaches for them, in order, while an incident is live.
+It is a **doing** phase, not a design one. Nothing here is decided under pressure for the first time — the reversible levers, the observability dials, and the debugging method were all designed and built earlier. This skill is the wrapper that reaches for them, in order, while an incident is live. Its five phases apply the principles in `craft-ops/PRINCIPLES.md`'s "Observability & incident response" section (mitigate-before-diagnose, blameless, the ratchet, method-not-guesses).
 
 ## Seams
 
