@@ -5,6 +5,40 @@ All notable changes to the `craft-ops` plugin are recorded here. The format foll
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new domains and skills; the suite's core discipline stays stable.
 
+## [0.4.0] — 2026-08-09
+
+### Added
+- **Observability & incident response principles** — a new
+  `## Observability & incident response` section in `PRINCIPLES.md`:
+  observability as a design input and the precondition for safe deployment,
+  alert on symptoms not causes, SLOs and error budgets as the contract,
+  runtime levers that ramp detail up and down without a redeploy, instrumenting
+  for the questions you'll ask under pressure, signals as a cost, mitigate
+  before you diagnose, blameless review, every incident tightening the
+  ratchet, finding the cause with method not guesses, and the same
+  state-the-why/escape-hatch discipline as the other domains.
+- **`observability-design` skill** — decides what a service reveals before
+  anything breaks: SLIs/SLOs and error budget, the signals to emit, symptom-based
+  alerting, the runtime levers (verbosity, sampling, trace detail) that ramp
+  observability up and down without a redeploy, and the health signals
+  `deployment-design`'s gates and rollback decisions consume, plus correlation,
+  cost/retention, and ownership. Ships with three references:
+  `references/observability-levers.md`, `references/slos-and-alerting.md`, and
+  `references/signals-and-cardinality.md`.
+- **`incident-response` skill** — drives the live response as a discipline:
+  declare and assign roles early, mitigate before you diagnose (the reversible
+  levers and observability dials pulled up, not invented under pressure),
+  diagnose with method, verify resolution on the real signal, then a blameless
+  postmortem that ratchets — tracked action items plus at least one new test or
+  alert that would have caught it. Root-cause mechanics are deferred entirely
+  to craft's `systematic-debugging`; this skill owns only the incident
+  wrapper. Ships with three references: `references/incident-command.md`,
+  `references/mitigation-first.md`, and `references/blameless-postmortem.md`.
+- **README domain table** — Observability & incident response marked `Built`
+  with the `observability-design` and `incident-response` skills; the future
+  `observability-authoring` skill (writes the instrumentation/dashboards/alerts)
+  added as a `Planned` row. Plugin version bumped to `0.4.0`.
+
 ## [0.3.1] — 2026-08-09
 
 ### Changed

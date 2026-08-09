@@ -49,7 +49,9 @@ at the repo path:
 | Infrastructure as Code | `infrastructure-authoring` (writes the config) | Planned |
 | Deployment & release | `deployment-design` | Built |
 | Deployment & release | `deployment-authoring` (performs the rollout) | Planned |
-| Observability & incident response | — | Planned |
+| Observability & incident response | `observability-design` | Built |
+| Observability & incident response | `incident-response` | Built |
+| Observability & incident response | `observability-authoring` (writes the instrumentation/dashboards/alerts) | Planned |
 
 `cicd-pipeline-design` decides the shape of a pipeline before anything is wired:
 artifact strategy, stage ordering for fast feedback, the gate map, promotion flow,
@@ -67,6 +69,18 @@ apply-time credentials — each decision tied back to a principle. It is
 deliberately a *thinking* skill: it produces a design note, never the
 infrastructure code or configuration itself. That authoring step is left to the
 future `infrastructure-authoring` skill, behind its own review.
+
+`observability-design` decides what a service reveals before you need it: SLOs
+and error budget, symptom-based alerting, the signals to emit, the runtime
+levers that ramp detail up and down without a redeploy, and the health signals
+`deployment-design`'s gates and rollback decisions consume — each decision
+tied back to a principle. `incident-response` drives the live response itself:
+declare and assign roles early, mitigate before you diagnose with the
+reversible levers `deployment-design` and `observability-design` already
+built, diagnose with method (deferring root-cause mechanics to craft's
+`systematic-debugging`), verify resolution on the real signal, and close with
+a blameless postmortem that ratchets — a tracked action item and a new test or
+alert every time.
 
 ## Design philosophy
 
