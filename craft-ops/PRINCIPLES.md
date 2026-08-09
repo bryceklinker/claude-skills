@@ -76,11 +76,48 @@ Given a choice, prefer tools not bound to one cloud — Terraform, OpenTofu, Pul
 
 Every strict rule here is legible rather than dogmatic because it comes with its reason. When a rule genuinely fights the problem in front of you, that tension is worth a conscious, recorded note — not a silent abandonment of the discipline. The rules are strict so that applying them by reflex frees attention for the actual problem in front of you. *(craft: state the why; keep the escape hatch.)*
 
+## Deployment & release
+
+### 1. Deploy is not release
+
+Shipping the bits (deploy) is decoupled from exposing the behavior (release); a version can run in production without being live to users, gated behind a feature flag or dark-launched. *(expands craft-ops CI/CD principle 5; craft: the domain is independent of how data enters or leaves.)*
+
+### 2. Progressive delivery — widen on a healthy signal
+
+Never flip 100% at once. Expose the new behavior to a small blast radius first — a canary, a ring, a traffic percentage — and widen only as real health signals stay good. *(craft: judgment is independent and rests on evidence.)*
+
+### 3. Rollback-first — never ship what you can't cheaply undo
+
+Every release has a fast, rehearsed way back — roll back or roll forward — decided before the rollout starts, not improvised during an incident. *(craft-ops IaC reversibility / protect-and-migrate.)*
+
+### 4. Health-gated promotion; automatic halt on regression
+
+The rollout advances and aborts on objective signals — error rate, latency, saturation, a key business metric — not a human eyeballing a dashboard. A regression auto-halts and/or auto-rolls-back. *(craft: "done" rests on evidence from the real target.)*
+
+### 5. Backward/forward compatibility across the transition
+
+During a rollout, old and new versions run at once, so each must tolerate the other: expand-contract migrations, N-1 compatible schemas, APIs, and messages. *(craft-ops CI/CD promote-the-same-artifact + IaC migrate-don't-teardown.)*
+
+### 6. Control the blast radius
+
+Rings — internal, then canary, then wider — mean a bad release harms the fewest users and is caught while it's still small.
+
+### 7. Release is a decision; deploy is routine
+
+Deploying artifacts is continuous and automated. Turning a release on and widening it is a deliberate, reversible, owned decision.
+
+### 8. You can only progressively deliver what you can observe
+
+The signals that gate a rollout must exist before the rollout does. *(previews the observability & incident-response domain.)*
+
+### 9. State the why; keep the escape hatch
+
+Every strict rule here is legible rather than dogmatic because it comes with its reason. When a rule genuinely fights the problem in front of you, that tension is worth a conscious, recorded note — not a silent abandonment of the discipline. The rules are strict so that applying them by reflex frees attention for the actual rollout, the actual incident, the actual deadline. *(craft: state the why; keep the escape hatch.)*
+
 ## Coming domains
 
-CI/CD and Infrastructure as Code are the domains craft-ops covers in full. The rest of the suite is scaffolded as one-line stubs today; each gets its own full principles when that domain's skills are built.
+CI/CD, Infrastructure as Code, and Deployment & release are the domains craft-ops covers in full. The rest of the suite is scaffolded as one-line stubs today; each gets its own full principles when that domain's skills are built.
 
-- **Deployment & release** — progressive delivery, rollback-first, deploy decoupled from release. *(stub)*
 - **Observability & incident response** — symptoms over causes, SLOs, blameless and reproducible incident handling. *(stub)*
 
 ---
