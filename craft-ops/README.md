@@ -2,7 +2,7 @@
 
 A sibling to [`craft`](../README.md): a library of opinionated DevOps skills, not a
 pipeline. There is no orchestrator here — reach for the skill whose domain concern
-is in front of you (CI/CD and Infrastructure as Code today; deployment and
+is in front of you (CI/CD, Infrastructure as Code, and Deployment & release today;
 observability as the suite grows) and it produces a short, principled design note
 for that concern.
 
@@ -47,7 +47,8 @@ at the repo path:
 | CI/CD pipelines | `pipeline-authoring` (writes the definition) | Planned |
 | Infrastructure as Code | `infrastructure-design` | Built |
 | Infrastructure as Code | `infrastructure-authoring` (writes the config) | Planned |
-| Deployment & release | — | Planned |
+| Deployment & release | `deployment-design` | Built |
+| Deployment & release | `deployment-authoring` (performs the rollout) | Planned |
 | Observability & incident response | — | Planned |
 
 `cicd-pipeline-design` decides the shape of a pipeline before anything is wired:

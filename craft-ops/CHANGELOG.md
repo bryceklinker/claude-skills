@@ -5,6 +5,29 @@ All notable changes to the `craft-ops` plugin are recorded here. The format foll
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new domains and skills; the suite's core discipline stays stable.
 
+## [0.3.0] — 2026-08-08
+
+### Added
+- **Deployment & release principles** — a new `## Deployment & release`
+  section in `PRINCIPLES.md`: deploy is not release, progressive delivery
+  that widens on a healthy signal, rollback-first (never ship what you
+  can't cheaply undo), health-gated promotion with automatic halt on
+  regression, backward/forward compatibility across the transition,
+  controlling the blast radius, release as a deliberate decision versus
+  deploy as routine, progressive delivery bounded by what you can observe,
+  and the same state-the-why/escape-hatch discipline as the other domains.
+- **`deployment-design` skill** — decides how a release reaches users
+  before the rollout starts: strategy, deploy-vs-release decoupling,
+  rollout steps and blast radius, health gates and abort criteria, the
+  rollback/roll-forward plan, compatibility across the transition, state
+  during rollout, ownership, and evidence of done. Ships with three
+  references: `references/progressive-delivery.md`,
+  `references/deploy-vs-release.md`, and
+  `references/rollback-and-compatibility.md`.
+- **README domain table** — Deployment & release marked `Built` with the
+  `deployment-design` skill; the future `deployment-authoring` skill
+  (performs the rollout) added as a `Planned` row.
+
 ## [0.2.0] — 2026-08-08
 
 ### Added
@@ -49,5 +72,6 @@ Initial release of the craft-ops DevOps suite, covering the CI/CD domain first.
   `.claude-plugin/marketplace.json`, installable independently via
   `/plugin install craft-ops@craft-marketplace`.
 
+[0.3.0]: https://github.com/bryceklinker/claude-skills/releases/tag/craft-ops-v0.3.0
 [0.2.0]: https://github.com/bryceklinker/claude-skills/releases/tag/craft-ops-v0.2.0
 [0.1.0]: https://github.com/bryceklinker/claude-skills/releases/tag/craft-ops-v0.1.0
