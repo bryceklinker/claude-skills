@@ -114,11 +114,59 @@ The signals that gate a rollout must exist before the rollout does. *(previews t
 
 Every strict rule here is legible rather than dogmatic because it comes with its reason. When a rule genuinely fights the problem in front of you, that tension is worth a conscious, recorded note — not a silent abandonment of the discipline. The rules are strict so that applying them by reflex frees attention for the actual rollout, the actual incident, the actual deadline. *(craft: state the why; keep the escape hatch.)*
 
+## Observability & incident response
+
+*Observability*
+
+### 1. Observability is a design input, not an afterthought — and the precondition for safe deployment
+
+Instrument as you build, not after something breaks. A rollout's health gates and rollback decisions can only read the signals observability defined; a behavior with no signal means deployment is flying blind. *(craft-ops Deployment 8 → its precondition.)*
+
+### 2. Alert on symptoms, not causes
+
+Page a human only on user-facing pain — SLO burn — not on every internal cause. Noise is what makes real pages get ignored. *(craft: done rests on evidence from the real target.)*
+
+### 3. SLOs and error budgets are the contract
+
+Define SLIs from the user's perspective, not the system's internals. The error budget they produce is what decides ship-more vs. stabilize — a lived contract, not a dashboard nobody reads.
+
+### 4. Observability has runtime levers — ramp detail up and down without a redeploy
+
+Verbosity, sampling rate, trace/span detail, and debug logging are runtime-adjustable dials — config or flags, scoped as narrowly as possible to a service, route, tenant, or request — so the moment something breaks you turn observation *up* to gather facts instead of guessing, and back *down* when calm to control cost. The dials, their default vs. incident settings, and their cost guardrails are part of the design, not an afterthought bolted on during the incident. *(craft: find the cause with method, not guesses; craft-ops deploy-is-not-release.)*
+
+### 5. Instrument for the questions you'll ask under pressure
+
+Structured, high-cardinality, correlatable signals — wide events, trace context — that let you slice by tenant, version, and route mid-incident. Hopeful dashboards built for calm days don't answer the question you actually have at 3 a.m. *(craft: find the cause with method.)*
+
+### 6. Signals cost
+
+Cardinality and retention are a budget, not a free good. Sample and aggregate deliberately rather than emitting everything and hoping the bill sorts itself out. *(craft-ops IaC cost-awareness.)*
+
+*Incident response*
+
+### 7. Mitigate before you diagnose
+
+Stop user harm first with the reversible lever — roll back the recent deploy, flip the flag off, shed load, fail over — and turn the observability levers up. Root cause comes after the bleeding stops, never before. *(craft-ops Deployment rollback-first.)*
+
+### 8. Blameless
+
+Incidents are system and process failures, not people failures. The review targets the conditions that allowed it to happen, not who was on call when it did.
+
+### 9. Every incident tightens the ratchet
+
+An incident that doesn't change anything will happen again. Each one yields a tracked action item and, wherever possible, a new test or alert that would have caught it. *(craft: every defect becomes a test.)*
+
+### 10. Find the cause with method, not guesses
+
+Reproduce, bisect, one hypothesis at a time, against the ramped-up signals, keeping a written timeline. Guessing under pressure is how a two-hour incident becomes a six-hour one. *(cross-references craft `systematic-debugging`.)*
+
+### 11. State the why; keep the escape hatch
+
+Every strict rule here is legible rather than dogmatic because it comes with its reason. When a rule genuinely fights the problem in front of you, that tension is worth a conscious, recorded note — not a silent abandonment of the discipline. The rules are strict so that applying them by reflex frees attention for the actual incident, the actual outage, the actual deadline. *(craft: state the why; keep the escape hatch.)*
+
 ## Coming domains
 
-CI/CD, Infrastructure as Code, and Deployment & release are the domains craft-ops covers in full. The rest of the suite is scaffolded as one-line stubs today; each gets its own full principles when that domain's skills are built.
-
-- **Observability & incident response** — symptoms over causes, SLOs, blameless and reproducible incident handling. *(stub)*
+CI/CD, Infrastructure as Code, Deployment & release, and Observability & incident response — the four domains originally scoped for craft-ops — are now covered in full. What remains scaffolded is the authoring layer: skills that turn each domain's principles into generated pipeline, infrastructure, deployment, and observability configuration — `pipeline-authoring`, `infrastructure-authoring`, `deployment-authoring`, and `observability-authoring`. Each ships once its authoring work is built.
 
 ---
 
