@@ -1,0 +1,56 @@
+{
+  "skill_name": "deployment-design",
+  "note": "A behavioral eval set for craft-ops/deployment-design. Runs with-skill vs a baseline (no-skill, or a prior skill snapshot when measuring an edit). An assertion earns its place only if a strong model baseline can plausibly FAIL it — otherwise it measures general competence, not the skill's lift. Each prompt records the dimension it discriminates on and why. See README.md.",
+  "evals": [
+    {
+      "id": 0,
+      "eval_name": "payments-full-rollout",
+      "discriminates": "completeness + dependency-readiness — a full rollout has all ten areas in play; baselines reliably drop the quiet ones (roll-forward-vs-rollback criteria, in-flight state, an explicit ownership model, a synthesized evidence-of-done) and under-cover a NEW dependency's capacity/failure-mode.",
+      "prompt": "We're about to ship a big rewrite of our payments service — the new version talks to a new fraud-scoring provider. It's 100% on the old version behind an ALB in EKS. I need to figure out how to roll this out to production traffic safely. Help me plan the release.",
+      "assertions": [
+        "Recommends a progressive-delivery strategy tied to this change's risk profile",
+        "Decouples deploy from release (dark launch / flag for the new fraud provider)",
+        "Gives a concrete stepped rollout progression with population and pace",
+        "Addresses the NEW dependency's operational readiness — capacity/rate-limit headroom for full production volume AND failure mode (fail-open vs fail-closed, timeouts, fallback)",
+        "Defines objective auto-promote/auto-halt health gates with signals and thresholds (not a human watching a dashboard)",
+        "Specifies a rollback AND roll-forward plan decided up front, with when roll-forward beats rollback",
+        "Addresses compatibility across the transition (old and new tolerate each other)",
+        "Addresses in-flight state/data (payments, sessions, sticky routing) while traffic shifts",
+        "Names ownership and the release decision — who starts/advances/aborts; automated vs human widen",
+        "Defines evidence-of-done as more than a finished job: fully live AND health held through 100% AND rollback proven available",
+        "Produces a design note only — no rollout scripts, flag config, or deploy manifests authored",
+        "Attaches a why/rationale to its decisions"
+      ]
+    },
+    {
+      "id": 1,
+      "eval_name": "checkout-autogate-scopedown",
+      "discriminates": "scope-down — the ask is narrow (auto-gate an EXISTING canary, no new dependency). Baselines tend to OVER-deliver: a build-vs-buy tooling survey, a whole rollout plan for the gate, pseudocode that reads as authored rollout code. The skill should go deep on gates and one-line the untouched areas.",
+      "prompt": "Our checkout service already does a canary (internal → 5% → 25% → 100%) with feature flags, but promotion between steps is manual — someone watches Grafana and clicks. I want the gate to be automatic based on error rate and p99 latency. What should the health gates look like?",
+      "assertions": [
+        "Designs concrete health gates: signals (error rate, p99) with thresholds and a per-step observation window",
+        "Defines abort/auto-rollback criteria, not just auto-promotion",
+        "Works within the existing canary steps rather than redesigning the rollout",
+        "Scopes down: deep on the gate ask, no padded sections for unrelated areas",
+        "Does NOT expand a full dependency/operational-readiness section (no new dependency — discharged in a one-line not-implicated note)",
+        "Produces a design note only — no gate config/PromQL/scripts as deliverables",
+        "Attaches a why/rationale to the thresholds and choices"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "timeout-bump-deceptively-simple",
+      "discriminates": "discipline on a change that LOOKS trivial — replaces the old expand-contract prompt (which a capable baseline aces unprompted, 8/8 both, so it measured nothing). A one-line config change to a timeout tempts a baseline to say 'just ship it, maybe monitor.' The skill should force it into a real release: the resource/saturation risk of longer-held connections, a health gate, a rollback, and evidence-of-done — without over-designing a canary empire for a config flip.",
+      "prompt": "We need to raise the HTTP timeout our checkout service uses when calling the payments API from 5s to 30s — it's a one-line config change to stop a handful of checkouts from timing out during slow spells. Can we just ship it with the next deploy, or is there anything to think about for rolling it out?",
+      "assertions": [
+        "Treats the config change as a release that needs a rollout plan, not a fire-and-forget deploy",
+        "Identifies the real risk: longer-held connections/threads under load raise saturation/resource-exhaustion and can enlarge blast radius, not just 'fewer timeouts'",
+        "Prescribes a progressive exposure appropriate to the risk (e.g. flag or partial rollout) rather than 100% at once OR an over-built multi-ring canary for a config flip (scope-matched)",
+        "Names a specific health signal that would prove the change didn't worsen saturation/latency/error budget (evidence-of-done), and a fast rollback (revert the config)",
+        "Considers the dependency interaction with the payments API (its own timeouts/retries/backpressure) rather than the timeout in isolation",
+        "Produces a design note only — does not author the config change or a deploy script",
+        "Attaches a why/rationale to the recommendation"
+      ]
+    }
+  ]
+}
