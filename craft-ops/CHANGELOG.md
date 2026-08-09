@@ -5,6 +5,21 @@ All notable changes to the `craft-ops` plugin are recorded here. The format foll
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new domains and skills; the suite's core discipline stays stable.
 
+## [0.3.1] — 2026-08-09
+
+### Changed
+- **`deployment-design` — added a tenth coverage item, "Dependency & integration
+  readiness."** A behavioral eval surfaced that new-integration rollouts weren't
+  being forced to reason about the new dependency's operational readiness. The item
+  is *conditional* — it fires only when a change introduces or swaps an external
+  dependency (provider, API, queue, datastore), covering its capacity/rate-limit
+  headroom for full production volume and its failure mode (fail-open vs. fail-closed,
+  timeouts, fallback); for a change with no new dependency it's discharged in the
+  one-line not-implicated note, preserving scope-down. Ties to blast-radius control
+  and health-gated abort (`PRINCIPLES.md` Deployment 6 & 4). Re-eval: with-skill
+  100% vs. prior-skill 92% across three prompts, no scope-down regression and no
+  time/token cost.
+
 ## [0.3.0] — 2026-08-08
 
 ### Added
