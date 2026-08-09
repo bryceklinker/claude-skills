@@ -1,0 +1,50 @@
+{
+  "skill_name": "observability-design",
+  "note": "Behavioral eval set for craft-ops/observability-design. with-skill vs baseline (no-skill, or a prior snapshot when measuring an edit). An assertion earns its place only if a strong baseline can plausibly FAIL it. iteration-1 result: with-skill 100% vs baseline 79% (delta +0.21). See ../craft-ops-evals/README.md.",
+  "evals": [
+    {
+      "id": 0,
+      "eval_name": "checkout-greenfield",
+      "discriminates": "completeness + runtime levers — a from-scratch observability ask has all areas in play; a strong baseline covers SLOs/signals/alerting but reliably OMITS runtime observability levers (adjustable without a redeploy). Baseline dropped exactly that in iteration-1 (8/8 vs 7/8).",
+      "prompt": "We're launching a new checkout API on Kubernetes and I want to set up observability from day one. What should we instrument, measure, and alert on?",
+      "assertions": [
+        "Defines user-facing SLIs/SLOs (and an error budget) from the user's perspective, not just resource metrics",
+        "Alerts on symptoms (SLO burn / user pain), explicitly NOT paging on every internal cause or resource",
+        "Specifies signals to emit (logs/metrics/traces) tied to the questions they answer",
+        "Includes RUNTIME observability levers — verbosity/sampling/trace-detail adjustable at runtime WITHOUT a redeploy",
+        "Defines the health signals a deployment's gates/rollback would consume (ties observability to safe deploys)",
+        "Addresses correlation/context — trace/request IDs and high-cardinality keys to slice by tenant/version/route",
+        "Addresses cost/cardinality/retention as a budget (sampling, aggregation)",
+        "Produces a design/plan, not instrumentation code or dashboard/alert configuration as the deliverable"
+      ]
+    },
+    {
+      "id": 1,
+      "eval_name": "levers-no-more-redeploys",
+      "discriminates": "runtime-lever discipline — the prompt hands over the redeploy pain, so even a baseline often reaches for dynamic log levels; the skill's edge is the OPERATIONAL discipline around it (narrow scoping, cost guardrails, auto-revert). Baseline missed the guardrails/auto-revert (6/6 vs 5/6).",
+      "prompt": "Every time we have a production issue with our payments service we end up adding log lines and redeploying to figure out what's happening, which takes 30+ minutes each time. How should we design our observability so we're not flying blind during incidents?",
+      "assertions": [
+        "Identifies runtime-adjustable observability levers (log verbosity, sampling, trace/span detail) that ramp UP WITHOUT a redeploy — directly solving the add-log-lines-and-redeploy loop",
+        "Scopes the levers narrowly (per service/route/tenant/request) so detail is turned up for the blast radius, not the whole fleet",
+        "Includes cost/cardinality guardrails and/or auto-revert so a turned-up lever doesn't become a bill or an outage",
+        "Frames the design around gathering facts fast during an incident, not only steady-state dashboards",
+        "Goes beyond a static 'add more logging/tracing' answer — specifically addresses removing the redeploy-to-see-more loop",
+        "Produces a design/plan, not authored instrumentation code or config as the deliverable"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "canary-gating-signals",
+      "discriminates": "health-signals-for-deployment seam — a baseline lists metrics but often fails to connect them to the canary gating DECISION and to per-version/cohort comparison. Baseline scored 4/6 in iteration-1.",
+      "prompt": "We're moving to canary deploys for our orders service but we don't really have good signals to auto-promote or roll back on. What observability do we need to make canary gating work?",
+      "assertions": [
+        "Defines the specific signals (SLIs) a canary auto-promote/rollback gates on — error rate, latency, saturation, or a key business metric",
+        "Frames the gating signals as SLOs / from the user's perspective, not arbitrary resource metrics",
+        "Explicitly connects observability to the deployment gating decision (the health-signals-for-deployment seam)",
+        "Ensures signals are sliceable per version/cohort so the canary can be compared against a concurrent baseline",
+        "Gates/alerts on symptoms (user pain) rather than causes",
+        "Produces a design/plan, not authored gating config as the deliverable"
+      ]
+    }
+  ]
+}

@@ -47,3 +47,11 @@ confidence.
 | File | Skill | Prompts | Discriminates on |
 |------|-------|---------|------------------|
 | `deployment-design.json` | `craft-ops/skills/deployment-design` | 3 | completeness, scope-down, discipline-on-simple-change |
+| `observability-design.json` | `craft-ops/skills/observability-design` | 3 | completeness, runtime levers, health-signals-for-deployment |
+| `incident-response.json` | `craft-ops/skills/incident-response` | 3 | mitigate-before-diagnose, the ratchet, doctrine |
+
+Measured lift (iteration-1, with-skill vs no-skill baseline, sonnet): deployment-design +0.23,
+observability-design +0.21, incident-response +0.39. incident-response shows the largest lift in
+the suite because its two core moves — mitigate before you diagnose, and a postmortem that mandates
+a new test/alert — genuinely run counter to a capable baseline's instinct (investigate first; write
+a narrative with optional follow-ups).
