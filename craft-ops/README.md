@@ -58,7 +58,7 @@ artifact strategy, stage ordering for fast feedback, the gate map, promotion flo
 reproducibility seams, the secrets/config boundary, and the evidence that proves a
 deploy is actually done — each decision tied back to a principle. It is deliberately
 a *thinking* skill: it produces a design note, never the pipeline code or
-configuration itself. That authoring step is left to the future
+configuration itself. That authoring step is handed off to the
 `pipeline-authoring` skill, behind its own review.
 
 `infrastructure-design` decides the shape of infrastructure before anything is

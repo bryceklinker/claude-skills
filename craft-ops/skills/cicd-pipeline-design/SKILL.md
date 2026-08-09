@@ -9,7 +9,7 @@ description: "Use when setting up CI/CD for a repo, adding or reordering pipelin
 
 A pipeline wired by guesswork rebuilds per environment, leaks secrets into places they shouldn't be, and orders stages so the slowest, least-likely-to-fail check runs first — burning a feedback cycle on every commit. Deciding the shape once, deliberately, against the conventions, makes the authoring that follows mechanical rather than another set of judgment calls.
 
-It is a **thinking** phase, not a building one. The output is a short design note, not pipeline code or configurations — that waits for the (future) `pipeline-authoring` skill, behind its own review.
+It is a **thinking** phase, not a building one. The output is a short design note, not pipeline code or configurations — that is handed off to the `pipeline-authoring` skill, behind its own review.
 
 ## What it decides
 
@@ -41,4 +41,4 @@ Save a short design note where the work lives (e.g. `docs/craft-ops/pipelines/YY
 
 ## Exit condition
 
-A written pipeline design note that accounts for all seven checklist items — artifact strategy, stage ordering, gate map, promotion flow, reproducibility seams, secrets & config boundary, and evidence of done — with the implicated ones decided in depth (each with its *why*) and any the change doesn't touch acknowledged in a single one-line not-implicated note. Nothing silently skipped; nothing padded. Hand off to the (future) `pipeline-authoring` skill to implement it.
+A written pipeline design note that accounts for all seven checklist items — artifact strategy, stage ordering, gate map, promotion flow, reproducibility seams, secrets & config boundary, and evidence of done — with the implicated ones decided in depth (each with its *why*) and any the change doesn't touch acknowledged in a single one-line not-implicated note. Nothing silently skipped; nothing padded. Hand off to the `pipeline-authoring` skill to implement it.
