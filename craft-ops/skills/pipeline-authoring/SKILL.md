@@ -22,7 +22,7 @@ Unlike the `-design` skills, it *does* write code — so it leans on craft to wr
 State it plainly, because the two halves are proven differently:
 
 - **Extracted real logic** — scripts, generators, policy code, anything with a decision or a computation in it — is production code. It goes through craft `strict-tdd`: a failing test first, then the minimal code to pass it.
-- **The declarative pipeline glue** — the stage/job wiring itself — isn't unit-testable in the same sense. It's proven by craft `verification`: run the real pipeline against a test artifact and observe the outcome, not by reasoning about the YAML.
+- **The declarative pipeline glue** — the stage/job wiring itself — isn't unit-testable in the same sense. It's proven by craft `verification`: run the real pipeline against a test artifact and observe the outcome, not by reasoning about the YAML. At minimum — even when no runner is available — **smoke-invoke each extracted script through the exact entrypoint the glue calls** (`python -m ci.promote --help`, `./ci/deploy.sh --dry-run`): the unit tests import the functions directly and never cross that seam, so a wrong module name or broken CLI path passes a green suite and fails on the first real run. See `references/testing-and-verifying-pipelines.md`.
 
 This skill's job is to maximize how much lands on the testable side of that split. Every non-trivial decision pushed out of the glue and into a script is more of the pipeline covered by strict-tdd instead of resting on "it looked right."
 
@@ -50,4 +50,4 @@ Testing and verifying depth — what counts as adequate coverage for extracted l
 
 ## Exit condition
 
-The pipeline definition and its extracted step scripts exist in the repo. The extracted logic is covered by tests written under strict-tdd; the declarative glue has been verified by running the real pipeline against a test artifact and observing the result. Both are committed the craft way — reviewed, no secrets, no dead scaffolding left behind.
+The pipeline definition and its extracted step scripts exist in the repo. The extracted logic is covered by tests written under strict-tdd; the declarative glue has been verified by running the real pipeline against a test artifact and observing the result — and, at minimum, every script the glue calls has been smoke-invoked through the exact entrypoint the pipeline uses, so the wiring-to-code seam is proven connected, not assumed. Both are committed the craft way — reviewed, no secrets, no dead scaffolding left behind.

@@ -6,6 +6,7 @@ A pipeline definition is two different kinds of thing wearing one file extension
 - What counts as logic: unit-test it under strict-tdd
 - What counts as glue: verify it, don't unit-test it
 - Running a verification pass against a throwaway artifact
+- Smoke-invoke each script through the entrypoint the glue calls
 - Shrinking the untestable surface
 
 ## What counts as logic: unit-test it under strict-tdd
@@ -25,6 +26,12 @@ The reason a unit test is the wrong tool here: the wiring has no interesting int
 **Verify the glue by running the actual pipeline definition against a throwaway or test artifact — a scratch branch, a disposable tag, a non-production target — and observing the real outcome: which stages ran, in what order, whether the gate that was supposed to block actually blocked, whether the artifact that came out the other end is the one that went in.** This is evidence, not inspection — reading the YAML and reasoning that it "looks right" is exactly the failure mode verification exists to rule out, the same way reading application code without running its tests would be.
 
 Concretely, that means: trigger the pipeline for real, on infrastructure close enough to production's that the outcome is trustworthy, against an artifact and environment that can be safely discarded or reset afterward. Capture what actually happened — the run's logs, which stages executed, what got promoted where — as the record that verification occurred, not a description of what should have happened. If a gate is supposed to stop a promotion on a failing check, prove it by making the check fail and watching the promotion actually get blocked; a gate that's never been observed rejecting anything is a gate whose enforcement is still just an assumption.
+
+## Smoke-invoke each script through the entrypoint the glue calls
+
+**A script's unit tests import its functions directly; the pipeline invokes it through an entrypoint — `python -m ci.promote`, `./ci/deploy.sh`, a console command. Those are two different call paths, and the unit tests exercise only the first. A wrong module name, a broken argument parser, a renamed file, a missing `__main__` — none of it shows up in a green unit suite, and all of it fails on the first real run.** So the cheapest, most reliable slice of glue verification is to invoke each extracted script exactly the way the pipeline does — `python -m ci.promote --help`, `./ci/deploy.sh --dry-run`, `mytool generate --check` — and confirm the entrypoint resolves and its CLI wiring holds.
+
+This is the one piece of verification you can almost always run even when the full pipeline can't — no CI runner, no registry, no cluster required, just the entrypoint and its argument handling. Do it for every script the glue calls. The point is not to re-test the logic — the unit tests own that — but to prove the *seam* between the wiring and the already-tested code is actually connected. A pipeline whose scripts are all green but whose definition calls `python -m ci.promote` when the module is `ci.promotion` is a pipeline that fails on its first deploy with `ModuleNotFoundError`; a single `python -m ci.promote --help` in the verification pass is what catches it. Whenever a real runner isn't available to verify the full glue, this entrypoint smoke-invocation is the minimum verification that still must happen — it covers exactly the class of break that unit-testing the logic can never see.
 
 ## Shrinking the untestable surface
 

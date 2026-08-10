@@ -5,6 +5,23 @@ All notable changes to the `craft-ops` plugin are recorded here. The format foll
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new domains and skills; the suite's core discipline stays stable.
 
+## [0.5.1] — 2026-08-09
+
+### Changed
+- **`pipeline-authoring` — added entrypoint smoke-invocation to the
+  glue-verification rule.** A behavioral validation (dispatching
+  `craft-ops-author` on a sample design note) surfaced a class of bug the
+  TDD-for-logic / verification-for-glue split didn't explicitly guard:
+  extracted-script unit tests import the functions directly, but the pipeline
+  invokes them through an entrypoint (`python -m ci.promote`), so a wrong
+  module name or broken CLI path passes a green unit suite and fails on the
+  first real run (observed: a definition calling `ci.promote` when the module
+  was `ci.promotion`). `SKILL.md` and
+  `references/testing-and-verifying-pipelines.md` now require smoke-invoking
+  each extracted script through the exact entrypoint the glue calls
+  (`python -m ci.promote --help`, `./ci/deploy.sh --dry-run`) as the minimum
+  glue verification — the one slice runnable even without a CI runner.
+
 ## [0.5.0] — 2026-08-09
 
 ### Added
