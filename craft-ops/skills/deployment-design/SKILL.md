@@ -9,7 +9,7 @@ description: "Use when deciding HOW a new version is released to real traffic, o
 
 A release flipped 100% at once, with no way back, turns a bad version into an outage. Deciding the strategy, the health gates, and the rollback path once, deliberately, against the conventions, makes the rollout that follows mechanical rather than a set of judgment calls made under pressure while traffic is already shifting.
 
-It is a **thinking** phase, not a doing one. The output is a short design note, not rollout code, feature-flag configuration, or a deploy script — that waits for the (future) `deployment-authoring` skill, behind its own review.
+It is a **thinking** phase, not a doing one. The output is a short design note, not rollout code, feature-flag configuration, or a deploy script — that is handed off to the `deployment-authoring` skill, behind its own review.
 
 **Seam with the pipeline:** this skill takes over once `cicd-pipeline-design` has promoted a built artifact into an environment. It does not re-decide artifact strategy, stage ordering, or how an environment is promoted to — that is `cicd-pipeline-design`'s domain. This skill decides what happens to traffic once the artifact is there.
 
@@ -40,11 +40,11 @@ Save a short design note where the work lives (e.g. `docs/craft-ops/deployments/
 ## Guardrails
 
 - **YAGNI on rollout mechanics.** Not every release needs canary rings plus feature flags plus automated health gates — match the mechanism to the actual risk of the change.
-- **Never perform or author the rollout here.** If you catch yourself drafting flag configuration, a deploy script, or the actual rollout automation, stop — that belongs to the (future) authoring skill, behind its own review.
+- **Never perform or author the rollout here.** If you catch yourself drafting flag configuration, a deploy script, or the actual rollout automation, stop — that belongs to the `deployment-authoring` skill, behind its own review.
 - **Prefer the existing shape.** If the release path already fits the conventions, the right design note is short: confirm it, note the one thing that changed, and move on. Not every change needs a redesign.
 - **Match the note's length to the change.** A targeted fix gets a targeted note — depth on the implicated areas, one line for the rest. If you find yourself writing a full section explaining why an area the ask never touched is "unchanged," collapse it into the one-line not-implicated note. Length signals importance; padding every area to equal weight hides which decision actually mattered.
 - **Defer to `cicd-pipeline-design` at the promotion seam.** This skill takes over once an artifact has reached an environment; it does not re-decide artifact strategy, stage ordering, or the pipeline's promotion flow — that's `cicd-pipeline-design`'s domain.
 
 ## Exit condition
 
-A written deployment design note that accounts for all ten checklist items — release strategy, deploy-vs-release decoupling, rollout steps & blast radius, dependency & integration readiness, health gates & abort criteria, rollback/roll-forward plan, compatibility across the transition, state & data during rollout, ownership & the release decision, and evidence of done — with the implicated ones decided in depth (each with its *why*) and any the change doesn't touch acknowledged in a single one-line not-implicated note. Nothing silently skipped; nothing padded. Hand off to the (future) `deployment-authoring` skill to implement it.
+A written deployment design note that accounts for all ten checklist items — release strategy, deploy-vs-release decoupling, rollout steps & blast radius, dependency & integration readiness, health gates & abort criteria, rollback/roll-forward plan, compatibility across the transition, state & data during rollout, ownership & the release decision, and evidence of done — with the implicated ones decided in depth (each with its *why*) and any the change doesn't touch acknowledged in a single one-line not-implicated note. Nothing silently skipped; nothing padded. Hand off to the `deployment-authoring` skill to implement it.

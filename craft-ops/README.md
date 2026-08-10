@@ -48,7 +48,7 @@ at the repo path:
 | Infrastructure as Code | `infrastructure-design` | Built |
 | Infrastructure as Code | `infrastructure-authoring` | Built |
 | Deployment & release | `deployment-design` | Built |
-| Deployment & release | `deployment-authoring` (performs the rollout) | Planned |
+| Deployment & release | `deployment-authoring` | Built |
 | Observability & incident response | `observability-design` | Built |
 | Observability & incident response | `incident-response` | Built |
 | Observability & incident response | `observability-authoring` (writes the instrumentation/dashboards/alerts) | Planned |

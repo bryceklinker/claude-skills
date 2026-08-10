@@ -5,6 +5,36 @@ All notable changes to the `craft-ops` plugin are recorded here. The format foll
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new domains and skills; the suite's core discipline stays stable.
 
+## [0.8.0] — 2026-08-10
+
+### Added
+- **`deployment-authoring` skill** — turns a `deployment-design` note into the
+  real rollout: the progressive-delivery mechanics, feature-flag/toggle
+  wiring, and health-gated promotion the design decided. It draws four hard
+  lines: **author and prove the rollback path** — the revert isn't merely
+  described, it's exercised as part of authoring, never assumed to work
+  because it was written down; **health gates as tested code** — the
+  thresholds that promote or halt a step are gated logic proven the same way
+  as any other production code, never a human eyeballing a dashboard;
+  **extracted scripts over inline** — non-trivial rollout logic (gate
+  evaluation, flag flips, rollback triggers) lives in script files driven
+  through `strict-tdd`, never buried un-testable in the rollout definition;
+  and **deploy decoupled from release** — the authored rollout ships dark by
+  default and exposes behavior only through the flag/toggle the design
+  specified, deploy and release kept as separate, separately-owned actions.
+  Declarative rollout glue is proven by craft's `verification`, with
+  `validate` + an entrypoint smoke-invoke of each extracted script as the
+  always-runnable minimum, mirroring `pipeline-authoring` and
+  `infrastructure-authoring`. Both halves defer to `craft`'s `strict-tdd` and
+  `verification` skills rather than reimplementing them, named generically so
+  the skill degrades gracefully without `craft` installed. Deciding the
+  rollout's shape stays with `deployment-design`; the production loop itself
+  is deferred entirely to `craft`. Ships with two references.
+- **README** — the Deployment & release row's `deployment-authoring` skill
+  marked `Built`; the `deployment-design` prose retargeted from the "(future)
+  `deployment-authoring` skill" to the now-built sibling. Plugin version
+  bumped to `0.8.0`.
+
 ## [0.7.0] — 2026-08-10
 
 ### Added
