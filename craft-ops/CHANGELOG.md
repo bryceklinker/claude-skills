@@ -5,6 +5,33 @@ All notable changes to the `craft-ops` plugin are recorded here. The format foll
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new domains and skills; the suite's core discipline stays stable.
 
+## [0.6.0] — 2026-08-10
+
+### Added
+- **`infrastructure-authoring` skill** — turns an `infrastructure-design` note
+  into the real infrastructure-as-code: it prefers small composable modules
+  over duplicated resource blocks, and draws a hard line that a durable
+  resource — a database, object store, queue, topic, or bus — is never
+  co-located inside a compute unit's module or stack; compute references
+  durable resources by input, never creates them. Durable resources are
+  further protected with lifecycle guards, and every apply goes out only
+  after the plan has been read — `review-before-apply`, no exceptions for
+  "obviously safe" changes. Like `pipeline-authoring`, it splits production
+  discipline in two: policy/module logic goes through craft's `strict-tdd`,
+  while the declarative resources are proven by craft's `verification` —
+  `validate` + `plan`/`diff` is the always-runnable minimum, catching broken
+  references, type errors, and unexpected destroy/replace even with no apply
+  target available, with a full apply against a sandbox where one exists.
+  Deciding the infrastructure's shape stays with `infrastructure-design`; the
+  production loop itself is deferred entirely to `craft`, named generically
+  so the skill degrades gracefully without `craft` installed. Ships with two
+  references: `references/iac-authoring-hygiene.md` and
+  `references/testing-and-verifying-infrastructure.md`.
+- **README** — the Infrastructure as Code row's `infrastructure-authoring`
+  skill marked `Built`; the `infrastructure-design` prose retargeted from
+  "the future `infrastructure-authoring` skill" to the now-built sibling.
+  Plugin version bumped to `0.6.0`.
+
 ## [0.5.1] — 2026-08-09
 
 ### Changed

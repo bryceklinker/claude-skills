@@ -46,7 +46,7 @@ at the repo path:
 | CI/CD pipelines | `cicd-pipeline-design` | Built |
 | CI/CD pipelines | `pipeline-authoring` | Built |
 | Infrastructure as Code | `infrastructure-design` | Built |
-| Infrastructure as Code | `infrastructure-authoring` (writes the config) | Planned |
+| Infrastructure as Code | `infrastructure-authoring` | Built |
 | Deployment & release | `deployment-design` | Built |
 | Deployment & release | `deployment-authoring` (performs the rollout) | Planned |
 | Observability & incident response | `observability-design` | Built |
@@ -67,8 +67,8 @@ provisioned — or reviews infrastructure code already in place: resource tierin
 inputs, the state backend, drift handling, and the least-privilege boundary for
 apply-time credentials — each decision tied back to a principle. It is
 deliberately a *thinking* skill: it produces a design note, never the
-infrastructure code or configuration itself. That authoring step is left to the
-future `infrastructure-authoring` skill, behind its own review.
+infrastructure code or configuration itself. That authoring step is handed off to
+the `infrastructure-authoring` skill, behind its own review.
 
 `observability-design` decides what a service reveals before you need it: SLOs
 and error budget, symptom-based alerting, the signals to emit, the runtime
