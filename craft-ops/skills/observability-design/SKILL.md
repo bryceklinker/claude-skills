@@ -9,7 +9,7 @@ description: "Use when standing up observability for a service or feature, defin
 
 A service you can't observe can't be operated, debugged, or safely deployed. Deciding the SLOs, the signals, the alerts, and the runtime levers once, up front, means that when something breaks you turn detail *up* and read facts instead of guessing under pressure. Skipping this step doesn't remove the decisions — it just defers them to 3 a.m., made once each, badly, one incident at a time.
 
-It is a **thinking** phase, not a doing one. The output is a short design note, not instrumentation code, dashboard JSON, or alert configuration — that waits for the (future) `observability-authoring` skill, behind its own review.
+It is a **thinking** phase, not a doing one. The output is a short design note, not instrumentation code, dashboard JSON, or alert configuration — that is handed off to the `observability-authoring` skill, behind its own review.
 
 ## Seams
 
@@ -43,10 +43,10 @@ Save a short design note where the work lives (e.g. `docs/craft-ops/observabilit
 ## Guardrails
 
 - **YAGNI on instrumentation.** Instrument for the SLOs and questions this design actually names — not everything a library can emit. A signal with no question behind it is cost with no payoff.
-- **Never author instrumentation, dashboards, or alert config here.** If you catch yourself writing a metrics client call, a dashboard JSON blob, or an alert-rule YAML, stop — that belongs to the (future) `observability-authoring` skill, behind its own review.
+- **Never author instrumentation, dashboards, or alert config here.** If you catch yourself writing a metrics client call, a dashboard JSON blob, or an alert-rule YAML, stop — that belongs to the `observability-authoring` skill, behind its own review.
 - **Prefer existing signals.** If a signal already answers the question, reuse or extend it before adding a new one. Not every design needs a new metric.
 - **Match the note's length to the change.** A targeted alert tweak gets a targeted note — depth on the implicated areas, one line for the rest. Length signals importance; padding every area to equal weight hides which decision actually mattered.
 
 ## Exit condition
 
-A written observability design note that accounts for all eight checklist items — SLIs/SLOs & error budget, signals to emit, symptom-based alerting, observability levers, health signals for deployment, correlation & context, cost & retention, and ownership — with the implicated ones decided in depth (each with its *why*) and any the change doesn't touch acknowledged in a single one-line not-implicated note. Nothing silently skipped; nothing padded. Hand off to the (future) `observability-authoring` skill to implement it.
+A written observability design note that accounts for all eight checklist items — SLIs/SLOs & error budget, signals to emit, symptom-based alerting, observability levers, health signals for deployment, correlation & context, cost & retention, and ownership — with the implicated ones decided in depth (each with its *why*) and any the change doesn't touch acknowledged in a single one-line not-implicated note. Nothing silently skipped; nothing padded. Hand off to the `observability-authoring` skill to implement it.

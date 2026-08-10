@@ -5,6 +5,42 @@ All notable changes to the `craft-ops` plugin are recorded here. The format foll
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new domains and skills; the suite's core discipline stays stable.
 
+## [0.9.0] — 2026-08-10
+
+### Added
+- **`observability-authoring` skill** — turns an `observability-design` note
+  into the real observability-as-code: instrumentation, dashboards-as-code,
+  alert rules, and runtime-lever wiring. It draws two hard lines: **prove the
+  alert fires** — an alert rule is verified by firing it against a
+  synthetic/replayed signal that should trip it (and confirming it stays
+  quiet on a healthy one), never trusted on the strength of a threshold that
+  merely looks right; and **wire the runtime levers for real** — verbosity,
+  sampling, and trace-detail levers are wired to runtime config or flags,
+  with default-vs-incident settings and cost guardrails, so a lever flips
+  without a redeploy rather than sitting as a constant baked into a build.
+  It also prefers generated/extracted dashboards-and-alerts-as-code over
+  click-ops or copy-pasted duplication, alerts on symptoms rather than
+  causes, and enforces cardinality guardrails against unbounded metric
+  labels. Metric/SLO/burn-rate/lever logic goes through craft's `strict-tdd`;
+  the declarative dashboards and alert rules are proven by craft's
+  `verification` — validate/lint + an entrypoint smoke-invoke of each
+  extracted script is the always-runnable minimum, mirroring
+  `pipeline-authoring`, `infrastructure-authoring`, and
+  `deployment-authoring`. Both halves defer to `craft`'s `strict-tdd` and
+  `verification` skills rather than reimplementing them, named generically so
+  the skill degrades gracefully without `craft` installed. Deciding what to
+  observe stays with `observability-design`; the production loop itself is
+  deferred entirely to `craft`. Ships with two references:
+  `references/observability-as-code-hygiene.md` and
+  `references/testing-and-verifying-observability.md`.
+- **README & `observability-design`** — the Observability & incident response
+  row's `observability-authoring` skill marked `Built`; the
+  `observability-design` `SKILL.md` prose retargeted from the "(future)
+  `observability-authoring` skill" to the now-built sibling. This completes
+  the suite: every domain (CI/CD, Infrastructure as Code, Deployment &
+  release, Observability & incident response) now has both a design and an
+  authoring skill. Plugin version bumped to `0.9.0`.
+
 ## [0.8.0] — 2026-08-10
 
 ### Added

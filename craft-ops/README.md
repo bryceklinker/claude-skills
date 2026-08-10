@@ -51,7 +51,7 @@ at the repo path:
 | Deployment & release | `deployment-authoring` | Built |
 | Observability & incident response | `observability-design` | Built |
 | Observability & incident response | `incident-response` | Built |
-| Observability & incident response | `observability-authoring` (writes the instrumentation/dashboards/alerts) | Planned |
+| Observability & incident response | `observability-authoring` | Built |
 
 `cicd-pipeline-design` decides the shape of a pipeline before anything is wired:
 artifact strategy, stage ordering for fast feedback, the gate map, promotion flow,
