@@ -9,20 +9,21 @@ description: "Use when deciding the SHAPE of infrastructure or reviewing existin
 
 Infrastructure wired by guesswork force-replaces a database, leaks state onto a laptop, and locks you into one cloud before anyone decided that tradeoff was worth it. Deciding the shape once, deliberately, against the conventions, makes the authoring that follows mechanical rather than another set of judgment calls made under pressure at apply time.
 
-It is a **thinking** phase, not a building one. The output is a short design note, not IaC configuration — that waits for the (future) `infrastructure-authoring` skill, behind its own review.
+It is a **thinking** phase, not a building one. The output is a short design note, not IaC configuration — that is handed off to the `infrastructure-authoring` skill, behind its own review.
 
 ## What it decides
 
 Work from the change's actual resource needs, and settle only what they demand. Each decision below ties back to a principle in `craft-ops/PRINCIPLES.md`.
 
-The nine areas are a **coverage checklist, not a required table of contents.** How much each gets depends on the ask:
+The ten areas are a **coverage checklist, not a required table of contents.** How much each gets depends on the ask:
 
-- **Designing a whole environment** (greenfield, or a redesign): decide all nine — they're all in play.
+- **Designing a whole environment** (greenfield, or a redesign): decide all ten — they're all in play.
 - **A targeted change** (reviewing or reorganizing existing infrastructure — adding one resource, tightening a policy, moving state): go deep on the areas the change actually touches, and dispatch the rest in a **single one-line "not implicated" note** naming them together. The checklist exists so you don't *silently* skip an area that turns out to matter — a one-liner confirming an area is untouched discharges it completely. A paragraph defending why each unrelated area is unchanged is noise that buries the decision the person actually asked for.
 
 - **Resource inventory & tier classification** — enumerate every resource the change introduces or touches; classify each disposable (compute, functions, containers, load balancers, most networking — rebuilt freely from code) or durable (databases, object/blob stores, queues, topics, event buses — holds state that can't be rebuilt from code); for every durable resource, name its deletion-protection / no-destroy guard. Classifying a resource into the wrong tier is how you lose data. (see `references/resource-tiers.md`)
 - **Tool & tech selection** — apply the portability bias toward cloud-agnostic tooling (a cloud-agnostic tool such as Terraform, OpenTofu, or Pulumi, and cloud-agnostic provisioned tech where a portable equivalent exists) over cloud-specific tools; record any lock-in choice with its *why* — it's sometimes the right call, never the silent default.
 - **Module boundaries & composition** — modules, their inputs/outputs, and which are shared versus per-environment. (see `references/state-and-modules.md`)
+- **Network topology & segmentation** — the core virtual network (VPC/VNet, subnets, routing, base security groups) is its own foundational component, provisioned *before* the durable and disposable resources that attach to it and handed down to them by reference — they never co-create it. Durable resources sit in their own isolated network segment — a dedicated subnet, or a separate network — reachable *by default only from the compute/non-durable network*; the durable segment is default-deny to everything else, and every exception (a bastion, a migration or backup runner, a replication path) is named and justified up front, never added ad hoc. Deciding networking last, or leaving the durable tier reachable from outside the compute network, is how you get circular dependencies and a database exposed to something that was never supposed to reach it. (see `references/resource-tiers.md`)
 - **State management** — remote, locked, versioned, isolated per environment, and treated as sensitive — never local, never committed to the repo. (see `references/state-and-modules.md`)
 - **Change safety — review-before-apply & blast radius** — the plan/diff is the gate, and its first, non-negotiable check is whether it destroys or replaces any durable resource; if so, name the migration path — never applied on a green plan alone. (see `references/review-before-apply.md`)
 - **Environment parity** — staging and prod built from the same modules, differing only in inputs/variables.
@@ -43,4 +44,4 @@ Save a short design note where the work lives (e.g. `docs/craft-ops/infrastructu
 
 ## Exit condition
 
-A written infrastructure design note that accounts for all nine checklist items — resource inventory & tier classification, tool & tech selection, module boundaries, state management, change safety (review-before-apply), environment parity, identity/least-privilege/secrets, drift stance, and evidence of done — with the implicated ones decided in depth (each with its *why*) and any the change doesn't touch acknowledged in a single one-line not-implicated note. Nothing silently skipped; nothing padded. Hand off to the (future) `infrastructure-authoring` skill to implement it.
+A written infrastructure design note that accounts for all ten checklist items — resource inventory & tier classification, tool & tech selection, module boundaries, network topology & segmentation, state management, change safety (review-before-apply), environment parity, identity/least-privilege/secrets, drift stance, and evidence of done — with the implicated ones decided in depth (each with its *why*) and any the change doesn't touch acknowledged in a single one-line not-implicated note. Nothing silently skipped; nothing padded. Hand off to the `infrastructure-authoring` skill to implement it.

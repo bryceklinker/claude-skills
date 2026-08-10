@@ -5,6 +5,30 @@ All notable changes to the `craft-ops` plugin are recorded here. The format foll
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new domains and skills; the suite's core discipline stays stable.
 
+## [0.7.0] — 2026-08-10
+
+### Added
+- **Network topology & segmentation, across `infrastructure-design` and
+  `infrastructure-authoring`.** Two conventions on either side of the
+  design→authoring seam:
+  - `infrastructure-design` gains a tenth coverage item — **network topology &
+    segmentation**: the core virtual network is its own foundational component
+    provisioned before the resources that attach to it, and durable resources
+    sit in an isolated network segment reachable *by default only from the
+    compute network* (default-deny; every exception named and justified up
+    front).
+  - `infrastructure-authoring` gains the enforcement rule **isolate durable
+    resources in their own network segment** (dedicated subnet or separate
+    network; ingress only from the compute network; exceptions defined
+    explicitly, never ad hoc). With "provision the networking foundation
+    first" (0.6.1) and "never co-locate a durable resource in a compute unit,"
+    the three now cover distinct axes — lifecycle (co-location), dependency
+    (foundation-first), and reachability (segmentation).
+
+### Changed
+- Retargeted the stale "(future) `infrastructure-authoring`" references in
+  `infrastructure-design`'s `SKILL.md` now that the skill is built.
+
 ## [0.6.1] — 2026-08-10
 
 ### Changed

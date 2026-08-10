@@ -6,6 +6,7 @@ Infrastructure-as-code looks like ordinary source until you notice how different
 - Prefer small composable modules over duplicated resource blocks
 - Never co-locate a durable resource inside a compute unit
 - Provision the networking foundation first
+- Isolate durable resources in their own network segment
 - Protect durable resources with lifecycle guards
 - Remote, locked state — no secrets in code or state
 - Pin every provider and module version
@@ -29,6 +30,12 @@ Compute is disposable by design — it gets destroyed and replaced on every depl
 **The core virtual network — VPC/VNet, subnets, routing, base security groups — is authored as its own foundational unit and applied *before* any durable or disposable resource that attaches to it. Databases, compute, load balancers, and everything else receive the network's identifiers — VPC ID, subnet IDs, security-group IDs — as inputs and plug into it; they never define or co-create the network inside their own unit.**
 
 A resource can only be placed into a network that already exists and is known: a subnet ID has to be a real, resolved value before a database or a container can be told which subnet to live in. Author the network last, or bundle it into the same unit as the resources that sit inside it, and you force one of two bad outcomes — a circular dependency (the compute unit needs the network's IDs, but the network is being created alongside it, so neither resolves first), or a scramble to reverse-engineer network identifiers that should simply have been handed down. Making networking a foundation layer that is applied first and then read *read-only* by every layer above it means each downstream resource is *given* the network to attach to, exactly the way a compute unit is given a durable resource's ARN rather than creating it. This is the ordering companion to "never co-locate a durable resource inside a compute unit": that rule separates units along the *lifecycle* axis so compute churn can't reach data; this one separates them along the *dependency* axis so the thing everything plugs into exists, and is known, before anything plugs in. The natural apply order that falls out is foundation first — network — then the durable and compute layers that reference it.
+
+## Isolate durable resources in their own network segment
+
+**Durable resources live in their own network segment — a dedicated subnet, or a separate network — not on the same subnet as the compute that uses them. By default the durable segment accepts connections only from the compute (non-durable) network; it is default-deny to everything else. Every exception — a bastion for break-glass access, a migration or backup/replication runner, a managed-service control plane — is named and defined explicitly, never opened ad hoc.**
+
+A durable resource is the one thing in the system whose loss or compromise you can't undo with a fresh apply — the data doesn't come back. Put it on the same flat network as disposable compute and anything that can reach the compute tier can reach the database directly: every new service, debug box, or loosened security-group rule becomes a fresh path to the data. Segmenting the durable tier and permitting ingress only from the compute network collapses that whole attack-and-accident surface to a single, reviewable boundary — to reach the data you go through the compute tier, which is where the application's own access controls already live. The default-deny posture is what keeps that boundary trustworthy: an exception that has to be named and justified is one a reviewer can weigh, while an exception that can be added silently erodes the segment until it's a boundary in name only. This is the network-level counterpart to keeping durable resources in their own unit — co-location separates *lifecycle*, foundation-first orders *dependency*, and segmentation restricts *reachability*, so the data tier is neither destroyed by, entangled with, nor openly reachable from the disposable tier that surrounds it.
 
 ## Protect durable resources with lifecycle guards
 
