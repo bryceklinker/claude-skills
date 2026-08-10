@@ -5,6 +5,23 @@ All notable changes to the `craft-ops` plugin are recorded here. The format foll
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new domains and skills; the suite's core discipline stays stable.
 
+## [0.6.1] — 2026-08-10
+
+### Changed
+- **`infrastructure-authoring` — added the "provision the networking
+  foundation first" rule.** A behavioral validation (dispatching
+  `craft-ops-author` on a sample orders-infra design note) surfaced that the
+  core virtual network (VPC/subnets) was being placed alongside the resources
+  that plug into it, which forces a circular dependency or a scramble to
+  reverse-engineer network IDs. `SKILL.md` and
+  `references/iac-authoring-hygiene.md` now require the core network — VPC/VNet,
+  subnets, routing, base security groups — to be authored as its own
+  foundational unit applied *before* any durable or disposable resource; those
+  resources receive network identifiers (VPC/subnet/security-group IDs) as
+  inputs and plug in, never co-creating the network. It is the ordering
+  companion to never-co-locate-durable-in-compute — that rule separates units
+  along the lifecycle axis, this one along the dependency axis.
+
 ## [0.6.0] — 2026-08-10
 
 ### Added

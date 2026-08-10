@@ -32,7 +32,9 @@ This skill's job is to maximize how much lands on the testable side of that spli
 
 **Never co-locate a durable resource inside a compute unit.** Durable resources — a database, object store, queue, topic, or bus — live in their own composable unit, never defined inside the module or stack for an instance, container, function, cluster, or ASG. Compute units receive references to durable resources — IDs, ARNs, endpoints — as inputs; they never create them. Compute is disposable: it gets destroyed, replaced, and rescaled routinely, and a durable resource defined alongside it goes down whenever the compute unit does. Splitting them into separate units is what lets compute churn without ever threatening the data.
 
-Beyond those two:
+**Provision the networking foundation first.** The core virtual network — VPC/VNet, subnets, routing, base security groups — is its own foundational unit, applied *before* any durable or disposable resource that attaches to it. Databases, compute, and load balancers alike receive the network's identifiers — VPC ID, subnet IDs, security-group IDs — as inputs and plug into it; they never define or co-create the network. Author the network last, or inside the unit that uses it, and you force a circular dependency or a scramble to reverse-engineer IDs that should have been handed down. The apply order that falls out is foundation first — network — then the durable and compute layers that reference it. This is the ordering companion to the previous rule: never-co-locate separates units along the *lifecycle* axis; this separates them along the *dependency* axis. See `references/iac-authoring-hygiene.md`.
+
+Beyond those three:
 
 - **Protect durable resources.** Lifecycle guards (deletion/replacement protection, `prevent_destroy` or equivalent) on every durable resource; changes to a durable resource are migrated, never torn down and recreated.
 - **Review the plan before every apply.** No apply goes out on trust — the diff is read by a human or reviewer, every time. This is what catches a durable resource marked for destroy/replace, or a durable resource that snuck into a compute unit's lifecycle.

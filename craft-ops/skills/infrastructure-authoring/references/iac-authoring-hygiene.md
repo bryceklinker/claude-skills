@@ -5,6 +5,7 @@ Infrastructure-as-code looks like ordinary source until you notice how different
 ## Table of contents
 - Prefer small composable modules over duplicated resource blocks
 - Never co-locate a durable resource inside a compute unit
+- Provision the networking foundation first
 - Protect durable resources with lifecycle guards
 - Remote, locked state — no secrets in code or state
 - Pin every provider and module version
@@ -22,6 +23,12 @@ A copy-pasted block looks identical to its sibling at the moment it's created an
 **Durable resources — a database, an object store, a queue, a topic, a message bus, anything holding state or data that must outlive a single deploy — are defined in their own composable unit, with their own lifecycle. A compute unit — an instance, a container, a function, a cluster, an autoscaling group — never creates a durable resource inside its own module or stack. It receives a reference to one instead: an ID, an ARN, an endpoint, passed in as an input.**
 
 Compute is disposable by design — it gets destroyed and replaced on every deploy, rescaled up and down with load, torn down and rebuilt when the underlying image or instance type changes. That churn is normal and desired for compute. It is not survivable for a durable resource: if the database is defined inside the same module as the container that happens to use it, then the routine, expected, entirely-by-design destruction of the compute unit takes the data down with it, because to the tool driving the apply they're the same unit with the same lifecycle. Splitting them is what lets compute churn as aggressively as it needs to while the data sits completely outside the blast radius. This is the structural companion to "protect durable resources" below and to "review the plan before every apply": those two rules are safety nets that catch a durable resource on its way to being destroyed, but this rule is what keeps that resource out of the position where a routine compute change could ever put it there in the first place. A lifecycle guard on a resource that shouldn't be in that module to begin with is a second line of defense standing in for a first line that was never built.
+
+## Provision the networking foundation first
+
+**The core virtual network — VPC/VNet, subnets, routing, base security groups — is authored as its own foundational unit and applied *before* any durable or disposable resource that attaches to it. Databases, compute, load balancers, and everything else receive the network's identifiers — VPC ID, subnet IDs, security-group IDs — as inputs and plug into it; they never define or co-create the network inside their own unit.**
+
+A resource can only be placed into a network that already exists and is known: a subnet ID has to be a real, resolved value before a database or a container can be told which subnet to live in. Author the network last, or bundle it into the same unit as the resources that sit inside it, and you force one of two bad outcomes — a circular dependency (the compute unit needs the network's IDs, but the network is being created alongside it, so neither resolves first), or a scramble to reverse-engineer network identifiers that should simply have been handed down. Making networking a foundation layer that is applied first and then read *read-only* by every layer above it means each downstream resource is *given* the network to attach to, exactly the way a compute unit is given a durable resource's ARN rather than creating it. This is the ordering companion to "never co-locate a durable resource inside a compute unit": that rule separates units along the *lifecycle* axis so compute churn can't reach data; this one separates them along the *dependency* axis so the thing everything plugs into exists, and is known, before anything plugs in. The natural apply order that falls out is foundation first — network — then the durable and compute layers that reference it.
 
 ## Protect durable resources with lifecycle guards
 
