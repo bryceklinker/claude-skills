@@ -29,11 +29,13 @@ introduce new domains and skills; the suite's core discipline stays stable.
   `verification` skills rather than reimplementing them, named generically so
   the skill degrades gracefully without `craft` installed. Deciding the
   rollout's shape stays with `deployment-design`; the production loop itself
-  is deferred entirely to `craft`. Ships with two references.
-- **README** — the Deployment & release row's `deployment-authoring` skill
-  marked `Built`; the `deployment-design` prose retargeted from the "(future)
-  `deployment-authoring` skill" to the now-built sibling. Plugin version
-  bumped to `0.8.0`.
+  is deferred entirely to `craft`. Ships with two references:
+  `references/rollout-authoring-hygiene.md` and
+  `references/testing-and-verifying-rollouts.md`.
+- **README & `deployment-design`** — the Deployment & release row's
+  `deployment-authoring` skill marked `Built`; the `deployment-design`
+  `SKILL.md` prose retargeted from the "(future) `deployment-authoring` skill"
+  to the now-built sibling. Plugin version bumped to `0.8.0`.
 
 ## [0.7.0] — 2026-08-10
 
