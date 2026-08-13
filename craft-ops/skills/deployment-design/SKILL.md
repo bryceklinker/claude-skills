@@ -35,7 +35,7 @@ The ten areas are a **coverage checklist, not a required table of contents.** Ho
 
 ## Write it down
 
-Save a short design note where the work lives (e.g. `docs/craft-ops/deployments/YYYY-MM-DD-<name>.md`): the strategy, decoupling, rollout, gate, and rollback decisions, each with its *why*. If the repo has a `.craft-ops.yml`, read it first for the project's environments and existing release conventions — it documents them until a dedicated conventions skill exists.
+Save a short design note where the work lives (e.g. `docs/craft-ops/deployments/YYYY-MM-DD-<name>.md`): the strategy, decoupling, rollout, gate, and rollback decisions, each with its *why*. If the repo has a `.craft-ops.yml`, read it first for the project's environments and existing release conventions — see `craft-ops-conventions`, which records and reads it.
 
 ## Guardrails
 

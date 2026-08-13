@@ -38,7 +38,7 @@ The eight areas are a **coverage checklist, not a required table of contents.** 
 
 ## Write it down
 
-Save a short design note where the work lives (e.g. `docs/craft-ops/observability/YYYY-MM-DD-<name>.md`): the SLOs, signals, alerts, levers, and deployment health-signal decisions, each with its *why*. If the repo has a `.craft-ops.yml`, read it first for the project's existing observability stack and conventions — it documents them until a dedicated conventions skill exists.
+Save a short design note where the work lives (e.g. `docs/craft-ops/observability/YYYY-MM-DD-<name>.md`): the SLOs, signals, alerts, levers, and deployment health-signal decisions, each with its *why*. If the repo has a `.craft-ops.yml`, read it first for the project's existing observability stack and conventions — see `craft-ops-conventions`, which records and reads it.
 
 ## Guardrails
 

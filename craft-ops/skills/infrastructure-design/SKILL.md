@@ -33,7 +33,7 @@ The ten areas are a **coverage checklist, not a required table of contents.** Ho
 
 ## Write it down
 
-Save a short design note where the work lives (e.g. `docs/craft-ops/infrastructure/YYYY-MM-DD-<name>.md`): the resource, tooling, module, state, and safety decisions, each with its *why*. If the repo has a `.craft-ops.yml`, read it first for the project's target environments and existing tooling conventions — it documents them until a dedicated conventions skill exists.
+Save a short design note where the work lives (e.g. `docs/craft-ops/infrastructure/YYYY-MM-DD-<name>.md`): the resource, tooling, module, state, and safety decisions, each with its *why*. If the repo has a `.craft-ops.yml`, read it first for the project's target environments and existing tooling conventions — see `craft-ops-conventions`, which records and reads it.
 
 ## Guardrails
 

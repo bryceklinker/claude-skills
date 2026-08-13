@@ -30,7 +30,7 @@ The seven areas are a **coverage checklist, not a required table of contents.** 
 
 ## Write it down
 
-Save a short design note where the work lives (e.g. `docs/craft-ops/pipelines/YYYY-MM-DD-<name>.md`): the artifact, stage, gate, and promotion decisions, each with its *why*. If the repo has a `.craft-ops.yml`, read it first for the project's build/test commands and target environments — it documents them until a dedicated conventions skill exists.
+Save a short design note where the work lives (e.g. `docs/craft-ops/pipelines/YYYY-MM-DD-<name>.md`): the artifact, stage, gate, and promotion decisions, each with its *why*. If the repo has a `.craft-ops.yml`, read it first for the project's build/test commands and target environments — see `craft-ops-conventions`, which records and reads it.
 
 ## Guardrails
 
