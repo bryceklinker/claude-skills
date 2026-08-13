@@ -1,6 +1,6 @@
 ---
 name: craft-ops-conventions
-description: "Use to record and read a project's concrete DevOps conventions in a .craft-ops.yml file — the commands and settings the generic craft-ops skills need but can't guess: the environments and promotion order, the cloud and IaC tool plus its plan/apply commands, the CI system and artifact registry, the deploy/rollout tool and rollback command, the observability stack, the secret manager, the base branch, and where each domain's design notes live. Trigger when setting up craft-ops in a new repo, when a skill or agent needs a project-specific ops command it doesn't know, or when the conventions change. Reads .craft-ops.yml at the repo root (self-contained — never craft's .craft.yml) and bootstraps one by discovering the project's tooling when it's absent. Not for designing or authoring pipelines, infrastructure, rollouts, or observability — those are the other craft-ops skills."
+description: "Use to record and read a project's concrete DevOps conventions in a .craft-ops.yml file — the commands and settings the generic craft-ops skills need but can't guess: the environments and promotion order, the cloud and IaC tool plus its plan/apply commands, the CI system and artifact registry, the deploy/rollout tool and rollback command, the observability stack, the secret manager, the base branch, and where each domain's design notes live. Trigger when setting up craft-ops in a new repo, when a skill or agent needs a project-specific ops command it doesn't know, or when the conventions change. Reads .craft-ops.yml at the repo root (self-contained — never craft's .craft-code.yml) and bootstraps one by discovering the project's tooling when it's absent. Not for designing or authoring pipelines, infrastructure, rollouts, or observability — those are the other craft-ops skills."
 ---
 
 # Craft-Ops Conventions — teach the suite this project's ops commands
@@ -13,7 +13,7 @@ The craft-ops skills are deliberately cloud- and tool-agnostic — that's what l
 
 ## The file
 
-A single `.craft-ops.yml` at the repository root, **committed** so the whole team and every agent share it. It is **self-contained**: it declares its own `git.main_branch` and `stack`, and it is a distinct file from craft's `.craft.yml`. craft-ops stays independently installable — a repo can run craft-ops without craft, or vice versa — so this skill never reads or writes `.craft.yml`, and never assumes one exists.
+A single `.craft-ops.yml` at the repository root, **committed** so the whole team and every agent share it. It is **self-contained**: it declares its own `git.main_branch` and `stack`, and it is a distinct file from craft's `.craft-code.yml`. craft-ops stays independently installable — a repo can run craft-ops without craft, or vice versa — so this skill never reads or writes `.craft-code.yml`, and never assumes one exists.
 
 ```yaml
 stack: [terraform, kubernetes]
@@ -86,4 +86,4 @@ When craft-ops first runs in a project and there's no `.craft-ops.yml`, create o
 
 ## Exit condition
 
-A `.craft-ops.yml` exists at the repo root, is committed, and accurately states the ops conventions the suite needs. It is self-contained — its own `git.main_branch` and `stack`, never craft's `.craft.yml`. Any skill or agent that must plan, apply, deploy, roll back, or generate an alert reads it first.
+A `.craft-ops.yml` exists at the repo root, is committed, and accurately states the ops conventions the suite needs. It is self-contained — its own `git.main_branch` and `stack`, never craft's `.craft-code.yml`. Any skill or agent that must plan, apply, deploy, roll back, or generate an alert reads it first.

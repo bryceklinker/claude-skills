@@ -1,6 +1,6 @@
-# .craft.yml — full schema and starter files
+# .craft-code.yml — full schema and starter files
 
-`.craft.yml` lives at the repository root and is committed. Every field is optional, but the more the project states, the less any skill has to guess. Unknown keys are ignored, so you can extend it for project-specific needs.
+`.craft-code.yml` lives at the repository root and is committed. Every field is optional, but the more the project states, the less any skill has to guess. Unknown keys are ignored, so you can extend it for project-specific needs.
 
 ## Table of contents
 - The full annotated schema

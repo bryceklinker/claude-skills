@@ -9,7 +9,7 @@ description: "Use when implementing ANY increment of production code — feature
 
 Write one failing test. Watch it fail for the right reason. Write the minimum code to pass. Watch it pass. **Commit the green — then** refactor, production *and* test code, and commit that separately. Then the next test. The order matters: green is committed before any refactoring, so it's always a point you can fall back to.
 
-Run the unit suite from `.craft.yml`'s `commands.test` (see `craft-code-conventions`) — never the acceptance suite in this loop. Two scopes matter, and conflating them is where the discipline quietly erodes:
+Run the unit suite from `.craft-code.yml`'s `commands.test` (see `craft-code-conventions`) — never the acceptance suite in this loop. Two scopes matter, and conflating them is where the discipline quietly erodes:
 
 - **While iterating on one behavior**, run the *narrowest* command that covers the code you're touching — a single project or test file (`dotnet test tests/Haus.Zigbee.Tests`, `pnpm test src/checkout`, `cargo test -p checkout`). This is the tight red→green loop, and it has to be fast enough to run on *every* change without thinking about it.
 - **Before you commit a green, and before you hand off**, run the full `commands.test` unit suite so you know the increment didn't break something outside the file you were watching.

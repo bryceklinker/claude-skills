@@ -60,7 +60,7 @@ To install from a local checkout instead (for development), point the marketplac
 | `systematic-debugging` | Find a defect's root cause by disciplined investigation — reproduce, narrow, confirm one hypothesis at a time — before changing anything. The front half of the defect loop. |
 | `dependency-maintenance` | The sibling lane for version/tooling updates dev-workflow excludes: one update per commit, read the changelog, run unit + acceptance suites. |
 | `subagent-execution` | Dispatch independent increments in parallel and run fresh-eyes review/verify, without breaking discipline. |
-| `craft-code-conventions` | Record this project's concrete commands (test, acceptance, run, lint, DB) in a committed `.craft.yml` so the generic skills read them instead of guessing. The portability layer. |
+| `craft-code-conventions` | Record this project's concrete commands (test, acceptance, run, lint, DB) in a committed `.craft-code.yml` so the generic skills read them instead of guessing. The portability layer. |
 
 ## Agent team
 
@@ -101,4 +101,4 @@ The suite encodes one opinionated methodology: Clean Code, Fowler's *Refactoring
 - **No comments except to explain *why* awkward code exists.**
 - **Separate *what* from *how*** — a behavior's inputs are an immutable data object; the handling lives in a separate, dedicated unit (one operation, one handler), never a growing `Service`/`Manager`/`Utility`. A message + handler pair (CQRS) is one common shape and a fine default, but the input-data/handler separation is the rule, not the Command/Query names. Where you split reads from writes, a query never mutates and a write handler may return the data the caller needs.
 - **Every feature/bug goes through the full pipeline** — including the "simple" ones.
-- **Portable by design.** The skills never hardcode commands; a committed `.craft.yml` per repo states the concrete ones (test, acceptance, run, lint, DB, base branch) and every skill/agent reads it. The discipline is universal; the commands are per-project.
+- **Portable by design.** The skills never hardcode commands; a committed `.craft-code.yml` per repo states the concrete ones (test, acceptance, run, lint, DB, base branch) and every skill/agent reads it. The discipline is universal; the commands are per-project.

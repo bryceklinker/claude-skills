@@ -1,6 +1,6 @@
 # .craft-ops.yml — full schema and starter files
 
-`.craft-ops.yml` lives at the repository root and is committed. It is **self-contained**: it declares its own `stack` and `git.main_branch`, and it never references craft's `.craft.yml` — craft-ops stays independently installable, so a repo can run craft-ops without craft, or vice versa. Every top-level section is optional — a repo with no IaC omits `cloud`, a repo that hasn't wired up alerting omits `observability.alerts`, and so on. State only what the project actually has; unknown keys are ignored, so you can extend it for project-specific needs.
+`.craft-ops.yml` lives at the repository root and is committed. It is **self-contained**: it declares its own `stack` and `git.main_branch`, and it never references craft's `.craft-code.yml` — craft-ops stays independently installable, so a repo can run craft-ops without craft, or vice versa. Every top-level section is optional — a repo with no IaC omits `cloud`, a repo that hasn't wired up alerting omits `observability.alerts`, and so on. State only what the project actually has; unknown keys are ignored, so you can extend it for project-specific needs.
 
 ## Table of contents
 - The full annotated schema
@@ -75,7 +75,7 @@ paths:
 
 ## Field reference
 
-- **`stack`** — a list, not a scalar; a project may use more than one IaC/orchestration tool at once (e.g. Terraform for cloud resources, Kubernetes manifests for workloads). This is the *infrastructure/ops* stack, distinct from — and never derived from — an application's language stack in `.craft.yml`.
+- **`stack`** — a list, not a scalar; a project may use more than one IaC/orchestration tool at once (e.g. Terraform for cloud resources, Kubernetes manifests for workloads). This is the *infrastructure/ops* stack, distinct from — and never derived from — an application's language stack in `.craft-code.yml`.
 - **`git.main_branch`** — the branch pipelines build from and the branch rollbacks and promotion diffs are compared against. Consumed anywhere craft-ops needs a branch-relative operation.
 - **`environments.order`** — a nested list under `environments`. Its order *is* the promotion order: a change reaches `order[0]` first and `order[-1]` (commonly `production`) last. `pipeline-authoring`, `deployment-authoring`, and the design analogs all read this to know what "promote" means for this project — never assume `dev`/`staging`/`production` if the file says otherwise.
 - **`cloud`** — omit the entire section when the project doesn't provision its own infrastructure (e.g. it deploys into a platform or cluster someone else manages). When present, `provider` and `iac_tool` are required; `iac_commands.plan` and `iac_commands.apply` are required since every IaC workflow needs both; `iac_commands.validate` is optional — include it only if the tool has a distinct validate/lint step the project actually runs before planning.
@@ -83,7 +83,7 @@ paths:
 - **`deployment.tool` / `rollout_command` / `rollback_command`** — the concrete commands `deployment-authoring` and `incident-response` use instead of guessing. `rollback_command` in particular is read by `incident-response` for mitigate-first response — it must be a command that actually reverts the last rollout, not just a description of one.
 - **`observability.metrics` / `dashboards` / `alerts`** — three distinct systems that are often, but not always, the same product. Keep them separate even when one vendor supplies all three (e.g. Datadog for metrics, dashboards, and alerts) — the fields are read independently by different skills.
 - **`secrets.manager`** — read by every domain before referencing how a credential is stored or retrieved, so generated pipelines, IaC, or rollout commands reference secrets the way this project actually manages them (env-injected from a manager, mounted, etc.) rather than inventing a plausible-looking placeholder.
-- **`paths.*`** — where `pipeline-authoring`, `infrastructure-authoring`, `deployment-authoring`, and `observability-authoring` (and their `-design` counterparts) write and read their design notes. Keep these distinct from craft's `paths.plans` / `paths.design` in `.craft.yml` — the two files are never cross-referenced.
+- **`paths.*`** — where `pipeline-authoring`, `infrastructure-authoring`, `deployment-authoring`, and `observability-authoring` (and their `-design` counterparts) write and read their design notes. Keep these distinct from craft's `paths.plans` / `paths.design` in `.craft-code.yml` — the two files are never cross-referenced.
 
 ## Starter: AWS + OpenTofu + GitHub Actions + Argo Rollouts + Prometheus
 

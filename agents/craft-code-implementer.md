@@ -18,7 +18,7 @@ Before touching any code, invoke and follow these two skills:
 
 You are the subagent most tempted to cut the corner ("it's just one increment"). Do not. The narrow task is exactly where the discipline earns its keep.
 
-Run the suite with the project's `commands.test` from `.craft.yml` (see `craft:craft-code-conventions`) — the fast inner-loop unit command — rather than guessing how this repo runs its tests.
+Run the suite with the project's `commands.test` from `.craft-code.yml` (see `craft:craft-code-conventions`) — the fast inner-loop unit command — rather than guessing how this repo runs its tests.
 
 ## The loop
 

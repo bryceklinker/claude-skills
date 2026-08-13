@@ -117,7 +117,7 @@ standing on its own, so `craft-ops` never requires `craft` to be installed.
 project's `.craft-ops.yml` — a **self-contained** file, with its own
 `git.main_branch` and `stack` — so the generic craft-ops skills read this
 project's actual ops commands and settings instead of guessing. It never reads
-or writes `craft`'s `.craft.yml`, keeping `craft-ops` installable and usable
+or writes `craft`'s `.craft-code.yml`, keeping `craft-ops` installable and usable
 entirely on its own, without any dependency on `craft`'s conventions file or
 its schema. All four design skills — `cicd-pipeline-design`,
 `infrastructure-design`, `deployment-design`, and `observability-design` — and
