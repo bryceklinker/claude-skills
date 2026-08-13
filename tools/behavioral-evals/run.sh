@@ -1,5 +1,5 @@
 #!/bin/bash
-# Behavioral regression suite for the craft discipline.
+# Behavioral regression suite for the craft-code discipline.
 #
 # Grades produced repos against the discipline (test-first, no owned-code
 # doubles, no non-null assertions, separate refactor commits, GWT names,
@@ -12,7 +12,7 @@
 #     each scenario you want graded. Writes grading.json next to each repo.
 #
 # Producing the runs (the expensive step) is separate and manual — drive the
-# craft pipeline over each scenario's prompt in a headless session, e.g.:
+# craft-code pipeline over each scenario's prompt in a headless session, e.g.:
 #   claude -p "$(jq -r .prompt scenarios/feature-promo-code.json)" \
 #     --dangerously-skip-permissions   # in a throwaway git repo, then copy it to <runs-dir>/feature-promo-code/repo
 # then point this script at <runs-dir>.

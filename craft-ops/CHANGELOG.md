@@ -5,6 +5,20 @@ All notable changes to the `craft-ops` plugin are recorded here. The format foll
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new domains and skills; the suite's core discipline stays stable.
 
+## [0.11.0] — 2026-08-13
+
+### Changed
+- **Renamed every reference to the code suite from `craft` to `craft-code`**,
+  following the code-suite rebrand — the plugin (`craft` → `craft-code`,
+  installs as `craft-code@craft-marketplace`), the nine agents craft-ops reuses
+  (`craft-code-reviewer`, `craft-code-verifier`, `craft-code-debugger`, …), the
+  `craft-code:` skill namespace, `craft-code-conventions` (craft-code's own
+  conventions skill), and `.craft-code.yml` (craft-code's config file, still
+  distinct from this suite's own `.craft-ops.yml`). Pure rename across prose,
+  agent references, and manifest metadata; no behavior change. The `craft-ops`
+  suite's own name, `craft-ops-conventions`, `craft-ops-author`/`-designer`, and
+  `.craft-ops.yml` are unchanged. Plugin version bumped to `0.11.0`.
+
 ## [0.10.0] — 2026-08-13
 
 ### Added

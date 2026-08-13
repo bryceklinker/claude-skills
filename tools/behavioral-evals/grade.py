@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Deterministic behavioral grader for the craft discipline.
+"""Deterministic behavioral grader for the craft-code discipline.
 
 Given a produced git repository and a scenario definition, it mechanically
-checks the assertions the craft pipeline should have honored — built test-first,
+checks the assertions the craft-code pipeline should have honored — built test-first,
 no doubles of owned/in-process code, no non-null-assertion escape hatches,
 separate refactor commits, Given/When/Then test names, and so on — and emits a
 grading.json in the same shape the existing benchmark aggregator understands.
@@ -241,7 +241,7 @@ def grade(repo: str, scenario: dict, test_cmd: Optional[str]) -> dict:
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Deterministic craft behavioral grader")
+    ap = argparse.ArgumentParser(description="Deterministic craft-code behavioral grader")
     ap.add_argument("--repo", required=True, help="path to the produced git repository")
     ap.add_argument("--scenario", required=True, help="path to the scenario JSON")
     ap.add_argument("--test-cmd", default=None, help="command to run the unit suite (overrides scenario)")

@@ -5,6 +5,18 @@ All notable changes to the `craft` plugin are recorded here. The format follows
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new skills and agents; the pipeline's core discipline stays stable.
 
+## Renamed to `craft-code` — 2026-08-13
+
+The plugin was renamed from `craft` to `craft-code` to make the suite naming
+self-describing alongside its sibling `craft-ops` — "craft" is really *crafting
+code*, "craft-ops" is *crafting ops*. It now installs as
+`/plugin install craft-code@craft-marketplace`; the `project-conventions` skill
+is `craft-code-conventions`, the nine agents are `craft-code-*` (e.g.
+`craft-code-architect`, `craft-code-reviewer`), the skill namespace is
+`craft-code:`, and the per-repo config file is `.craft.yml` → `.craft-code.yml`.
+This is a pure rename with no behavior change — version continuity is kept at
+`0.4.0` (no bump), and the `craft-marketplace` umbrella name is unchanged.
+
 ## [0.4.0] — 2026-08-06
 
 Closed discipline gaps surfaced by real retrospectives on branches built with the

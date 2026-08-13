@@ -5,7 +5,7 @@
     "email": "bryce.klinker@gmail.com"
   },
   "metadata": {
-    "description": "Marketplace hosting the craft disciplined-development skill suite.",
+    "description": "Marketplace hosting the craft-code disciplined-development skill suite.",
     "version": "0.1.0"
   },
   "plugins": [
@@ -20,8 +20,8 @@
     {
       "name": "craft-ops",
       "source": "./craft-ops",
-      "description": "An opinionated DevOps skill suite: a library of domain skills (CI/CD, infrastructure as code, deployment & release, observability & incident response) extending craft's disciplined worldview into operations.",
-      "version": "0.10.0",
+      "description": "An opinionated DevOps skill suite: a library of domain skills (CI/CD, infrastructure as code, deployment & release, observability & incident response) extending craft-code's disciplined worldview into operations.",
+      "version": "0.11.0",
       "author": { "name": "Bryce Klinker" },
       "keywords": ["devops", "cicd", "continuous-delivery", "infrastructure-as-code", "deployment", "observability"]
     }
