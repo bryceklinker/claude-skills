@@ -43,6 +43,7 @@ at the repo path:
 
 | Domain | Skill | Status |
 |--------|-------|--------|
+| Conventions | `craft-ops-conventions` | Built |
 | CI/CD pipelines | `cicd-pipeline-design` | Built |
 | CI/CD pipelines | `pipeline-authoring` | Built |
 | Infrastructure as Code | `infrastructure-design` | Built |
@@ -112,8 +113,14 @@ standing on its own, so `craft-ops` never requires `craft` to be installed.
 
 ## Conventions
 
-`craft-ops` reads its own `.craft-ops.yml` — never `craft`'s `.craft.yml`. This
-keeps the plugin installable and usable on its own, without any dependency on
-`craft`'s conventions file or its schema. The craft-ops design skills —
-`cicd-pipeline-design` and `infrastructure-design` — read `.craft-ops.yml`, when
-present, for a repo's build/test commands and target environments.
+`craft-ops-conventions` is the suite's portability layer: it records and reads a
+project's `.craft-ops.yml` — a **self-contained** file, with its own
+`git.main_branch` and `stack` — so the generic craft-ops skills read this
+project's actual ops commands and settings instead of guessing. It never reads
+or writes `craft`'s `.craft.yml`, keeping `craft-ops` installable and usable
+entirely on its own, without any dependency on `craft`'s conventions file or
+its schema. All four design skills — `cicd-pipeline-design`,
+`infrastructure-design`, `deployment-design`, and `observability-design` — and
+their authoring siblings read `.craft-ops.yml`, when present, for a repo's
+build/test commands, target environments, and other project-specific
+conventions.

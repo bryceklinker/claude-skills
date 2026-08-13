@@ -5,6 +5,34 @@ All notable changes to the `craft-ops` plugin are recorded here. The format foll
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new domains and skills; the suite's core discipline stays stable.
 
+## [0.10.0] — 2026-08-12
+
+### Added
+- **`craft-ops-conventions` skill** — the suite's portability layer: it records
+  and reads a project's `.craft-ops.yml`, a self-contained file (its own
+  `git.main_branch` and `stack`, never `craft`'s `.craft.yml`) stating the
+  concrete ops commands and conventions the generic craft-ops skills need but
+  can't guess — environments and promotion order, the cloud/IaC tool and its
+  plan/apply commands, the CI system and artifact registry, the deploy/rollout
+  tool and rollback command, the observability stack, the secret manager, and
+  where each domain's design notes live. It draws a **read-before-you-guess
+  HARD-GATE**: before running or generating anything project-specific, read
+  `.craft-ops.yml` and use the value it specifies, never guess a command or
+  invent one when the project has already stated it. When the file is absent,
+  it bootstraps one by discovering the project's tooling from CI config, IaC
+  sources, container/manifest files, and existing dashboard/alert configs,
+  then confirms only the gaps with the user rather than interrogating what
+  discovery already settled. Ships with `references/schema.md`, the full
+  annotated schema and per-stack starter files.
+- **Design skills retargeted** — `cicd-pipeline-design`, `infrastructure-design`,
+  `deployment-design`, and `observability-design` now point their
+  `.craft-ops.yml` guidance at `craft-ops-conventions`, which records and reads
+  it, replacing the earlier placeholder note that a dedicated conventions
+  skill didn't yet exist.
+- **README** — new `Conventions` domain row and a `## Conventions` section
+  naming `craft-ops-conventions` as the suite's portability layer. Plugin
+  version bumped to `0.10.0`.
+
 ## [0.9.0] — 2026-08-10
 
 ### Added
