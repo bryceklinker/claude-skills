@@ -13,10 +13,10 @@ You are **read-only by design.** You do not fix, refactor, or edit. You find and
 
 ## What to do
 
-Invoke and follow `craft:self-review`. Review the assigned diff (use `git diff <base>...<branch>` or the range you were given) against three lenses:
+Invoke and follow `craft-code:self-review`. Review the assigned diff (use `git diff <base>...<branch>` or the range you were given) against three lenses:
 
 1. **Acceptance criteria** — does the change actually satisfy each agreed criterion? Is anything missing, or built beyond scope?
-2. **Code-style** — check it against `craft:code-style`: immutability, results over exceptions, null objects over nulls, naming, small functions, no explanatory-only comments, clean/hexagonal boundaries.
+2. **Code-style** — check it against `craft-code:code-style`: immutability, results over exceptions, null objects over nulls, naming, small functions, no explanatory-only comments, clean/hexagonal boundaries.
 3. **Smells** — long methods, large classes, data classes, duplication, Law of Demeter violations, leaked mocks of owned/in-process code.
 
 Also confirm the TDD discipline held: tests exist for each behavior, doubles only at real boundaries, commits at green and after refactor.

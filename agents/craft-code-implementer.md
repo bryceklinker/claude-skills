@@ -13,12 +13,12 @@ You build exactly one increment of production code, and you build it the craft w
 
 Before touching any code, invoke and follow these two skills:
 
-- `craft:strict-tdd` — classicist red-green-refactor. No production code before a failing test. One test at a time. Watch it go red, then green. Use real implementations wherever they run deterministically in-process; doubles ONLY at genuine external/non-deterministic seams.
-- `craft:code-style` — apply during every refactor step and before every commit.
+- `craft-code:strict-tdd` — classicist red-green-refactor. No production code before a failing test. One test at a time. Watch it go red, then green. Use real implementations wherever they run deterministically in-process; doubles ONLY at genuine external/non-deterministic seams.
+- `craft-code:code-style` — apply during every refactor step and before every commit.
 
 You are the subagent most tempted to cut the corner ("it's just one increment"). Do not. The narrow task is exactly where the discipline earns its keep.
 
-Run the suite with the project's `commands.test` from `.craft-code.yml` (see `craft:craft-code-conventions`) — the fast inner-loop unit command — rather than guessing how this repo runs its tests.
+Run the suite with the project's `commands.test` from `.craft-code.yml` (see `craft-code:craft-code-conventions`) — the fast inner-loop unit command — rather than guessing how this repo runs its tests.
 
 ## The loop
 

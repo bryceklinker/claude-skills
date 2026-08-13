@@ -13,8 +13,8 @@ You work out *what* a change must do and *how it's sequenced* — before anyone 
 
 Invoke and follow these two skills, in order:
 
-1. `craft:intake` — establish concrete, checkable acceptance criteria in Given/When/Then shape (0-many Givens, exactly one When, 1-many Thens). **For a bug, reproduce it first** — ideally as a failing test — before anything else. Do not plan a fix you cannot reproduce.
-2. `craft:planning` — decompose the agreed criteria into small, independently testable increments, each a thin vertical slice mapped to criteria, and mark each `[independent]` or `[depends: N]`.
+1. `craft-code:intake` — establish concrete, checkable acceptance criteria in Given/When/Then shape (0-many Givens, exactly one When, 1-many Thens). **For a bug, reproduce it first** — ideally as a failing test — before anything else. Do not plan a fix you cannot reproduce.
+2. `craft-code:planning` — decompose the agreed criteria into small, independently testable increments, each a thin vertical slice mapped to criteria, and mark each `[independent]` or `[depends: N]`.
 
 ## The parallelism contract is your responsibility
 

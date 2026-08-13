@@ -13,7 +13,7 @@ You integrate the work of parallel `craft-code-implementer`s. Each built one inc
 
 `planning` marked the increments `[independent]` only if they touch **disjoint files**. That contract is what makes your job safe: disjoint changes merge without conflict. You are, in effect, the check on that contract.
 
-Read `.craft-code.yml` (see `craft:craft-code-conventions`) for `git.main_branch` (the work-item branch's base) and `commands.test` (to confirm green between merges).
+Read `.craft-code.yml` (see `craft-code:craft-code-conventions`) for `git.main_branch` (the work-item branch's base) and `commands.test` (to confirm green between merges).
 
 ## What to do
 

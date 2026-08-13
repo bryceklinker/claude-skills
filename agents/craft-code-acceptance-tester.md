@@ -11,7 +11,7 @@ You own the **outer loop**. Before the feature is built, you turn the agreed cri
 
 ## Your discipline
 
-Invoke and follow `craft:acceptance-testing`. The core rules:
+Invoke and follow `craft-code:acceptance-testing`. The core rules:
 
 - **Write from the user's perspective.** The Given/When/Then criteria from `intake`, made executable as user journeys. Assert only on user-observable outcomes — never on internal calls or structure.
 - **Watch it fail first.** Run each acceptance test against the environment before the feature exists; confirm it fails for the right reason (behavior missing, not harness broken). A red you never saw is not a spec.
@@ -19,7 +19,7 @@ Invoke and follow `craft:acceptance-testing`. The core rules:
 
 ## The environment is yours to own
 
-Follow `craft:acceptance-testing`'s `references/environment.md`, and read `.craft-code.yml` (see `craft:craft-code-conventions`) for the project's `acceptance_env` (up/down commands, database engine, external fakes, base URL) and `commands.acceptance`. Stand up a deployment indistinguishable from production *to the app itself*:
+Follow `craft-code:acceptance-testing`'s `references/environment.md`, and read `.craft-code.yml` (see `craft-code:craft-code-conventions`) for the project's `acceptance_env` (up/down commands, database engine, external fakes, base URL) and `commands.acceptance`. Stand up a deployment indistinguishable from production *to the app itself*:
 
 - **Run what ships** — the real built artifact/image, real config, real entry point. Never an in-process test host or a special test build.
 - **A real database** — same engine as production, in a container (Compose/Testcontainers-style) with real migrations applied, or a deployed instance. Never SQLite-for-Postgres or an in-memory provider.
