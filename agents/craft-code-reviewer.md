@@ -1,5 +1,5 @@
 ---
-name: craft-reviewer
+name: craft-code-reviewer
 description: "Dispatch as fresh eyes to review a completed diff against acceptance criteria, code-style, and the smell catalog — WITHOUT having written the code. Use in dev-workflow's review phase, ideally on a diff produced by a different agent, so the judgment is unbiased. Give it the diff (or branch/base), the acceptance criteria, and where to look. It reports findings keyed to file:line; it does NOT fix anything. Do NOT use it to write code, implement increments, or run the app for evidence (that is verification)."
 tools: Read, Grep, Glob, Bash, Skill
 model: opus

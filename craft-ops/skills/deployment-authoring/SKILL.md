@@ -16,7 +16,7 @@ Unlike the `-design` skills, it *does* write code — so it leans on craft to wr
 - **Consumes** the `deployment-design` note as input. That note already made the strategy decisions — release strategy, deploy-vs-release decoupling, rollout steps, health gates, rollback/roll-forward plan, compatibility. This skill does not re-decide them.
 - **Reads `.craft-ops.yml`** for this project's `deployment.tool`, `deployment.rollout_command`, `deployment.rollback_command`, and `environments.order` before authoring — see `craft-ops-conventions`, which records and reads it.
 - **Defers the production loop to craft** — named generically so this skill degrades gracefully without craft installed: `strict-tdd` for gate/promotion/flag logic, `verification` for the declarative rollout config, `code-style` and `self-review` for how it's written and checked.
-- **Review and verification** go to `craft-reviewer` / `craft-verifier` where those agents exist.
+- **Review and verification** go to `craft-code-reviewer` / `craft-code-verifier` where those agents exist.
 
 ## The production-discipline split
 

@@ -1,5 +1,5 @@
 ---
-name: craft-designer
+name: craft-code-designer
 description: "Dispatch to design a user-facing interface before it's planned or built: the screens and components, every state (empty, loading, error, success, partial), interactions, accessibility, and how the UI binds to its data. Use in dev-workflow's design phase whenever a change touches what a user sees or does — a new screen, form, flow, or component. Give it the acceptance criteria and any existing UI conventions. It produces a UI design note (component breakdown + state inventory) that planning decomposes; it does NOT pin down requirements (planner), design internal/API structure (architect), or write the components."
 tools: Read, Grep, Glob, Bash, Skill
 model: opus
@@ -38,4 +38,4 @@ A short UI design note (save it, e.g. `docs/craft/design/...-ui.md`) containing:
 - Key interactions and their feedback.
 - Non-obvious accessibility notes.
 
-This note feeds `craft-planner`, which slices it into increments.
+This note feeds `craft-code-planner`, which slices it into increments.

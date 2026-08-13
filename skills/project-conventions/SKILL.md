@@ -64,12 +64,12 @@ When craft first runs in a project and there's no `.craft.yml`, create one by **
 
 | Skill / agent | Reads |
 |---------------|-------|
-| `strict-tdd` / `craft-implementer` | `commands.test` to run the inner-loop suite |
-| `acceptance-testing` / `craft-acceptance-tester` | `commands.acceptance`, `acceptance_env.*` for the prod-like deployment |
-| `verification` / `craft-verifier` | `commands.test` + `commands.acceptance` + `commands.run` for evidence |
+| `strict-tdd` / `craft-code-implementer` | `commands.test` to run the inner-loop suite |
+| `acceptance-testing` / `craft-code-acceptance-tester` | `commands.acceptance`, `acceptance_env.*` for the prod-like deployment |
+| `verification` / `craft-code-verifier` | `commands.test` + `commands.acceptance` + `commands.run` for evidence |
 | `dependency-maintenance` | `commands.test` + `commands.acceptance` after each update; `commands.lint`/`build` |
 | `code-style` | `commands.lint` + `commands.format_check` as the pre-commit gate |
-| `worktree-setup` / `craft-reconciler` | `git.main_branch`, `git.worktree_dir` |
+| `worktree-setup` / `craft-code-reconciler` | `git.main_branch`, `git.worktree_dir` |
 | `planning` / `architecture-design` / `frontend-design` | `paths.plans`, `paths.design` for where to write |
 
 ## Exit condition

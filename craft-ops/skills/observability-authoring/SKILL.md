@@ -16,7 +16,7 @@ Unlike the `-design` skills, it *does* write code — so it leans on craft to wr
 - **Consumes** the `observability-design` note as input. That note already made the decisions — SLOs, signals, alerting strategy, the runtime levers to expose. This skill does not re-decide them.
 - **Reads `.craft-ops.yml`** for this project's `observability.metrics`, `observability.dashboards`, and `observability.alerts` before authoring — see `craft-ops-conventions`, which records and reads it.
 - **Defers the production loop to craft** — named generically so this skill degrades gracefully without craft installed: `strict-tdd` for metric/SLO/burn-rate/lever logic, `verification` for the declarative dashboards and alert rules, `code-style` and `self-review` for how it's written and checked.
-- **Review and verification** go to `craft-reviewer` / `craft-verifier` where those agents exist.
+- **Review and verification** go to `craft-code-reviewer` / `craft-code-verifier` where those agents exist.
 
 ## The production-discipline split
 

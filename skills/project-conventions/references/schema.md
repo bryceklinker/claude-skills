@@ -62,7 +62,7 @@ paths:
 - **`commands.format_check`** — used as a pre-commit gate by `code-style`; the `_check` variant verifies without modifying so it can fail CI.
 - **`acceptance_env.database`** — the real engine (e.g. `postgres:16`), matching production. Acceptance tests never substitute this with an in-memory or different database.
 - **`acceptance_env.fakes`** — external, deployed fakes only: standalone services the app reaches over the wire exactly as it would the real one. This is where the "never a code-level double in the running app" rule is made concrete.
-- **`git.main_branch` / `worktree_dir`** — consumed by `worktree-setup` and `craft-reconciler` so worktrees branch from and merge back to the right place.
+- **`git.main_branch` / `worktree_dir`** — consumed by `worktree-setup` and `craft-code-reconciler` so worktrees branch from and merge back to the right place.
 - **`paths.*`** — so a resumed session or a subagent finds the plan and design notes where the project keeps them.
 
 ## Starter: TypeScript / JavaScript
