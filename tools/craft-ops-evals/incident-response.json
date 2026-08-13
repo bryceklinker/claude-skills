@@ -1,0 +1,48 @@
+{
+  "skill_name": "incident-response",
+  "note": "Behavioral eval set for craft-ops/incident-response. with-skill vs baseline. An assertion earns its place only if a strong baseline can plausibly FAIL it. This skill has the largest measured lift of the craft-ops suite because its two core moves genuinely fight a baseline's instinct. iteration-1 result: with-skill 100% vs baseline 61% (delta +0.39). See ../craft-ops-evals/README.md.",
+  "evals": [
+    {
+      "id": 0,
+      "eval_name": "active-rollback",
+      "discriminates": "mitigate-before-diagnose — the strongest discriminator in the suite. A baseline will SAY 'roll back first' but then gate the rollback on diagnostic confirmation (read the stack traces first), i.e. it investigates before mitigating. The skill mitigates unconditionally when a recent deploy is the obvious suspect. Baseline scored 3/6.",
+      "prompt": "Our checkout service is throwing 500s for about 20% of users right now and error rate is climbing. We deployed a change 15 minutes ago. What do we do?",
+      "assertions": [
+        "Mitigates FIRST — given a deploy 15 minutes ago, rolls back / reverts the deploy (or flips the flag) to stop harm BEFORE root-causing",
+        "Explicitly prioritizes stopping user harm over diagnosing the cause (mitigate-before-diagnose)",
+        "Declares an incident and establishes who is in charge (a single incident commander)",
+        "Turns observability up / gathers signals to confirm impact — but does not make diagnosis the first move",
+        "Verifies recovery on the real signal (error rate returning to normal) before calling it resolved",
+        "Notes a blameless postmortem afterward that ratchets (action items + a new test/alert)"
+      ]
+    },
+    {
+      "id": 1,
+      "eval_name": "postmortem-ratchet",
+      "discriminates": "the ratchet — a baseline writes a narrative postmortem and offers test/alert follow-ups as OPTIONAL discussion items; the skill MANDATES at least one new test or alert as a closure gate. Baseline scored 4/6.",
+      "prompt": "We had a 2-hour outage yesterday when a config change took down our payments API. It's resolved now. How should we run the postmortem?",
+      "assertions": [
+        "Blameless — targets the system and process conditions that allowed it, explicitly never a person",
+        "Produces a factual timeline of the incident",
+        "The ratchet — produces tracked action items AND at least one new test or alert that would have caught it",
+        "Identifies contributing conditions across both system and process, not a single root cause",
+        "Makes action items owned and time-bound",
+        "Goes beyond a narrative writeup — the postmortem's output is the ratchet, not just a story"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "process-roles",
+      "discriminates": "doctrine — designing a process, a baseline covers roles/severity well but under-weights mitigate-before-diagnose as explicit doctrine and a ratcheting postmortem step. Baseline scored 4/6.",
+      "prompt": "We don't really have an incident process — when things break it's chaos, everyone jumps in, nobody's clearly in charge, and we're not sure when to call something an incident. How should we structure incident response?",
+      "assertions": [
+        "Establishes declaring early / bias to declare, with criteria for what counts as an incident and severity levels",
+        "Names a single incident commander who decides and delegates (and is not heads-down debugging), plus a separate comms role",
+        "Makes mitigate-before-diagnose part of the doctrine (stop harm first)",
+        "Establishes a blameless culture / blameless postmortems",
+        "Includes a ratcheting postmortem step — action items + a new test/alert that would have caught it",
+        "Produces a process/plan, not a restatement of root-cause debugging technique"
+      ]
+    }
+  ]
+}

@@ -39,7 +39,7 @@ A few assertions are `judgment` (`passed: null`) — things a regex shouldn't de
 
 ## Running it
 
-Producing the repos is the expensive, non-deterministic step and is kept manual: drive the craft pipeline over each scenario's `prompt` in a throwaway git repo (a headless `claude -p …` session, or by hand), then place the result at `<runs-dir>/<scenario-id>/repo`. Then grade:
+Producing the repos is the expensive, non-deterministic step and is kept manual: drive the craft-code pipeline over each scenario's `prompt` in a throwaway git repo (a headless `claude -p …` session, or by hand), then place the result at `<runs-dir>/<scenario-id>/repo`. Then grade:
 
 ```bash
 PY=/opt/homebrew/bin/python3.14 ./run.sh <runs-dir>

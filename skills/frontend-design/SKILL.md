@@ -28,7 +28,7 @@ Work from the agreed acceptance criteria (from `intake`). Design only the surfac
 
 ## Write it down
 
-Produce a short design note. Save it where the work lives (e.g. `docs/craft/design/YYYY-MM-DD-<topic>-ui.md`) so `planning`, `strict-tdd`, and any subagent can read it. Include:
+Produce a short design note. Save it where the work lives (e.g. `docs/craft-code/design/YYYY-MM-DD-<topic>-ui.md`) so `planning`, `strict-tdd`, and any subagent can read it. Include:
 
 - The component tree (a simple nested list is enough).
 - The state inventory per view — every state above, with its appearance and behavior.

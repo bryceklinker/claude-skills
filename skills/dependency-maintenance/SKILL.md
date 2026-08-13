@@ -19,7 +19,7 @@ One logical update per commit, and the full unit AND acceptance suites green aft
 
 "One logical update" is usually one dependency, but may be a coherent group that must move together (a framework and its companion packages). The test is: could this unit be reverted on its own if it caused a regression?
 
-Run the suites and checks below with the project's configured commands — `commands.test`, `commands.acceptance`, `commands.lint`, `commands.build` from `.craft.yml` (see `project-conventions`) — so "run the suite" means the right thing on this repo.
+Run the suites and checks below with the project's configured commands — `commands.test`, `commands.acceptance`, `commands.lint`, `commands.build` from `.craft-code.yml` (see `craft-code-conventions`) — so "run the suite" means the right thing on this repo.
 
 ## The loop, per update
 

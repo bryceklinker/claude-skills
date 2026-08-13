@@ -1,6 +1,6 @@
-# Craft Principles
+# Craft-Code Principles
 
-The one place the *why* behind the whole methodology is stated. Individual skills restate the slice of this they need to stand alone, but this is the canonical source — when a skill says "see the craft principles," it means here. Every rule in the suite is strict on purpose: each removes a recurring source of bugs or friction. None is dogma, because each is given with its reason, and each has an escape hatch for the case where it genuinely fights the problem in front of you.
+The one place the *why* behind the whole methodology is stated. Individual skills restate the slice of this they need to stand alone, but this is the canonical source — when a skill says "see the craft-code principles," it means here. Every rule in the suite is strict on purpose: each removes a recurring source of bugs or friction. None is dogma, because each is given with its reason, and each has an escape hatch for the case where it genuinely fights the problem in front of you.
 
 ## 1. Discipline over the speed that isn't
 

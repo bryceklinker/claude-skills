@@ -26,7 +26,7 @@ The full rule set behind these decisions lives in `code-style/references/archite
 
 ## Write it down
 
-Produce a short design note — a paragraph and a sketch, not a treatise. Save it where the work lives (e.g. `docs/craft/design/YYYY-MM-DD-<topic>.md`) so `planning`, `strict-tdd`, and any subagent can read it. Include:
+Produce a short design note — a paragraph and a sketch, not a treatise. Save it where the work lives (e.g. `docs/craft-code/design/YYYY-MM-DD-<topic>.md`) so `planning`, `strict-tdd`, and any subagent can read it. Include:
 
 - The hexagon sketch: domain in the center, ports named, adapters at the edge.
 - The operations — their input data objects and handlers.
