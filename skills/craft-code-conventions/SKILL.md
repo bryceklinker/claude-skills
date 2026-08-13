@@ -1,5 +1,5 @@
 ---
-name: project-conventions
+name: craft-code-conventions
 description: "Use to record and read a project's concrete conventions in a .craft.yml file — the commands and settings the generic craft skills need but can't guess: how to run the unit and acceptance suites, start the app, build, lint, and format; which database and external fakes back the acceptance environment; the base branch and where plans/design notes live. Trigger when setting up craft in a new repo, when a skill or agent needs to run the suite/app/DB and the exact command isn't known, or when project conventions change. Reads .craft.yml at the repo root, and bootstraps one by discovering the project's tooling when it's absent. Not for writing tests, implementing features, or general how-to questions."
 ---
 

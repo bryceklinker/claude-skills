@@ -60,7 +60,7 @@ To install from a local checkout instead (for development), point the marketplac
 | `systematic-debugging` | Find a defect's root cause by disciplined investigation — reproduce, narrow, confirm one hypothesis at a time — before changing anything. The front half of the defect loop. |
 | `dependency-maintenance` | The sibling lane for version/tooling updates dev-workflow excludes: one update per commit, read the changelog, run unit + acceptance suites. |
 | `subagent-execution` | Dispatch independent increments in parallel and run fresh-eyes review/verify, without breaking discipline. |
-| `project-conventions` | Record this project's concrete commands (test, acceptance, run, lint, DB) in a committed `.craft.yml` so the generic skills read them instead of guessing. The portability layer. |
+| `craft-code-conventions` | Record this project's concrete commands (test, acceptance, run, lint, DB) in a committed `.craft.yml` so the generic skills read them instead of guessing. The portability layer. |
 
 ## Agent team
 

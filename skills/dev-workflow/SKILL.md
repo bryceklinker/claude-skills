@@ -95,7 +95,7 @@ Writing the test first here does more than guard against regressions — it *ver
 
 At the start of any development request, **state the current phase out loud** and confirm its precondition before acting. For example: *"This is a new feature. No acceptance criteria exist yet — starting at phase 1, intake."* This single habit is what makes the gate real instead of decorative.
 
-On a repo craft hasn't run in before, make sure a `.craft.yml` exists first — it tells every downstream phase how *this* project runs its tests, app, and acceptance environment. If it's missing, use `project-conventions` to bootstrap one before the phases that need those commands (TDD, acceptance, verification).
+On a repo craft hasn't run in before, make sure a `.craft.yml` exists first — it tells every downstream phase how *this* project runs its tests, app, and acceptance environment. If it's missing, use `craft-code-conventions` to bootstrap one before the phases that need those commands (TDD, acceptance, verification).
 
 Then, for each phase:
 
