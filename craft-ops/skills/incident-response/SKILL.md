@@ -15,7 +15,7 @@ It is a **doing** phase, not a design one. Nothing here is decided under pressur
 
 - **`deployment-design`** designed the reversible mitigation levers — rollback, feature flag, load shedding, failover — before this incident started. This skill pulls them; it doesn't invent a new one under pressure.
 - **`observability-design`** designed the runtime levers — verbosity, sampling, trace detail — and their incident-vs-default settings. This skill turns them up to gather facts, and back down once calm.
-- **craft's `systematic-debugging`** owns the root-cause *mechanics* — reproduce, bisect, one hypothesis at a time. This skill owns the incident wrapper around it: when diagnosis starts relative to mitigation, whose job it is, and what evidence closes it out. It does not restate debugging technique.
+- **craft-code's `systematic-debugging`** owns the root-cause *mechanics* — reproduce, bisect, one hypothesis at a time. This skill owns the incident wrapper around it: when diagnosis starts relative to mitigation, whose job it is, and what evidence closes it out. It does not restate debugging technique.
 - **Reads `.craft-ops.yml`** for this project's `deployment.rollback_command` and `observability.*` before mitigating or diagnosing — see `craft-ops-conventions`, which records and reads it.
 
 ## The discipline
@@ -32,7 +32,7 @@ Stop user harm with a **reversible lever** before spending a single minute on wh
 
 ### 3. Diagnose with method
 
-Once harm is mitigated, find the cause against the now-ramped-up signals: reproduce, narrow, one hypothesis at a time, with a running written timeline so the incident doesn't re-litigate the same dead end twice. **This phase defers its mechanics entirely to craft's `systematic-debugging`** — this skill's job is knowing that diagnosis happens here, third, after mitigation and with roles already assigned, not what debugging technique to apply once you're in it.
+Once harm is mitigated, find the cause against the now-ramped-up signals: reproduce, narrow, one hypothesis at a time, with a running written timeline so the incident doesn't re-litigate the same dead end twice. **This phase defers its mechanics entirely to craft-code's `systematic-debugging`** — this skill's job is knowing that diagnosis happens here, third, after mitigation and with roles already assigned, not what debugging technique to apply once you're in it.
 
 ### 4. Resolve and verify on evidence
 

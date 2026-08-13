@@ -9,21 +9,21 @@ description: "Use when turning an infrastructure design note (from infrastructur
 
 A design note is not applied infrastructure. Left to guesswork, the gap between the two fills in with duplicated resource blocks copy-pasted across environments, durable resources wired directly into the compute unit that happens to need them, and applies that go out without anyone reading the plan. This skill turns an `infrastructure-design` note into real, reviewed infrastructure-as-code — without re-deciding the design and without hand-waving the discipline that makes the result trustworthy.
 
-Unlike the `-design` skills, it *does* write code — so it leans on craft to write it well.
+Unlike the `-design` skills, it *does* write code — so it leans on craft-code to write it well.
 
 ## Seams
 
 - **Consumes** the `infrastructure-design` note as input. That note already made the shape decisions — resource tiers, module boundaries, state strategy. This skill does not re-decide them.
 - **Reads `.craft-ops.yml`** for this project's `cloud.iac_tool` and `cloud.iac_commands` before authoring — see `craft-ops-conventions`, which records and reads it.
-- **Defers the production loop to craft** — named generically so this skill degrades gracefully without craft installed: `strict-tdd` for policy and module logic, `verification` for the declarative resources, `code-style` and `self-review` for how it's written and checked.
+- **Defers the production loop to craft-code** — named generically so this skill degrades gracefully without craft-code installed: `strict-tdd` for policy and module logic, `verification` for the declarative resources, `code-style` and `self-review` for how it's written and checked.
 - **Review and verification** go to `craft-code-reviewer` / `craft-code-verifier` where those agents exist.
 
 ## The production-discipline split
 
 State it plainly, because the two halves are proven differently:
 
-- **Policy/module logic** — policy-as-code, modules with computed values, generators, anything with scripting or a decision in it — is production code. It goes through craft `strict-tdd`: a failing test first, then the minimal code to pass it.
-- **The declarative resources** — the resource blocks and their wiring — aren't unit-testable in the same sense. They're proven by craft `verification`: `validate` + `plan`/`diff`, reviewed, then applied against a throwaway or sandbox environment. At minimum, even when no apply target is available, **`validate` + `plan` is the always-runnable minimum verification** — it catches broken references, type errors, and unexpected destroy/replace offline, before any apply. The plan is a diff you must READ, not a step you rubber-stamp.
+- **Policy/module logic** — policy-as-code, modules with computed values, generators, anything with scripting or a decision in it — is production code. It goes through craft-code `strict-tdd`: a failing test first, then the minimal code to pass it.
+- **The declarative resources** — the resource blocks and their wiring — aren't unit-testable in the same sense. They're proven by craft-code `verification`: `validate` + `plan`/`diff`, reviewed, then applied against a throwaway or sandbox environment. At minimum, even when no apply target is available, **`validate` + `plan` is the always-runnable minimum verification** — it catches broken references, type errors, and unexpected destroy/replace offline, before any apply. The plan is a diff you must READ, not a step you rubber-stamp.
 
 This skill's job is to maximize how much lands on the testable side of that split. Every computed value or decision pushed out of the declarative resources and into a module or policy script is more of the infrastructure covered by strict-tdd instead of resting on "the plan looked fine."
 
@@ -50,11 +50,11 @@ Testing/verifying depth is in `references/testing-and-verifying-infrastructure.m
 ## Guardrails
 
 - **Do not re-decide the design.** If the design note is missing, ambiguous, or looks wrong, stop and send it back to `infrastructure-design` rather than deciding the shape here.
-- **Do not reimplement TDD or verification.** Defer to craft's `strict-tdd` and `verification`; this skill supplies the domain rules, not a competing test methodology.
+- **Do not reimplement TDD or verification.** Defer to craft-code's `strict-tdd` and `verification`; this skill supplies the domain rules, not a competing test methodology.
 - **Never co-locate a durable resource in a compute unit** — not "just this once," not "it's a small instance."
 - **No secrets in code or state, ever.**
 - **Review the plan before every apply** — no exceptions for "obviously safe" changes.
 
 ## Exit condition
 
-The IaC and any policy/module logic exist in the repo. The logic is covered by tests written under strict-tdd; the declarative resources are verified by `validate`/`plan` at minimum, and applied against a sandbox with the plan read before the apply. Durable resources and compute units live in separate composable units. All of it is committed the craft way — reviewed, no secrets, pinned providers, no dead scaffolding left behind.
+The IaC and any policy/module logic exist in the repo. The logic is covered by tests written under strict-tdd; the declarative resources are verified by `validate`/`plan` at minimum, and applied against a sandbox with the plan read before the apply. Durable resources and compute units live in separate composable units. All of it is committed the craft-code way — reviewed, no secrets, pinned providers, no dead scaffolding left behind.

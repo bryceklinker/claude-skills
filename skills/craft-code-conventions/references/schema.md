@@ -51,8 +51,8 @@ git:
     bugfix:  fix/
 
 paths:
-  plans:  docs/craft/plans           # where planning writes its increment plans
-  design: docs/craft/design          # where architecture-design / frontend-design write notes
+  plans:  docs/craft-code/plans           # where planning writes its increment plans
+  design: docs/craft-code/design          # where architecture-design / frontend-design write notes
 ```
 
 ## Field reference
@@ -86,7 +86,7 @@ acceptance_env:
   ui_driver: playwright
   base_url:  http://localhost:3000
 git: { main_branch: main }
-paths: { plans: docs/craft/plans, design: docs/craft/design }
+paths: { plans: docs/craft-code/plans, design: docs/craft-code/design }
 ```
 
 ## Starter: C# / .NET
@@ -108,7 +108,7 @@ acceptance_env:
   database:  postgres:16              # or mcr.microsoft.com/mssql/server:2022-latest
   base_url:  http://localhost:8080
 git: { main_branch: main }
-paths: { plans: docs/craft/plans, design: docs/craft/design }
+paths: { plans: docs/craft-code/plans, design: docs/craft-code/design }
 ```
 
 ## Starter: Rust
@@ -124,7 +124,7 @@ commands:
   lint:         cargo clippy -- -D warnings
   format_check: cargo fmt --check
 git: { main_branch: main }
-paths: { plans: docs/craft/plans, design: docs/craft/design }
+paths: { plans: docs/craft-code/plans, design: docs/craft-code/design }
 ```
 
 ## Starter: Go
@@ -140,7 +140,7 @@ commands:
   lint:         golangci-lint run
   format_check: gofmt -l .
 git: { main_branch: main }
-paths: { plans: docs/craft/plans, design: docs/craft/design }
+paths: { plans: docs/craft-code/plans, design: docs/craft-code/design }
 ```
 
 ## Notes on the acceptance environment

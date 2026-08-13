@@ -1,6 +1,6 @@
 # Craft-Ops Principles
 
-The canonical *why* behind craft-ops. Individual skills restate the slice of this they need to stand alone, but this is the source — when a craft-ops skill says "see the principles," it means here. This derives from and cites craft's `PRINCIPLES.md`, extending that methodology from application code into the systems that build, ship, and run it — but craft-ops stands on its own: you can install and use it without craft. Every rule is strict on purpose, each is given with its reason, and each has an escape hatch for the case where it genuinely fights the problem in front of you.
+The canonical *why* behind craft-ops. Individual skills restate the slice of this they need to stand alone, but this is the source — when a craft-ops skill says "see the principles," it means here. This derives from and cites craft-code's `PRINCIPLES.md`, extending that methodology from application code into the systems that build, ship, and run it — but craft-ops stands on its own: you can install and use it without craft-code. Every rule is strict on purpose, each is given with its reason, and each has an escape hatch for the case where it genuinely fights the problem in front of you.
 
 ## 1. Build once, promote the same artifact
 
@@ -158,7 +158,7 @@ An incident that doesn't change anything will happen again. Each one yields a tr
 
 ### 10. Find the cause with method, not guesses
 
-Reproduce, bisect, one hypothesis at a time, against the ramped-up signals, keeping a written timeline. Guessing under pressure is how a two-hour incident becomes a six-hour one. *(cross-references craft `systematic-debugging`.)*
+Reproduce, bisect, one hypothesis at a time, against the ramped-up signals, keeping a written timeline. Guessing under pressure is how a two-hour incident becomes a six-hour one. *(cross-references craft-code `systematic-debugging`.)*
 
 ### 11. State the why; keep the escape hatch
 
@@ -170,4 +170,4 @@ CI/CD, Infrastructure as Code, Deployment & release, and Observability & inciden
 
 ---
 
-*Lineage:* this methodology extends craft's discipline — immutability, evidence over inspection, tests as a ratchet, the stated *why* with its escape hatch — from application code into the pipelines, infrastructure, and operations that build, ship, and run it.
+*Lineage:* this methodology extends craft-code's discipline — immutability, evidence over inspection, tests as a ratchet, the stated *why* with its escape hatch — from application code into the pipelines, infrastructure, and operations that build, ship, and run it.

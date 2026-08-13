@@ -24,7 +24,7 @@ If the task actually needs new behavior, stop: it is not a refactoring. Give it 
 
 The safety of refactoring comes entirely from **small, behavior-preserving steps run against green tests**. The rules:
 
-1. **Green before you begin.** Refactoring without tests is just editing and hoping. If the code you're about to restructure has no test covering its behavior, that gap is the first thing to fix — add the characterization test (watch it pass on current behavior) so you have a net, *then* refactor. In the craft pipeline this is rarely an issue: strict-tdd already left the behavior covered.
+1. **Green before you begin.** Refactoring without tests is just editing and hoping. If the code you're about to restructure has no test covering its behavior, that gap is the first thing to fix — add the characterization test (watch it pass on current behavior) so you have a net, *then* refactor. In the craft-code pipeline this is rarely an issue: strict-tdd already left the behavior covered.
 2. **One technique at a time.** Pick the single named technique that resolves the smell in front of you (the map below). Apply *its* mechanics — not a freehand rewrite. Named techniques have known-safe steps for a reason.
 3. **Small steps, tests after each.** Every mechanical step is small enough that the suite can run between them and prove behavior held. Run the fast scoped suite (see `strict-tdd`) after each step, not just at the end. A refactor that only gets tested at the end is a rewrite wearing a refactor's name.
 4. **Commit the refactor on its own.** A refactoring is its own commit — `refactor: extract shippingCost from checkout`, never riding inside a behavior commit. This keeps it independently reviewable and revertible (see `strict-tdd`'s commit discipline).

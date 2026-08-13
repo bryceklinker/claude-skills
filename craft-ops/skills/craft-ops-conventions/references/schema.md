@@ -1,6 +1,6 @@
 # .craft-ops.yml — full schema and starter files
 
-`.craft-ops.yml` lives at the repository root and is committed. It is **self-contained**: it declares its own `stack` and `git.main_branch`, and it never references craft's `.craft-code.yml` — craft-ops stays independently installable, so a repo can run craft-ops without craft, or vice versa. Every top-level section is optional — a repo with no IaC omits `cloud`, a repo that hasn't wired up alerting omits `observability.alerts`, and so on. State only what the project actually has; unknown keys are ignored, so you can extend it for project-specific needs.
+`.craft-ops.yml` lives at the repository root and is committed. It is **self-contained**: it declares its own `stack` and `git.main_branch`, and it never references craft-code's `.craft-code.yml` — craft-ops stays independently installable, so a repo can run craft-ops without craft-code, or vice versa. Every top-level section is optional — a repo with no IaC omits `cloud`, a repo that hasn't wired up alerting omits `observability.alerts`, and so on. State only what the project actually has; unknown keys are ignored, so you can extend it for project-specific needs.
 
 ## Table of contents
 - The full annotated schema
@@ -83,7 +83,7 @@ paths:
 - **`deployment.tool` / `rollout_command` / `rollback_command`** — the concrete commands `deployment-authoring` and `incident-response` use instead of guessing. `rollback_command` in particular is read by `incident-response` for mitigate-first response — it must be a command that actually reverts the last rollout, not just a description of one.
 - **`observability.metrics` / `dashboards` / `alerts`** — three distinct systems that are often, but not always, the same product. Keep them separate even when one vendor supplies all three (e.g. Datadog for metrics, dashboards, and alerts) — the fields are read independently by different skills.
 - **`secrets.manager`** — read by every domain before referencing how a credential is stored or retrieved, so generated pipelines, IaC, or rollout commands reference secrets the way this project actually manages them (env-injected from a manager, mounted, etc.) rather than inventing a plausible-looking placeholder.
-- **`paths.*`** — where `pipeline-authoring`, `infrastructure-authoring`, `deployment-authoring`, and `observability-authoring` (and their `-design` counterparts) write and read their design notes. Keep these distinct from craft's `paths.plans` / `paths.design` in `.craft-code.yml` — the two files are never cross-referenced.
+- **`paths.*`** — where `pipeline-authoring`, `infrastructure-authoring`, `deployment-authoring`, and `observability-authoring` (and their `-design` counterparts) write and read their design notes. Keep these distinct from craft-code's `paths.plans` / `paths.design` in `.craft-code.yml` — the two files are never cross-referenced.
 
 ## Starter: AWS + OpenTofu + GitHub Actions + Argo Rollouts + Prometheus
 

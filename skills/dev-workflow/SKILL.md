@@ -9,7 +9,7 @@ description: "Use this to drive any change to application behavior or logic thro
 
 Every change to production code — a feature, a bugfix, a refactor, a "tiny" tweak — flows through one pipeline. This skill is the conductor. It doesn't do the work itself; it decides which phase you're in, enforces the gate for that phase, and hands off to the specialist skill that does the work.
 
-The reason for a single enforced path is simple: the failures that cost the most — building the wrong thing, untested code, style drift, regressions — all come from skipping a phase because it "felt unnecessary this time." The pipeline removes that decision. There is no lane that skips the failing test or the fresh-eyes review, because that's exactly where the bugs live — not even the in-session follow-up lane below, which collapses the *paperwork* of intake and planning for already-agreed work but keeps every test and review gate hard. The *why* behind this and every rule the phases enforce is stated canonically in the craft principles (`PRINCIPLES.md` at the plugin root).
+The reason for a single enforced path is simple: the failures that cost the most — building the wrong thing, untested code, style drift, regressions — all come from skipping a phase because it "felt unnecessary this time." The pipeline removes that decision. There is no lane that skips the failing test or the fresh-eyes review, because that's exactly where the bugs live — not even the in-session follow-up lane below, which collapses the *paperwork* of intake and planning for already-agreed work but keeps every test and review gate hard. The *why* behind this and every rule the phases enforce is stated canonically in the craft-code principles (`PRINCIPLES.md` at the plugin root).
 
 **What this pipeline is *not* for:** work that changes no product behavior. Updating dependency or tooling versions, lockfiles, and config drift go through `dependency-maintenance`, a lighter sibling lane — not this pipeline. And when a defect's cause is unknown, `systematic-debugging` finds it first, then feeds the fix back into this pipeline. Both are covered below under "When phases send you backward" and the maintenance lane.
 
@@ -95,7 +95,7 @@ Writing the test first here does more than guard against regressions — it *ver
 
 At the start of any development request, **state the current phase out loud** and confirm its precondition before acting. For example: *"This is a new feature. No acceptance criteria exist yet — starting at phase 1, intake."* This single habit is what makes the gate real instead of decorative.
 
-On a repo craft hasn't run in before, make sure a `.craft-code.yml` exists first — it tells every downstream phase how *this* project runs its tests, app, and acceptance environment. If it's missing, use `craft-code-conventions` to bootstrap one before the phases that need those commands (TDD, acceptance, verification).
+On a repo craft-code hasn't run in before, make sure a `.craft-code.yml` exists first — it tells every downstream phase how *this* project runs its tests, app, and acceptance environment. If it's missing, use `craft-code-conventions` to bootstrap one before the phases that need those commands (TDD, acceptance, verification).
 
 Then, for each phase:
 
@@ -129,7 +129,7 @@ Phases 5–8 are the slow part, and much of it parallelizes. The orchestrator's 
 - **Review and verification run as fresh-eyes agents.** Hand the diff to a `craft-code-reviewer` and a `craft-code-verifier` that did *not* write the code. A reviewer without implementation bias catches more — this is a quality win, not only a speed one.
 - **Unknown-cause defects go to the debugger first.** When `self-review` or `verification` finds a defect whose cause isn't obvious, dispatch a `craft-code-debugger` to find the root cause (reproduce, narrow, confirm) before the fix returns to a `craft-code-implementer` to capture as a failing test.
 
-The `craft` plugin ships nine agents — `craft-code-planner`, `craft-code-architect`, `craft-code-designer`, `craft-code-acceptance-tester`, `craft-code-implementer`, `craft-code-reconciler`, `craft-code-reviewer`, `craft-code-verifier`, `craft-code-debugger` — covering the pipeline end to end. `subagent-execution` covers exactly what each needs and how to reconcile their output.
+The `craft-code` plugin ships nine agents — `craft-code-planner`, `craft-code-architect`, `craft-code-designer`, `craft-code-acceptance-tester`, `craft-code-implementer`, `craft-code-reconciler`, `craft-code-reviewer`, `craft-code-verifier`, `craft-code-debugger` — covering the pipeline end to end. `subagent-execution` covers exactly what each needs and how to reconcile their output.
 
 See `subagent-execution` for exactly how to parcel the work, what context each subagent needs, and how to reconcile their results. The rule that never bends: parallelism is allowed only where the work is genuinely independent. Two subagents editing the same file is not speed, it's a merge conflict waiting to corrupt the discipline.
 

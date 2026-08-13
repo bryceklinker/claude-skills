@@ -9,21 +9,21 @@ description: "Use when turning a CI/CD pipeline design note (from cicd-pipeline-
 
 A design note is not a running pipeline. Left to guesswork, the gap between the two fills in with inline shell scripts nobody can unit test, stages that quietly diverge from what was decided, and a definition that's never actually reviewed like code. This skill turns a `cicd-pipeline-design` note into real, reviewed pipeline-as-code — without re-litigating the design and without hand-waving the discipline that makes the result trustworthy.
 
-Unlike the `-design` skills, it *does* write code — so it leans on craft to write it well.
+Unlike the `-design` skills, it *does* write code — so it leans on craft-code to write it well.
 
 ## Seams
 
 - **Consumes** the `cicd-pipeline-design` note as input. That note already made the shape decisions — artifact strategy, stage ordering, gate map, promotion flow, reproducibility seams, secrets boundary, evidence of done. This skill does not re-decide them.
 - **Reads `.craft-ops.yml`** for this project's `cicd.artifact_registry`, `cicd.artifact_identity`, and `environments.order` before authoring — see `craft-ops-conventions`, which records and reads it.
-- **Defers the production loop to craft** — named generically so this skill degrades gracefully without craft installed: `strict-tdd` for the extracted logic, `verification` for the pipeline glue, `code-style` and `self-review` for how it's written and checked.
+- **Defers the production loop to craft-code** — named generically so this skill degrades gracefully without craft-code installed: `strict-tdd` for the extracted logic, `verification` for the pipeline glue, `code-style` and `self-review` for how it's written and checked.
 - **Review and verification** go to `craft-code-reviewer` / `craft-code-verifier` where those agents exist.
 
 ## The production-discipline split
 
 State it plainly, because the two halves are proven differently:
 
-- **Extracted real logic** — scripts, generators, policy code, anything with a decision or a computation in it — is production code. It goes through craft `strict-tdd`: a failing test first, then the minimal code to pass it.
-- **The declarative pipeline glue** — the stage/job wiring itself — isn't unit-testable in the same sense. It's proven by craft `verification`: run the real pipeline against a test artifact and observe the outcome, not by reasoning about the YAML. At minimum — even when no runner is available — **smoke-invoke each extracted script through the exact entrypoint the glue calls** (`python -m ci.promote --help`, `./ci/deploy.sh --dry-run`): the unit tests import the functions directly and never cross that seam, so a wrong module name or broken CLI path passes a green suite and fails on the first real run. See `references/testing-and-verifying-pipelines.md`.
+- **Extracted real logic** — scripts, generators, policy code, anything with a decision or a computation in it — is production code. It goes through craft-code `strict-tdd`: a failing test first, then the minimal code to pass it.
+- **The declarative pipeline glue** — the stage/job wiring itself — isn't unit-testable in the same sense. It's proven by craft-code `verification`: run the real pipeline against a test artifact and observe the outcome, not by reasoning about the YAML. At minimum — even when no runner is available — **smoke-invoke each extracted script through the exact entrypoint the glue calls** (`python -m ci.promote --help`, `./ci/deploy.sh --dry-run`): the unit tests import the functions directly and never cross that seam, so a wrong module name or broken CLI path passes a green suite and fails on the first real run. See `references/testing-and-verifying-pipelines.md`.
 
 This skill's job is to maximize how much lands on the testable side of that split. Every non-trivial decision pushed out of the glue and into a script is more of the pipeline covered by strict-tdd instead of resting on "it looked right."
 
@@ -45,10 +45,10 @@ Testing and verifying depth — what counts as adequate coverage for extracted l
 ## Guardrails
 
 - **Do not re-decide the design.** If the design note is missing, ambiguous, or looks wrong, stop and send it back to `cicd-pipeline-design` rather than deciding the shape here.
-- **Do not reimplement TDD or verification.** Defer to craft's `strict-tdd` and `verification`; this skill supplies the domain rules, not a competing test methodology.
+- **Do not reimplement TDD or verification.** Defer to craft-code's `strict-tdd` and `verification`; this skill supplies the domain rules, not a competing test methodology.
 - **Don't inline non-trivial step logic.** If a step body is growing past a couple of straight-line commands, extract it to a script before it grows further.
 - **No secrets in the definition, ever** — not as a placeholder, not "just for now."
 
 ## Exit condition
 
-The pipeline definition and its extracted step scripts exist in the repo. The extracted logic is covered by tests written under strict-tdd; the declarative glue has been verified by running the real pipeline against a test artifact and observing the result — and, at minimum, every script the glue calls has been smoke-invoked through the exact entrypoint the pipeline uses, so the wiring-to-code seam is proven connected, not assumed. Both are committed the craft way — reviewed, no secrets, no dead scaffolding left behind.
+The pipeline definition and its extracted step scripts exist in the repo. The extracted logic is covered by tests written under strict-tdd; the declarative glue has been verified by running the real pipeline against a test artifact and observing the result — and, at minimum, every script the glue calls has been smoke-invoked through the exact entrypoint the pipeline uses, so the wiring-to-code seam is proven connected, not assumed. Both are committed the craft-code way — reviewed, no secrets, no dead scaffolding left behind.

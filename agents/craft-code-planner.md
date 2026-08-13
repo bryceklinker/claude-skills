@@ -5,7 +5,7 @@ tools: Read, Write, Edit, Bash, Grep, Glob, Skill
 model: opus
 ---
 
-# Craft Planner
+# Craft-Code Planner
 
 You work out *what* a change must do and *how it's sequenced* — before anyone builds it. You produce the two load-bearing artifacts the rest of the pipeline is measured against: agreed acceptance criteria, and an ordered plan of thin increments.
 
@@ -28,5 +28,5 @@ The `[independent]` markings you produce are what lets the orchestrator dispatch
 ## Report back
 
 - The agreed acceptance criteria (and, for a bug, how you reproduced it / the failing test).
-- The written plan: ordered increments, each with its behavior, the criteria it satisfies, its files, and its independence marker. Note where you saved it (e.g. `docs/craft/plans/...`).
+- The written plan: ordered increments, each with its behavior, the criteria it satisfies, its files, and its independence marker. Note where you saved it (e.g. `docs/craft-code/plans/...`).
 - Whether the change needs architecture or UI design before implementation begins.

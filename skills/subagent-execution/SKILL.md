@@ -11,9 +11,9 @@ Phases 5–8 (acceptance-testing, TDD, style, review, verify) are the slow part 
 
 The core principle: **the orchestrator stays thin and coordinates; subagents do the deep work and report back.** The orchestrator holds the plan, dispatches, and reconciles. It does not itself get lost in the weeds of one increment.
 
-## The craft agent team
+## The craft-code agent team
 
-The `craft` plugin ships nine purpose-built agents covering the pipeline end to end; dispatch to them by name rather than to a generic subagent:
+The `craft-code` plugin ships nine purpose-built agents covering the pipeline end to end; dispatch to them by name rather than to a generic subagent:
 
 | Agent | Role | Skills it follows | Access | Model |
 |-------|------|-------------------|--------|-------|
@@ -83,10 +83,10 @@ If it wrote or committed against a read-only brief, its "review" is not a fresh-
 
 ## What every subagent needs in its prompt
 
-A subagent starts cold. Give it enough to work without re-deriving context, and be explicit that the craft discipline still applies — a subagent does not get to skip TDD or style because it's "just one increment."
+A subagent starts cold. Give it enough to work without re-deriving context, and be explicit that the craft-code discipline still applies — a subagent does not get to skip TDD or style because it's "just one increment."
 
 Include:
-- **The relevant craft skill(s)** it must follow (e.g. `strict-tdd` + `code-style`, or `self-review`).
+- **The relevant craft-code skill(s)** it must follow (e.g. `strict-tdd` + `code-style`, or `self-review`).
 - **The exact increment or diff** it owns — increment number, behavior, acceptance criteria, and the files it may touch.
 - **The worktree/branch** it should operate in.
 - **Its precise deliverable** — e.g. "increment green and committed at green + after refactor" for an implementer; "a findings list keyed to file:line" for a reviewer.
@@ -100,4 +100,4 @@ Include:
 
 ## When NOT to use subagents
 
-Parallelism has overhead. For a single small increment, or a plan with no independent increments, dispatching costs more than it saves — just run the phases inline. The fresh-eyes review/verify split is still worth it even for small changes, because its payoff is judgment quality, not speed. Use `dispatching-parallel-agents` for the general mechanics of launching agents; this skill is specifically about keeping the craft discipline intact while you do.
+Parallelism has overhead. For a single small increment, or a plan with no independent increments, dispatching costs more than it saves — just run the phases inline. The fresh-eyes review/verify split is still worth it even for small changes, because its payoff is judgment quality, not speed. Use `dispatching-parallel-agents` for the general mechanics of launching agents; this skill is specifically about keeping the craft-code discipline intact while you do.

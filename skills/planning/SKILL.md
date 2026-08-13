@@ -27,7 +27,7 @@ Smells in a plan:
 
 ## Write it down
 
-Produce a short plan document with an ordered list of increments. For each: the behavior, which acceptance criteria it satisfies, and its independence marker. Save it where the work lives (e.g. `docs/craft/plans/YYYY-MM-DD-<topic>.md`) so a resumed or subagent session can pick it up.
+Produce a short plan document with an ordered list of increments. For each: the behavior, which acceptance criteria it satisfies, and its independence marker. Save it where the work lives (e.g. `docs/craft-code/plans/YYYY-MM-DD-<topic>.md`) so a resumed or subagent session can pick it up.
 
 ```
 # Plan: promo codes at checkout

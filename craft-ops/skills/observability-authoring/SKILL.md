@@ -9,21 +9,21 @@ description: "Use when turning an observability design note (from observability-
 
 A design note is not running instrumentation. Left to guesswork, the gap between the two fills in with dashboards clicked together by hand and never reproduced, alert thresholds copy-pasted between environments until they drift, and an alert nobody has ever actually watched fire. This skill turns an `observability-design` note into real, reviewed observability-as-code — without re-deciding the design and without hand-waving the discipline that makes the result trustworthy.
 
-Unlike the `-design` skills, it *does* write code — so it leans on craft to write it well.
+Unlike the `-design` skills, it *does* write code — so it leans on craft-code to write it well.
 
 ## Seams
 
 - **Consumes** the `observability-design` note as input. That note already made the decisions — SLOs, signals, alerting strategy, the runtime levers to expose. This skill does not re-decide them.
 - **Reads `.craft-ops.yml`** for this project's `observability.metrics`, `observability.dashboards`, and `observability.alerts` before authoring — see `craft-ops-conventions`, which records and reads it.
-- **Defers the production loop to craft** — named generically so this skill degrades gracefully without craft installed: `strict-tdd` for metric/SLO/burn-rate/lever logic, `verification` for the declarative dashboards and alert rules, `code-style` and `self-review` for how it's written and checked.
+- **Defers the production loop to craft-code** — named generically so this skill degrades gracefully without craft-code installed: `strict-tdd` for metric/SLO/burn-rate/lever logic, `verification` for the declarative dashboards and alert rules, `code-style` and `self-review` for how it's written and checked.
 - **Review and verification** go to `craft-code-reviewer` / `craft-code-verifier` where those agents exist.
 
 ## The production-discipline split
 
 State it plainly, because the two halves are proven differently:
 
-- **Metric/SLO/burn-rate/instrumentation-helper/alert-generator/lever-toggle logic** — anything with a computation or a decision in it — is production code. It goes through craft `strict-tdd`: a failing test first, then the minimal code to pass it.
-- **The declarative dashboards-as-code and alert-rule config** — isn't unit-testable in the same sense. It's proven by craft `verification`: fire the alert against a synthetic/replayed signal — it trips on a bad signal, it stays quiet on a healthy one — and confirm dashboard queries resolve. At minimum, even when no live signal replay is available, **validate/lint the alert rules + dashboard definitions + entrypoint-smoke-invoke each extracted script is the always-runnable minimum verification.**
+- **Metric/SLO/burn-rate/instrumentation-helper/alert-generator/lever-toggle logic** — anything with a computation or a decision in it — is production code. It goes through craft-code `strict-tdd`: a failing test first, then the minimal code to pass it.
+- **The declarative dashboards-as-code and alert-rule config** — isn't unit-testable in the same sense. It's proven by craft-code `verification`: fire the alert against a synthetic/replayed signal — it trips on a bad signal, it stays quiet on a healthy one — and confirm dashboard queries resolve. At minimum, even when no live signal replay is available, **validate/lint the alert rules + dashboard definitions + entrypoint-smoke-invoke each extracted script is the always-runnable minimum verification.**
 
 This skill's job is to maximize how much lands on the testable side of that split. Every computation pushed out of the declarative alert/dashboard config and into a shared, tested helper is more of the observability covered by strict-tdd instead of resting on "the dashboard looked right."
 
@@ -45,11 +45,11 @@ Testing/verifying depth is in `references/testing-and-verifying-observability.md
 ## Guardrails
 
 - **Do not re-decide the design.** If the design note is missing, ambiguous, or looks wrong, stop and send it back to `observability-design` rather than deciding what to observe here.
-- **Do not reimplement TDD or verification.** Defer to craft's `strict-tdd` and `verification`; this skill supplies the domain rules, not a competing test methodology.
+- **Do not reimplement TDD or verification.** Defer to craft-code's `strict-tdd` and `verification`; this skill supplies the domain rules, not a competing test methodology.
 - **Never trust an alert you haven't fired against a signal that should trip it** — not "just this once," not "it's an obvious threshold."
 - **No secrets in config, ever.**
 - **No unbounded-cardinality labels** — no exceptions for "it's probably fine at current scale."
 
 ## Exit condition
 
-The instrumentation (via a shared tested helper), dashboards-as-code, alert rules proven to fire, and runtime-lever wiring exist in the repo. Metric/SLO/burn-rate/lever logic is covered by tests written under strict-tdd; the declarative dashboards and alert rules are verified by validate/lint + entrypoint-smoke-invoke at minimum, and by firing each alert against a synthetic or replayed signal — it trips on bad, stays quiet on healthy. All of it is committed the craft way — reviewed, no secrets, bounded cardinality, no dead scaffolding left behind.
+The instrumentation (via a shared tested helper), dashboards-as-code, alert rules proven to fire, and runtime-lever wiring exist in the repo. Metric/SLO/burn-rate/lever logic is covered by tests written under strict-tdd; the declarative dashboards and alert rules are verified by validate/lint + entrypoint-smoke-invoke at minimum, and by firing each alert against a synthetic or replayed signal — it trips on bad, stays quiet on healthy. All of it is committed the craft-code way — reviewed, no secrets, bounded cardinality, no dead scaffolding left behind.

@@ -5,7 +5,7 @@ tools: Read, Bash, Grep, Glob, Skill
 model: sonnet
 ---
 
-# Craft Reconciler
+# Craft-Code Reconciler
 
 You integrate the work of parallel `craft-code-implementer`s. Each built one increment in its own sibling worktree off the work-item branch; your job is to bring those increment branches back together on the work-item branch, cleanly, with the suite green.
 

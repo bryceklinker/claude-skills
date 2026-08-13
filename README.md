@@ -1,4 +1,4 @@
-# craft
+# craft-code
 
 A disciplined software-development skill suite for Claude Code. Every feature and bugfix flows through one enforced pipeline — no fast lane, because the fast lane is where the bugs live.
 
@@ -12,7 +12,7 @@ intake → design (architecture / frontend, as needed) → planning → worktree
 
 ## Installation (Claude Code)
 
-`craft` is distributed as a Claude Code plugin via a marketplace hosted in this repo. Install it in two steps from the Claude Code prompt:
+`craft-code` is distributed as a Claude Code plugin via a marketplace hosted in this repo. Install it in two steps from the Claude Code prompt:
 
 ```
 /plugin marketplace add bryceklinker/claude-skills
@@ -20,9 +20,9 @@ intake → design (architecture / frontend, as needed) → planning → worktree
 ```
 
 - The first command registers this repo's marketplace (`.claude-plugin/marketplace.json`).
-- The second installs the `craft` plugin, which makes all sixteen skills and nine agents available.
+- The second installs the `craft-code` plugin, which makes all sixteen skills and nine agents available.
 
-Verify the skills loaded with `/plugin` (they appear under the `craft` plugin) — `dev-workflow` triggers automatically the moment you start any feature, bugfix, or refactor.
+Verify the skills loaded with `/plugin` (they appear under the `craft-code` plugin) — `dev-workflow` triggers automatically the moment you start any feature, bugfix, or refactor.
 
 **Updating** to the latest version later:
 

@@ -1,13 +1,13 @@
 ---
 name: craft-code-conventions
-description: "Use to record and read a project's concrete conventions in a .craft-code.yml file — the commands and settings the generic craft skills need but can't guess: how to run the unit and acceptance suites, start the app, build, lint, and format; which database and external fakes back the acceptance environment; the base branch and where plans/design notes live. Trigger when setting up craft in a new repo, when a skill or agent needs to run the suite/app/DB and the exact command isn't known, or when project conventions change. Reads .craft-code.yml at the repo root, and bootstraps one by discovering the project's tooling when it's absent. Not for writing tests, implementing features, or general how-to questions."
+description: "Use to record and read a project's concrete conventions in a .craft-code.yml file — the commands and settings the generic craft-code skills need but can't guess: how to run the unit and acceptance suites, start the app, build, lint, and format; which database and external fakes back the acceptance environment; the base branch and where plans/design notes live. Trigger when setting up craft-code in a new repo, when a skill or agent needs to run the suite/app/DB and the exact command isn't known, or when project conventions change. Reads .craft-code.yml at the repo root, and bootstraps one by discovering the project's tooling when it's absent. Not for writing tests, implementing features, or general how-to questions."
 ---
 
 # Project Conventions — teach the pipeline this project's commands
 
 ## Why this exists
 
-The craft skills are deliberately framework- and language-agnostic — that's what lets the same discipline run on a TypeScript app, a .NET service, and a Rust CLI. The tradeoff is that a generic skill can't know *how this project* runs its tests, starts its app, or stands up its database. Left to guess, every skill improvises ("maybe `npm test`?") and gets it wrong on half your repos.
+The craft-code skills are deliberately framework- and language-agnostic — that's what lets the same discipline run on a TypeScript app, a .NET service, and a Rust CLI. The tradeoff is that a generic skill can't know *how this project* runs its tests, starts its app, or stands up its database. Left to guess, every skill improvises ("maybe `npm test`?") and gets it wrong on half your repos.
 
 `.craft-code.yml` closes that gap. A project states its concrete commands and conventions **once**, at the repo root, and every skill and agent reads them instead of guessing. This is what makes the suite portable: the discipline is universal; the commands are per-project, and they live in one file.
 
@@ -33,8 +33,8 @@ acceptance_env:
 git:
   main_branch: main
 paths:
-  plans:  docs/craft/plans
-  design: docs/craft/design
+  plans:  docs/craft-code/plans
+  design: docs/craft-code/design
 ```
 
 The full annotated schema, every field, and per-language starter files (TS/JS, C#/.NET, Rust, Go) are in `references/schema.md`.
@@ -49,7 +49,7 @@ This is what turns "run the suite" in a dozen skills from a hopeful guess into a
 
 ## Bootstrapping a new repo
 
-When craft first runs in a project and there's no `.craft-code.yml`, create one by **discovering** the tooling, then confirming with the user:
+When craft-code first runs in a project and there's no `.craft-code.yml`, create one by **discovering** the tooling, then confirming with the user:
 
 1. **Detect the stack and commands.** Read `package.json` scripts, `*.csproj`/`*.sln`, `Cargo.toml`, `go.mod`, `Makefile`, `docker-compose*.yml`, and CI config. These usually reveal the test, build, lint, and run commands directly.
 2. **Draft `.craft-code.yml`** from what you found, filling the schema in `references/schema.md`.
