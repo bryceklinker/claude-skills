@@ -1,5 +1,5 @@
 {
-  "name": "craft",
+  "name": "craft-code",
   "description": "A disciplined software development suite: every feature and bugfix flows through a single enforced pipeline — intake, planning, isolated worktree, strict classicist TDD, code-style enforcement, fresh-eyes self-review, and evidence-based verification.",
   "version": "0.4.0",
   "author": {

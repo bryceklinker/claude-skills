@@ -16,7 +16,7 @@ intake → design (architecture / frontend, as needed) → planning → worktree
 
 ```
 /plugin marketplace add bryceklinker/claude-skills
-/plugin install craft@craft-marketplace
+/plugin install craft-code@craft-marketplace
 ```
 
 - The first command registers this repo's marketplace (`.claude-plugin/marketplace.json`).
@@ -28,7 +28,7 @@ Verify the skills loaded with `/plugin` (they appear under the `craft` plugin) �
 
 ```
 /plugin marketplace update craft-marketplace
-/plugin install craft@craft-marketplace
+/plugin install craft-code@craft-marketplace
 ```
 
 See [`CHANGELOG.md`](CHANGELOG.md) for what changed between versions.
@@ -37,7 +37,7 @@ To install from a local checkout instead (for development), point the marketplac
 
 ```
 /plugin marketplace add /path/to/claude-skills
-/plugin install craft@craft-marketplace
+/plugin install craft-code@craft-marketplace
 ```
 
 ## Skills
