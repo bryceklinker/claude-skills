@@ -90,7 +90,7 @@ The suite encodes one opinionated methodology: Clean Code, Fowler's *Refactoring
 
 - [`PRINCIPLES.md`](PRINCIPLES.md) — the canonical *why* behind every rule; skills cite it instead of restating it.
 - [`tools/behavioral-evals/`](tools/behavioral-evals/) — a regression guard that mechanically checks a produced repo actually honored the discipline (test-first, no owned-code doubles, no non-null assertions, separate refactor commits, Given/When/Then names, green suite). Run it after editing a skill to confirm you didn't loosen what it encodes.
-- The trigger-description optimizer and its eval sets live under `craft-workspace/` (gitignored) — local tooling used to tune when each skill fires.
+- The trigger-description optimizer and its eval sets live under `craft-code-workspace/` (gitignored) — local tooling used to tune when each skill fires.
 
 ## Central rules worth knowing
 
