@@ -14,6 +14,7 @@ Unlike the `-design` skills, it *does* write code — so it leans on craft to wr
 ## Seams
 
 - **Consumes** the `cicd-pipeline-design` note as input. That note already made the shape decisions — artifact strategy, stage ordering, gate map, promotion flow, reproducibility seams, secrets boundary, evidence of done. This skill does not re-decide them.
+- **Reads `.craft-ops.yml`** for this project's `cicd.artifact_registry`, `cicd.artifact_identity`, and `environments.order` before authoring — see `craft-ops-conventions`, which records and reads it.
 - **Defers the production loop to craft** — named generically so this skill degrades gracefully without craft installed: `strict-tdd` for the extracted logic, `verification` for the pipeline glue, `code-style` and `self-review` for how it's written and checked.
 - **Review and verification** go to `craft-reviewer` / `craft-verifier` where those agents exist.
 

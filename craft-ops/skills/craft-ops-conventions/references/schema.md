@@ -7,7 +7,7 @@
 - Field reference
 - Starter: AWS + OpenTofu + GitHub Actions + Argo Rollouts + Prometheus
 - Starter: GCP + Pulumi + Cloud Build + Cloud Run
-- Starter: minimal (environments + paths only)
+- Starter: minimal (environments, paths, and base branch)
 - Notes on bootstrapping
 
 ## The full annotated schema
@@ -144,7 +144,7 @@ deployment:
   rollout_command:  gcloud run deploy api --image=$IMAGE --region=us-central1
   rollback_command: gcloud run services update-traffic api --to-revisions=PREVIOUS=100
 observability:
-  metrics:    cloudwatch          # swap for your project's real metrics backend, e.g. cloud-monitoring
+  metrics:    cloud-monitoring    # GCP-native metrics backend
   dashboards: grafana
   alerts:     opsgenie
 secrets:
@@ -156,7 +156,7 @@ paths:
   observability:  docs/craft-ops/observability
 ```
 
-## Starter: minimal (environments + paths only)
+## Starter: minimal (environments, paths, and base branch)
 
 Use this shape for a repo that's only ready to state its promotion order and where notes go — no IaC, deployment tool, or observability stack wired up yet. Add sections as the project grows into them.
 

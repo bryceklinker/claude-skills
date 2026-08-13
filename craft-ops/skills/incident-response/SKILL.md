@@ -16,6 +16,7 @@ It is a **doing** phase, not a design one. Nothing here is decided under pressur
 - **`deployment-design`** designed the reversible mitigation levers — rollback, feature flag, load shedding, failover — before this incident started. This skill pulls them; it doesn't invent a new one under pressure.
 - **`observability-design`** designed the runtime levers — verbosity, sampling, trace detail — and their incident-vs-default settings. This skill turns them up to gather facts, and back down once calm.
 - **craft's `systematic-debugging`** owns the root-cause *mechanics* — reproduce, bisect, one hypothesis at a time. This skill owns the incident wrapper around it: when diagnosis starts relative to mitigation, whose job it is, and what evidence closes it out. It does not restate debugging technique.
+- **Reads `.craft-ops.yml`** for this project's `deployment.rollback_command` and `observability.*` before mitigating or diagnosing — see `craft-ops-conventions`, which records and reads it.
 
 ## The discipline
 

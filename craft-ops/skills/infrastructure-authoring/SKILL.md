@@ -14,6 +14,7 @@ Unlike the `-design` skills, it *does* write code — so it leans on craft to wr
 ## Seams
 
 - **Consumes** the `infrastructure-design` note as input. That note already made the shape decisions — resource tiers, module boundaries, state strategy. This skill does not re-decide them.
+- **Reads `.craft-ops.yml`** for this project's `cloud.iac_tool` and `cloud.iac_commands` before authoring — see `craft-ops-conventions`, which records and reads it.
 - **Defers the production loop to craft** — named generically so this skill degrades gracefully without craft installed: `strict-tdd` for policy and module logic, `verification` for the declarative resources, `code-style` and `self-review` for how it's written and checked.
 - **Review and verification** go to `craft-reviewer` / `craft-verifier` where those agents exist.
 

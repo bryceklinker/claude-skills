@@ -5,7 +5,7 @@ All notable changes to the `craft-ops` plugin are recorded here. The format foll
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new domains and skills; the suite's core discipline stays stable.
 
-## [0.10.0] — 2026-08-12
+## [0.10.0] — 2026-08-13
 
 ### Added
 - **`craft-ops-conventions` skill** — the suite's portability layer: it records
