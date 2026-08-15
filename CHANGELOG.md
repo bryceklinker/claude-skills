@@ -5,6 +5,15 @@ All notable changes to the `craft` plugin are recorded here. The format follows
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new skills and agents; the pipeline's core discipline stays stable.
 
+## [0.4.1] — 2026-08-15
+
+The repo gained an actual release process, and this bump is what exercises it
+end to end for the first time.
+
+### Added
+- **Tagged GitHub Releases.** `craft-code` now ships as `craft-code-vX.Y.Z` GitHub Releases, cut by dispatching a workflow that reads the version straight from `plugin.json` — CI never commits back to `main`. Release notes are generated from conventional-commit history by git cliff; this hand-written changelog is untouched by that pipeline and stays the editorial record, while git cliff's output goes to the GitHub Release body only.
+- **`commit-msg` hook.** Enforces the conventional-commit grammar the generated release notes depend on. It's opt-in per clone — run `git config core.hooksPath .githooks` to turn it on.
+
 ## Renamed to `craft-code` — 2026-08-13
 
 The plugin was renamed from `craft` to `craft-code` to make the suite naming
@@ -79,6 +88,7 @@ Initial release of the craft process suite.
 - Classicist TDD, clean/hexagonal architecture, CQRS, and a strict house style, with empirically optimized trigger descriptions.
 - Marketplace configuration for installation from the GitHub repo.
 
+[0.4.1]: https://github.com/bryceklinker/claude-skills/releases/tag/craft-code-v0.4.1
 [0.4.0]: https://github.com/bryceklinker/claude-skills/releases/tag/v0.4.0
 [0.3.0]: https://github.com/bryceklinker/claude-skills/releases/tag/v0.3.0
 [0.2.0]: https://github.com/bryceklinker/claude-skills/releases/tag/v0.2.0
