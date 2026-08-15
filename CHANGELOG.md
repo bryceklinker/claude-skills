@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the `craft` plugin are recorded here. The format follows
+All notable changes to the `craft-code` plugin are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/), and the project aims to follow
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new skills and agents; the pipeline's core discipline stays stable.
@@ -89,7 +89,3 @@ Initial release of the craft process suite.
 - Marketplace configuration for installation from the GitHub repo.
 
 [0.4.1]: https://github.com/bryceklinker/claude-skills/releases/tag/craft-code-v0.4.1
-[0.4.0]: https://github.com/bryceklinker/claude-skills/releases/tag/v0.4.0
-[0.3.0]: https://github.com/bryceklinker/claude-skills/releases/tag/v0.3.0
-[0.2.0]: https://github.com/bryceklinker/claude-skills/releases/tag/v0.2.0
-[0.1.0]: https://github.com/bryceklinker/claude-skills/releases/tag/v0.1.0

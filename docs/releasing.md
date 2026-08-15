@@ -56,7 +56,10 @@ Because `craft-code` lives at the repo root, root-level changes (`README.md`,
    - the plugin's `plugin.json` `version`
    - that plugin's entry in `.claude-plugin/marketplace.json`
    - a new entry in the plugin's `CHANGELOG.md` (hand-written)
-2. Merge to `main`.
+2. Merge to `main` with a **merge commit or a rebase — never a squash**. Squash
+   merging collapses a branch into a single commit, and the release notes are
+   generated per commit, so a squashed release branch would reduce its whole
+   release body to one bullet.
 3. Run the **Release** workflow from the Actions tab, choosing the plugin.
 
 The workflow reads the version off `main` — there is no version input. It fails
@@ -77,8 +80,12 @@ work around it — instead delete the stray tag (`git push --delete origin
 
 ## Previewing notes locally
 
+CI pins git cliff to 2.13.1. Homebrew installs whatever version its formula
+currently points at, so a newer local build may format the notes slightly
+differently from what the workflow publishes.
+
 ```sh
-brew install git-cliff   # pinned to 2.13.1 in CI
+brew install git-cliff
 
 # craft-ops
 git-cliff --config cliff.toml --tag-pattern 'craft-ops-v.*' \

@@ -62,13 +62,18 @@ file serves both plugins.
   dropped rather than dumped into a catch-all group.
 - `commit_parsers` grouping into: **Features** (`feat`), **Bug Fixes** (`fix`), **Documentation**
   (`docs`), **Refactoring** (`refactor`), **Performance** (`perf`), **Chores** (`chore`, `build`, `ci`).
-- Skip rules for merge commits (`^Merge`), `chore(release)` commits, and `test` commits — the last
-  is a valid type the hook accepts, but test-only changes are not release-note material.
+- Skip rules for merge commits (`^Merge`), git's auto-generated revert subjects (`^Revert `),
+  `chore(release)` commits, and `test` commits — the last is a valid type the hook accepts, but
+  test-only changes are not release-note material.
 - Breaking changes (`!` marker or `BREAKING CHANGE:` footer) surface in their own section at the top.
 
 **`[changelog]` template:** emits the release-note body only. No document header, no repeated
 version title — GitHub renders the tag name as the release title, so duplicating it in the body is
-noise. Each entry is a bullet with the commit subject and a short SHA link.
+noise. Each entry is a bullet holding the commit's conventional-commit *description* — the
+subject with its `type(scope):` prefix already stripped — preceded by the scope in bold when the
+commit has one, and followed by the abbreviated SHA as plain text in parentheses (not a link).
+The scope is kept because two plugins share one history, so it is what tells a reader which
+plugin a bullet belongs to.
 
 **Invocation per stream:**
 
@@ -179,6 +184,9 @@ entire history.
 3. That commit reaches `main`.
 4. The human dispatches `release.yml` with the plugin name.
 5. The workflow validates, generates notes, tags, and publishes.
+
+Branches must reach `main` by merge commit or rebase, never by squash: notes and path attribution
+are both computed per commit, so squashing a branch collapses its whole contribution to one entry.
 
 ## Verification
 
