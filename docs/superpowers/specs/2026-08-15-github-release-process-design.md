@@ -191,8 +191,11 @@ inspection.
 - **`cliff.toml`** — run both stream invocations locally against real history with the backfill tags
   in place, and read the generated markdown. Confirm grouping, path filtering, and merge-commit
   exclusion behave as specified.
-- **`release.yml`** — verified by cutting a real release: a `craft-ops` patch, dispatched for real,
-  with the published GitHub release page read to confirm the tag, title, and notes body.
+- **`release.yml`** — verified by cutting a real release: a `craft-code` patch (`0.4.1`), dispatched
+  for real, with the published GitHub release page read to confirm the tag, title, and notes body.
+  It must be `craft-code`, not `craft-ops`: this work lands entirely in root-level files, so after
+  the baseline tags there are zero `craft-ops/**` commits and a `craft-ops` dispatch would correctly
+  fail guard 8 with nothing to release.
 
 ## Out of scope
 
