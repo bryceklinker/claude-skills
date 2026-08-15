@@ -1,0 +1,42 @@
+#!/bin/sh
+# Rejects commit subjects that are not conventional commits.
+# Install: git config core.hooksPath .githooks
+set -u
+
+msg_file="$1"
+
+# The subject is the first line that is not a comment.
+subject="$(grep -v '^#' "$msg_file" | sed -n '1p')"
+
+# Git generates these itself; their formats are not ours to police.
+case "$subject" in
+  "Merge "*|"Revert "*|"fixup! "*|"squash! "*) exit 0 ;;
+esac
+
+types='feat|fix|docs|refactor|perf|test|chore|build|ci|revert'
+
+if printf '%s' "$subject" | grep -Eq "^($types)(\([a-z0-9][a-z0-9._-]*\))?!?: .+"; then
+  exit 0
+fi
+
+cat >&2 <<EOF
+Commit rejected: the subject is not a conventional commit.
+
+  subject: $subject
+
+Expected:
+
+  <type>(<optional scope>)<optional !>: <description>
+
+Allowed types: feat, fix, docs, refactor, perf, test, chore, build, ci, revert
+
+Examples:
+
+  feat(craft-ops): add the release workflow
+  fix: correct the tag pattern
+  refactor(craft-code)!: rename the skill namespace
+
+Release notes are generated from these subjects, so a malformed one is
+silently dropped from the changelog.
+EOF
+exit 1
