@@ -5,8 +5,9 @@ set -u
 
 msg_file="$1"
 
-# The subject is the first line that is not a comment.
-subject="$(grep -v '^#' "$msg_file" | sed -n '1p')"
+# The subject is the first line that is not a comment and not blank -- git
+# strips leading blank lines and comments before storing the message.
+subject="$(grep -v '^#' "$msg_file" | grep -v '^[[:space:]]*$' | sed -n '1p')"
 
 # Git generates these itself; their formats are not ours to police.
 case "$subject" in
@@ -15,7 +16,7 @@ esac
 
 types='feat|fix|docs|refactor|perf|test|chore|build|ci|revert'
 
-if printf '%s' "$subject" | grep -Eq "^($types)(\([a-z0-9][a-z0-9._-]*\))?!?: .+"; then
+if printf '%s' "$subject" | grep -Eq "^($types)(\([a-z0-9][a-z0-9._-]*\))?!?: .*[^[:space:]]"; then
   exit 0
 fi
 
