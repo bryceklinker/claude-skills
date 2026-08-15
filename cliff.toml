@@ -10,23 +10,28 @@
 header = ""
 # Breaking changes get their own section at the top. They also remain listed
 # under their type group -- the repetition is deliberate emphasis.
+#
+# group_by returns a sorted map, so groups would render alphabetically. The
+# `<!-- N -->` prefixes on the group names in commit_parsers force the intended
+# order and are stripped again by the postprocessor below.
 body = """
 {%- set breaking = commits | filter(attribute="breaking", value=true) -%}
 {%- if breaking | length > 0 %}
 ### Breaking Changes
 {% for commit in breaking %}
-- {{ commit.message | upper_first }} ({{ commit.id | truncate(length=7, end="") }})
+- {% if commit.scope %}**{{ commit.scope }}**: {% endif %}{{ commit.message | upper_first }} ({{ commit.id | truncate(length=7, end="") }})
 {%- endfor %}
 {% endif -%}
 {%- for group, commits in commits | group_by(attribute="group") %}
 ### {{ group | upper_first }}
 {% for commit in commits %}
-- {{ commit.message | upper_first }} ({{ commit.id | truncate(length=7, end="") }})
+- {% if commit.scope %}**{{ commit.scope }}**: {% endif %}{{ commit.message | upper_first }} ({{ commit.id | truncate(length=7, end="") }})
 {%- endfor %}
 {% endfor %}
 """
 footer = ""
 trim = true
+postprocessors = [{ pattern = '<!-- [0-9]+ -->', replace = "" }]
 
 [git]
 conventional_commits = true
@@ -41,13 +46,13 @@ commit_parsers = [
   { message = "^Merge ", skip = true },
   { message = "^Revert ", skip = true },
   { message = "^chore\\(release\\)", skip = true },
-  { message = "^feat", group = "Features" },
-  { message = "^fix", group = "Bug Fixes" },
-  { message = "^perf", group = "Performance" },
-  { message = "^refactor", group = "Refactoring" },
-  { message = "^docs", group = "Documentation" },
+  { message = "^feat", group = "<!-- 0 -->Features" },
+  { message = "^fix", group = "<!-- 1 -->Bug Fixes" },
+  { message = "^perf", group = "<!-- 2 -->Performance" },
+  { message = "^refactor", group = "<!-- 3 -->Refactoring" },
+  { message = "^docs", group = "<!-- 4 -->Documentation" },
   { message = "^test", skip = true },
-  { message = "^chore", group = "Chores" },
-  { message = "^build", group = "Chores" },
-  { message = "^ci", group = "Chores" },
+  { message = "^chore", group = "<!-- 5 -->Chores" },
+  { message = "^build", group = "<!-- 5 -->Chores" },
+  { message = "^ci", group = "<!-- 5 -->Chores" },
 ]
