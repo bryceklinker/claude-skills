@@ -29,6 +29,12 @@ jobs:
         id: resolve
         run: |
           set -euo pipefail
+
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "::error::releases must be dispatched from main, got $GITHUB_REF"
+            exit 1
+          fi
+
           plugin='${{ inputs.plugin }}'
 
           if [ "$plugin" = "craft-code" ]; then
@@ -43,6 +49,19 @@ jobs:
             exit 1
           fi
 
+          # grep anchors per line, so a value with an embedded newline would
+          # pass on its first line alone -- and a multiline $GITHUB_OUTPUT
+          # value lets a manifest forge a second output. Reject those first.
+          if [ "$(printf '%s' "$version" | wc -l | tr -d ' ')" != "0" ]; then
+            echo "::error::version in $manifest contains a newline"
+            exit 1
+          fi
+
+          if ! printf '%s' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::version '$version' in $manifest is not a bare X.Y.Z"
+            exit 1
+          fi
+
           marketplace_version="$(jq -r --arg p "$plugin" \
             '.plugins[] | select(.name == $p) | .version' .claude-plugin/marketplace.json)"
 
@@ -53,7 +72,7 @@ jobs:
 
           tag="${plugin}-v${version}"
           if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
-            echo "::error::tag $tag already exists. Bump the version before releasing."
+            echo "::error::tag $tag already exists. If a previous run pushed the tag but failed to publish, delete the stray tag and re-dispatch (see docs/releasing.md); otherwise bump the version."
             exit 1
           fi
 
