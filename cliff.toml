@@ -1,0 +1,53 @@
+# Generates GitHub Release bodies only. The hand-written CHANGELOG.md files
+# are not managed by git cliff -- see docs/releasing.md.
+#
+# The stream (craft-code vs craft-ops) is selected on the command line with
+# --tag-pattern plus --include-path/--exclude-path, so this one config serves both.
+
+[changelog]
+# No document header and no version heading: GitHub renders the tag name as the
+# release title, so repeating it in the body is noise.
+header = ""
+# Breaking changes get their own section at the top. They also remain listed
+# under their type group -- the repetition is deliberate emphasis.
+body = """
+{%- set breaking = commits | filter(attribute="breaking", value=true) -%}
+{%- if breaking | length > 0 %}
+### Breaking Changes
+{% for commit in breaking %}
+- {{ commit.message | upper_first }} ({{ commit.id | truncate(length=7, end="") }})
+{%- endfor %}
+{% endif -%}
+{%- for group, commits in commits | group_by(attribute="group") %}
+### {{ group | upper_first }}
+{% for commit in commits %}
+- {{ commit.message | upper_first }} ({{ commit.id | truncate(length=7, end="") }})
+{%- endfor %}
+{% endfor %}
+"""
+footer = ""
+trim = true
+
+[git]
+conventional_commits = true
+filter_unconventional = true
+split_commits = false
+protect_breaking_commits = true
+filter_commits = false
+topo_order = false
+sort_commits = "oldest"
+
+commit_parsers = [
+  { message = "^Merge ", skip = true },
+  { message = "^Revert ", skip = true },
+  { message = "^chore\\(release\\)", skip = true },
+  { message = "^feat", group = "Features" },
+  { message = "^fix", group = "Bug Fixes" },
+  { message = "^perf", group = "Performance" },
+  { message = "^refactor", group = "Refactoring" },
+  { message = "^docs", group = "Documentation" },
+  { message = "^test", skip = true },
+  { message = "^chore", group = "Chores" },
+  { message = "^build", group = "Chores" },
+  { message = "^ci", group = "Chores" },
+]
