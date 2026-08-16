@@ -1,0 +1,145 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      plugin:
+        description: Which plugin to release
+        required: true
+        type: choice
+        options:
+          - craft-code
+          - craft-ops
+
+permissions:
+  contents: write
+
+env:
+  GIT_CLIFF_VERSION: "2.13.1"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve version and tag
+        id: resolve
+        run: |
+          set -euo pipefail
+
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "::error::releases must be dispatched from main, got $GITHUB_REF"
+            exit 1
+          fi
+
+          plugin='${{ inputs.plugin }}'
+
+          if [ "$plugin" = "craft-code" ]; then
+            manifest='.claude-plugin/plugin.json'
+          else
+            manifest='craft-ops/.claude-plugin/plugin.json'
+          fi
+
+          version="$(jq -r '.version' "$manifest")"
+          if [ -z "$version" ] || [ "$version" = "null" ]; then
+            echo "::error::could not read .version from $manifest"
+            exit 1
+          fi
+
+          # grep anchors per line, so a value with an embedded newline would
+          # pass on its first line alone -- and a multiline $GITHUB_OUTPUT
+          # value lets a manifest forge a second output. Reject those first.
+          if [ "$(printf '%s' "$version" | wc -l | tr -d ' ')" != "0" ]; then
+            echo "::error::version in $manifest contains a newline"
+            exit 1
+          fi
+
+          if ! printf '%s' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::version '$version' in $manifest is not a bare X.Y.Z"
+            exit 1
+          fi
+
+          marketplace_version="$(jq -r --arg p "$plugin" \
+            '.plugins[] | select(.name == $p) | .version' .claude-plugin/marketplace.json)"
+
+          if [ "$version" != "$marketplace_version" ]; then
+            echo "::error::version mismatch: $manifest is $version but marketplace.json pins $marketplace_version for $plugin. Bump both before releasing."
+            exit 1
+          fi
+
+          tag="${plugin}-v${version}"
+          if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+            echo "::error::tag $tag already exists. If a previous run pushed the tag but failed to publish, delete the stray tag and re-dispatch (see docs/releasing.md); otherwise bump the version."
+            exit 1
+          fi
+
+          {
+            echo "version=$version"
+            echo "tag=$tag"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Install git-cliff
+        run: |
+          set -euo pipefail
+          url="https://github.com/orhun/git-cliff/releases/download/v${GIT_CLIFF_VERSION}/git-cliff-${GIT_CLIFF_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
+          mkdir -p "$RUNNER_TEMP/git-cliff"
+          curl -fsSL "$url" -o "$RUNNER_TEMP/git-cliff.tar.gz"
+          tar -xzf "$RUNNER_TEMP/git-cliff.tar.gz" -C "$RUNNER_TEMP/git-cliff"
+          # Don't assume the archive's directory layout -- find the binary.
+          bin="$(find "$RUNNER_TEMP/git-cliff" -type f -name git-cliff -perm -u+x | head -1)"
+          if [ -z "$bin" ]; then
+            echo "::error::git-cliff binary not found in the downloaded archive"
+            exit 1
+          fi
+          mkdir -p "$RUNNER_TEMP/bin"
+          cp "$bin" "$RUNNER_TEMP/bin/git-cliff"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      - name: Verify git-cliff
+        run: git-cliff --version
+
+      - name: Generate release notes
+        run: |
+          set -euo pipefail
+          plugin='${{ inputs.plugin }}'
+          tag='${{ steps.resolve.outputs.tag }}'
+
+          if [ "$plugin" = "craft-ops" ]; then
+            git-cliff --config cliff.toml \
+              --tag-pattern 'craft-ops-v.*' \
+              --include-path 'craft-ops/**' \
+              --unreleased --tag "$tag" --output notes.md
+          else
+            git-cliff --config cliff.toml \
+              --tag-pattern 'craft-code-v.*' \
+              --exclude-path 'craft-ops/**' \
+              --unreleased --tag "$tag" --output notes.md
+          fi
+
+          if [ ! -s notes.md ] || ! grep -q '^- ' notes.md; then
+            echo "::error::no releasable commits for $plugin since its last tag. Nothing to release."
+            exit 1
+          fi
+
+          echo "--- generated notes ---"
+          cat notes.md
+
+      - name: Create and push tag
+        run: |
+          set -euo pipefail
+          tag='${{ steps.resolve.outputs.tag }}'
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git tag -a "$tag" -m "$tag"
+          git push origin "$tag"
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag='${{ steps.resolve.outputs.tag }}'
+          gh release create "$tag" --title "$tag" --notes-file notes.md
