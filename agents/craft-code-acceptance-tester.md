@@ -24,6 +24,8 @@ Follow `craft-code:acceptance-testing`'s `references/environment.md`, and read `
 - **Run what ships** — the real built artifact/image, real config, real entry point. Never an in-process test host or a special test build.
 - **A real database** — same engine as production, in a container (Compose/Testcontainers-style) with real migrations applied, or a deployed instance. Never SQLite-for-Postgres or an in-memory provider.
 - **External deployed fakes, never code-level doubles.** Prefer the real external service (sandbox tenancy). Where you can't, substitute a *standalone* fake running as its own process/container that speaks the same protocol (WireMock/Prism, LocalStack, a fake-gateway container, MailHog). The application under test is never modified — you never wire an in-process mock/stub into its object graph. Substitution happens *outside* the process, at the network boundary.
+- **An explicitly named, unique stack.** Set the compose project / namespace / workspace by name (`acceptance_env.project_name`) and target every destructive command at that name. Orchestration tools default this from the working directory or ambient context, which is how a teardown reaches a live stack.
+- **Diagnostics on by default.** Wire the `diagnostics` settings into the *shared* fixture, never per test: app logs from every service collected **before** teardown removes the containers, browser trace/video/screenshot on failure, the failing request and response, and the commit under test. A failing CI run must explain itself without a re-run — see `craft-code:acceptance-testing`'s `references/diagnosability.md`.
 
 ## Stay in your lane
 
@@ -38,3 +40,5 @@ Follow `craft-code:acceptance-testing`'s `references/environment.md`, and read `
 - Confirmation you watched each one fail (and the failure reason) before implementation.
 - How to stand up the environment — the compose/harness command, the database and any external fakes, how to run the suite.
 - At green time: the command you ran and the observed output showing each flow passes against the real deployment. Any flow still red goes back through the inner loop (`strict-tdd`) with a failing test.
+- What a *failing* run leaves behind — the artifact paths, and confirmation you saw them produced. If you can't say what a red run in CI would give someone to read, the harness isn't done.
+

@@ -1,6 +1,6 @@
 ---
 name: acceptance-testing
-description: "Use to drive a feature with an outer, user-level acceptance test that runs against a production-like deployment — real UI and API together, a real database in a container or a deployed app, and real external services (or external deployed fakes, never code-level doubles). This is the outer loop of double-loop TDD: write the acceptance test up front from the agreed criteria, watch it fail, then let the inner strict-tdd increments drive it green; its passing is what proves the feature works end to end. Trigger whenever a user-facing feature or a change to a user flow begins implementation, or when someone asks for an end-to-end / acceptance / user-journey test, a black-box test of a real deployment, or wants to prove a whole flow works through the real UI and API. Distinct from strict-tdd (in-process unit level) and from verification (final evidence-gathering). Not for pure internal refactors already covered by the existing acceptance suite."
+description: "Use to drive a feature with an outer, user-level acceptance test that runs against a production-like deployment — real UI and API together, a real database in a container or a deployed app, and real external services (or external deployed fakes, never code-level doubles). This is the outer loop of double-loop TDD: write the acceptance test up front from the agreed criteria, watch it fail, then let the inner strict-tdd increments drive it green; its passing is what proves the feature works end to end. Trigger whenever a user-facing feature or a change to a user flow begins implementation, or when someone asks for an end-to-end / acceptance / user-journey test, a black-box test of a real deployment, or wants to prove a whole flow works through the real UI and API. Also use when an end-to-end or CI test run fails opaquely and the harness needs to surface what happened — capturing application logs, browser traces, videos, screenshots, or request/response detail as artifacts from the shared fixture. Distinct from strict-tdd (in-process unit level) and from verification (final evidence-gathering). Not for pure internal refactors already covered by the existing acceptance suite, and not for runtime/production observability of a deployed system."
 ---
 
 # Acceptance Testing — the outer loop that proves the feature works
@@ -48,11 +48,31 @@ Put plainly: `strict-tdd` asks *"can the real thing run deterministically in-pro
 ## How to use it (the outer-loop procedure)
 
 1. **Derive the acceptance test from the agreed criteria.** Take the Given/When/Then criteria from `intake` and write them as executable user-journey tests. One test per meaningful flow; assert only on user-observable outcomes.
-2. **Stand up the production-like environment.** Compose the app, a real database, and any external fakes (see `references/environment.md`). Use the project's `acceptance_env` and `commands.acceptance` from `.craft-code.yml` (see `craft-code-conventions`) — the `up`/`down` commands, the database engine, the external fakes — rather than inventing them. Apply real migrations. Confirm the app is reachable through its real interface.
+2. **Stand up the production-like environment.** Compose the app, a real database, and any external fakes (see `references/environment.md`). Use the project's `acceptance_env`, `diagnostics`, and `commands.acceptance` from `.craft-code.yml` (see `craft-code-conventions`) — the `up`/`down` commands, the database engine, the external fakes, the artifact paths — rather than inventing them. Apply real migrations. Confirm the app is reachable through its real interface, and confirm the diagnostics below are actually being captured.
 3. **Watch the acceptance test FAIL.** Run it against the environment before the feature exists. It must fail for the right reason — the behavior is missing, not the harness is broken. A red you never saw is not a spec.
 4. **Leave it red and hand off to the inner loop.** `strict-tdd` builds the increments from `planning`, each with its own unit red-green-refactor. The acceptance test stays red throughout — that's expected; it's the target.
 5. **Drive it green.** As increments land, periodically re-run the acceptance test. When the feature is believed done, it must pass against the real deployment. That green is the feature-level proof.
 6. **Keep it in the suite forever.** The acceptance test now guards this flow against regression. Later refactors that don't change the user flow are covered by it and need no new acceptance test.
+
+## Make the failure legible — before you need it
+
+An acceptance test that fails in CI with `expected true, got false` and nothing else is a test you cannot act on. These tests fail in the place you can least easily reach — a container that's already gone, a browser you never saw, a run you can't attach a debugger to — so the evidence has to be captured *by default*, on the first failing run, or you're paying a full CI round-trip just to learn what happened.
+
+Set this up when you stand the environment up, not after the first mystery failure:
+
+- **The application's own logs**, from every service in the environment, surviving teardown — collected as an artifact, not left in a container that gets removed.
+- **The browser-level record** for UI journeys: trace, video, screenshot at failure — whatever the driver offers.
+- **The failing interaction**: the request and response, the query, the message.
+- **Enough environment identity** to tell runs apart — versions, image tags, the commit under test.
+
+Two rules about *where* this lives:
+
+<HARD-GATE>
+Capture is centralized in the shared fixture, base class, or harness — never opted into per test. A per-test opt-in means the one test that fails is the one that didn't have it on, and diagnosability silently decays as tests are added. And it stays on by default in CI: "enable the trace and re-run" is the cost this exists to remove.
+</HARD-GATE>
+
+Treat losing it as a regression. If a change makes failures less legible — teardown that discards logs, a retry that hides which attempt failed — that's a defect in the same sense a broken test is. This is the craft-code principle *a failure you can't see is a defect* (`PRINCIPLES.md` at the plugin root).
+ Details, and the per-project wiring: `references/diagnosability.md`.
 
 ## When to write one
 
@@ -68,4 +88,4 @@ Put plainly: `strict-tdd` asks *"can the real thing run deterministically in-pro
 
 ## Exit condition
 
-A user-level acceptance test exists for each of the feature's flows, was watched failing before implementation, runs against a production-like deployment with a real database and external fakes (never code-level doubles), and now passes. The inner `strict-tdd` work is complete and both suites are green. Hand off to `self-review`.
+A user-level acceptance test exists for each of the feature's flows, was watched failing before implementation, runs against a production-like deployment with a real database and external fakes (never code-level doubles), and now passes. A failing run in CI would emit the diagnostics that explain it, from the shared harness, without a re-run. The inner `strict-tdd` work is complete and both suites are green. Hand off to `self-review`.

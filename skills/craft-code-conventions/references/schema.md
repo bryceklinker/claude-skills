@@ -32,8 +32,9 @@ commands:
   typecheck:    pnpm typecheck       # optional, when separate from build
 
 acceptance_env:                      # how acceptance-testing stands up a production-like deployment
-  up:       docker compose -f docker-compose.acceptance.yml up -d
-  down:     docker compose -f docker-compose.acceptance.yml down -v
+  project_name: myapp-acceptance     # EXPLICIT stack identity, so teardown can never hit another stack
+  up:       docker compose -p myapp-acceptance -f docker-compose.acceptance.yml up -d
+  down:     docker compose -p myapp-acceptance -f docker-compose.acceptance.yml down -v
   database: postgres:16              # the REAL engine used in the acceptance env (never a substitute)
   ui_driver: playwright              # browser automation for UI acceptance: playwright | cypress | selenium
   base_url: http://localhost:8080    # where the deployed app is reachable in the acceptance env
@@ -42,6 +43,15 @@ acceptance_env:                      # how acceptance-testing stands up a produc
       image: wiremock/wiremock       # a standalone service the app calls over the same protocol
     - name:  email
       image: mailhog/mailhog
+
+diagnostics:                         # what a failing test/CI run captures, so a failure is legible first time
+  artifacts_dir: artifacts/acceptance   # where run artifacts are written (collected by CI on failure)
+  app_logs:      docker compose -p myapp-acceptance logs --no-color   # how to collect service logs BEFORE teardown
+  log_level:     debug               # level the app runs at during acceptance runs
+  ui_trace:      on-first-retry      # browser trace: on | off | on-first-retry (retain-on-failure)
+  ui_video:      retain-on-failure   # session video: on | off | retain-on-failure
+  ui_screenshot: only-on-failure     # screenshot capture policy
+  fail_on_console_errors: true       # an unhandled page error fails the test in its own right
 
 git:
   main_branch:   main                # the base branch worktrees branch from
@@ -62,6 +72,8 @@ paths:
 - **`commands.format_check`** — used as a pre-commit gate by `code-style`; the `_check` variant verifies without modifying so it can fail CI.
 - **`acceptance_env.database`** — the real engine (e.g. `postgres:16`), matching production. Acceptance tests never substitute this with an in-memory or different database.
 - **`acceptance_env.fakes`** — external, deployed fakes only: standalone services the app reaches over the wire exactly as it would the real one. This is where the "never a code-level double in the running app" rule is made concrete.
+- **`acceptance_env.project_name`** — the explicit, unique identity of the ephemeral stack (compose project, k8s namespace, terraform workspace). Orchestration tools default this from the working directory or ambient context, so two unrelated stacks can resolve to the same name and a teardown can hit a live one. State it, and make every `up`/`down` command target it by name. See `acceptance-testing/references/environment.md`.
+- **`diagnostics.*`** — what a *failing* run leaves behind, so the first red run explains itself instead of costing a re-run with tracing enabled. `app_logs` matters most and is the most often missed: logs must be collected **before** `acceptance_env.down` removes the containers holding them. These settings belong in the shared harness, never per test. See `acceptance-testing/references/diagnosability.md`.
 - **`git.main_branch` / `worktree_dir`** — consumed by `worktree-setup` and `craft-code-reconciler` so worktrees branch from and merge back to the right place.
 - **`paths.*`** — so a resumed session or a subagent finds the plan and design notes where the project keeps them.
 
@@ -150,3 +162,6 @@ paths: { plans: docs/craft-code/plans, design: docs/craft-code/design }
 1. **How is the production-like app brought up?** Usually a `docker compose` file; capture the `up`/`down` commands (prefer `--wait`/healthchecks so tests don't race a booting service).
 2. **Which real database?** Name the exact engine and version matching production.
 3. **Which external dependencies can't be real, and what fakes stand in?** List each external deployed fake — never a code-level double. If there are none (everything can run for real), say so and omit `fakes`.
+4. **What does a failing run leave behind?** Ask it plainly: *if this suite goes red in CI at 2am, what can someone read to know why?* If the answer is "the assertion message," fill in `diagnostics` — app logs collected before teardown, a browser trace and video, an artifacts directory CI uploads with `if: always()`. Capture belongs in the shared harness and stays on by default; "re-run with tracing" is the cost this field exists to remove.
+
+Also confirm `acceptance_env.project_name` is set and unique. An implicit stack name is the difference between a teardown that removes the test environment and one that removes a live one.
