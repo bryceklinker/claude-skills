@@ -38,6 +38,8 @@ Once harm is mitigated, find the cause against the now-ramped-up signals: reprod
 
 Close the incident when the real signal — the SLO, the error rate, the metric that paged in the first place — shows recovery, not when the fix "should" have worked or the dashboard looks calmer to the eye. Verification reads the same signal that declared the incident; a fix that hasn't moved that signal hasn't resolved anything yet.
 
+**Closing the incident is not fixing the cause.** The lever you pulled in phase 2 bought time; it removed the harm, not the mechanism. Before the incident closes, the cause is written down as tracked work with a recommended level — and where a mitigation is being *kept* (the flag left off, the capacity left doubled, the retry left in), it carries the condition that would let it be removed. Otherwise it silently becomes the architecture, and the next occurrence is harder to see, not easier. Principle 8 in `craft-ops/PRINCIPLES.md`.
+
 ### 5. Blameless postmortem that ratchets
 
 Every incident gets a review: a timeline, the contributing conditions (system and process, not people), and **tracked action items**. The review is not complete as a narrative — it must produce **at least one new test or alert** that would have caught this before it paged. An incident that changes nothing will happen again. See `references/blameless-postmortem.md`.
@@ -48,6 +50,8 @@ Every incident gets a review: a timeline, the contributing conditions (system an
 - **Blameless, always.** The postmortem targets the conditions that allowed the incident, never who was on call when it happened.
 - **Declare early; bias to declaring.** A retracted declaration is cheap. A late one is not.
 - **The postmortem must ratchet.** A well-written timeline with no tracked action item and no new test or alert is not done.
+- **A mitigation left in place is debt, not a fix.** Track the cause, name the level you'll fix it at, and record what would let the mitigation go.
+
 - **Defer root-cause technique to `systematic-debugging`.** If you catch yourself explaining bisection or hypothesis framing here, stop — that content lives there, not in this skill's incident wrapper.
 
 ## Exit condition

@@ -43,6 +43,11 @@ cicd:
   system: github-actions              # github-actions | gitlab-ci | circleci | jenkins | ...
   artifact_registry: ghcr.io/acme/api # where built artifacts are pushed (image registry, package feed, ...)
   artifact_identity: image-digest     # how an artifact is uniquely referenced downstream: image-digest | image-tag | semver | commit-sha
+  failure_artifacts:                  # what a RED run leaves behind, so a failure explains itself without a re-run
+    dir:        artifacts/ci          # where jobs write logs, traces, reports
+    collect:    docker compose -p ci-run logs --no-color   # run BEFORE teardown removes the containers
+    upload_on:  always                # always | failure — 'always' also catches cancelled/timed-out jobs
+    retention_days: 30
 
 # How a built artifact gets into an environment, and how that's undone.
 # Present whenever the project has an automated or scripted deploy path.
@@ -80,6 +85,8 @@ paths:
 - **`environments.order`** — a nested list under `environments`. Its order *is* the promotion order: a change reaches `order[0]` first and `order[-1]` (commonly `production`) last. `pipeline-authoring`, `deployment-authoring`, and the design analogs all read this to know what "promote" means for this project — never assume `dev`/`staging`/`production` if the file says otherwise.
 - **`cloud`** — omit the entire section when the project doesn't provision its own infrastructure (e.g. it deploys into a platform or cluster someone else manages). When present, `provider` and `iac_tool` are required; `iac_commands.plan` and `iac_commands.apply` are required since every IaC workflow needs both; `iac_commands.validate` is optional — include it only if the tool has a distinct validate/lint step the project actually runs before planning.
 - **`cicd.artifact_identity`** — how a downstream consumer (a rollout command, a deploy manifest) uniquely names the artifact it's promoting. This matters because `rollout_command` templates often need to know whether to substitute a digest, a tag, or a semver string.
+- **`cicd.failure_artifacts`** — what a failing run leaves behind. The one that's most often missed is `collect`: service logs have to be gathered *before* the ephemeral environment is torn down, or they go with the containers. Set `upload_on: always` so a cancelled or timed-out job — usually the most informative one — still leaves evidence. A pipeline that only explains itself when green costs a full round-trip per failure, and an intermittent failure may not reproduce on the re-run at all.
+
 - **`deployment.tool` / `rollout_command` / `rollback_command`** — the concrete commands `deployment-authoring` and `incident-response` use instead of guessing. `rollback_command` in particular is read by `incident-response` for mitigate-first response — it must be a command that actually reverts the last rollout, not just a description of one.
 - **`observability.metrics` / `dashboards` / `alerts`** — three distinct systems that are often, but not always, the same product. Keep them separate even when one vendor supplies all three (e.g. Datadog for metrics, dashboards, and alerts) — the fields are read independently by different skills.
 - **`secrets.manager`** — read by every domain before referencing how a credential is stored or retrieved, so generated pipelines, IaC, or rollout commands reference secrets the way this project actually manages them (env-injected from a manager, mounted, etc.) rather than inventing a plausible-looking placeholder.

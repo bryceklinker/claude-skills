@@ -15,9 +15,9 @@ It is a **thinking** phase, not a building one. The output is a short design not
 
 Work from the repo's actual build, test, and deploy needs, and settle only what they demand. Each decision below ties back to a principle in `craft-ops/PRINCIPLES.md`.
 
-The seven areas are a **coverage checklist, not a required table of contents.** How much each gets depends on the ask:
+The eight areas are a **coverage checklist, not a required table of contents.** How much each gets depends on the ask:
 
-- **Designing a whole pipeline** (greenfield, or a redesign): decide all seven — they're all in play.
+- **Designing a whole pipeline** (greenfield, or a redesign): decide all eight — they're all in play.
 - **A targeted change** (reviewing or reorganizing an existing pipeline — reordering stages, fixing a rebuild, tightening one gate): go deep on the areas the change actually touches, and dispatch the rest in a **single one-line "not implicated" note** naming them together. The checklist exists so you don't *silently* skip an area that turns out to matter — a one-liner confirming an area is untouched discharges it completely. A paragraph defending why each unrelated area is unchanged is noise that buries the decision the person actually asked for.
 
 - **Artifact strategy** — the single immutable artifact this pipeline produces, where it's stored, and how it's identified (a content or commit digest, never a mutable tag alone). *Build once.*
@@ -27,6 +27,7 @@ The seven areas are a **coverage checklist, not a required table of contents.** 
 - **Reproducibility seams** — pinned toolchain and dependency versions, a hermetic/ephemeral build environment, no network-dependent build steps. (see `references/reproducible-builds.md`)
 - **Secrets & config boundary** — nothing secret lives in the pipeline definition or gets baked into the artifact; both are injected at deploy time from the environment.
 - **Evidence of done** — the health signal that proves the deploy is good in the target environment (a passing health check, real traffic served, a metric that moved) — not just a green pipeline job.
+- **Failure diagnostics** — what a *red* run leaves behind. A pipeline that only explains itself when it's green wastes a full round-trip per failure, and for an intermittent failure the re-run may not reproduce at all. Decide: which artifacts are captured (service logs collected **before** the environment is torn down, browser traces/videos, test reports, build logs), that they upload on failure *and* on cancellation/timeout, how they're named per job and per attempt so a re-run doesn't overwrite the evidence you were reading, and how long they're retained. Capture is centralized in the shared harness and on by default — "re-run with tracing enabled" is the cost this decision removes. *A failure you can't see is a defect.*
 
 ## Write it down
 
@@ -41,4 +42,4 @@ Save a short design note where the work lives (e.g. `docs/craft-ops/pipelines/YY
 
 ## Exit condition
 
-A written pipeline design note that accounts for all seven checklist items — artifact strategy, stage ordering, gate map, promotion flow, reproducibility seams, secrets & config boundary, and evidence of done — with the implicated ones decided in depth (each with its *why*) and any the change doesn't touch acknowledged in a single one-line not-implicated note. Nothing silently skipped; nothing padded. Hand off to the `pipeline-authoring` skill to implement it.
+A written pipeline design note that accounts for all eight checklist items — artifact strategy, stage ordering, gate map, promotion flow, reproducibility seams, secrets & config boundary, evidence of done, and failure diagnostics — with the implicated ones decided in depth (each with its *why*) and any the change doesn't touch acknowledged in a single one-line not-implicated note. Nothing silently skipped; nothing padded. Hand off to the `pipeline-authoring` skill to implement it.
