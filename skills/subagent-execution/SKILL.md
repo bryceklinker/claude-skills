@@ -91,6 +91,17 @@ Include:
 - **The worktree/branch** it should operate in.
 - **Its precise deliverable** — e.g. "increment green and committed at green + after refactor" for an implementer; "a findings list keyed to file:line" for a reviewer.
 - **The reminder that discipline holds:** no code before a red test, doubles only at boundaries, commit at green and after refactor. State it — subagents under a narrow task are the ones most tempted to cut the corner.
+- **The blast radius it must stay inside** — the named ephemeral stack/namespace it may tear down, and the fact that a destructive command must target that identity explicitly. A delegate has the same authority you do and far less context about what else is running on the machine; an implicit compose project or ambient cluster context is how a test teardown takes down a live one (`acceptance-testing/references/environment.md`).
+
+## Delegation doesn't transfer the evidence burden
+
+Two failure modes are specific to working through agents, and both look like progress.
+
+**A stale checkout produces a confident, wrong answer.** A subagent reasoning about a branch it fetched an hour ago will diagnose a failure that no longer exists and propose a fix for code you already changed. Before dispatching — and before believing a diagnosis — confirm the worktree is at the commit you think it is (`git log -1`, `git status`), and say which commit the work is against in the prompt.
+
+**"Running" is a claim, not proof of liveness.** A delegate can stall silently: the status stays green, no output arrives, and waiting feels like the responsible thing. Probe for *actual* progress — new commits, changed files, fresh output — rather than trusting the status alone, and treat a delegate that's well past its normal duration the way `verification` treats an abnormally long CI run: as a signal to go look. A stalled agent restarted at ten minutes costs less than one waited on for an hour.
+
+Both reduce to the same rule: **the orchestrator owns the evidence.** A subagent's report is an input to verification, not a substitute for it — if it says the suite is green, you still need output you observed.
 
 ## Reconciling results
 

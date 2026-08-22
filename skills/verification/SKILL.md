@@ -36,10 +36,41 @@ For each criterion or check, record what you ran and what you observed — the c
 - **If a criterion can't be verified yet** (needs data, an environment, a credential you lack), name it as unverified rather than assuming it holds.
 - **Only claim done for what you verified.** "The three unit-tested criteria pass; the end-to-end flow is unverified pending a staging login" is an honest, useful status. "Done" when you ran nothing is not.
 
+## Environment-only defects: the evidence must come from that environment
+
+Some failures exist only where you can't watch them — a CI runner, a container network, a deployed environment. A green local run is not evidence about them. Neither is a passing unit test that "covers the same logic," nor a careful reading of the workflow file.
+
+<HARD-GATE>
+For a defect that only manifests in CI or a deployed environment, the evidence is a **real run in that environment**, observed. Reasoning about why the fix should work there is a hypothesis, not verification — and shipping it as verified is how a fix gets four rounds instead of one.
+</HARD-GATE>
+
+Two things follow. First, if the loop is fix → push → wait, the cost per round is real, so spend the extra minutes *before* pushing: confirm the diff you are pushing is the diff you reasoned about, and confirm you read the code that actually ran (a stale checkout will happily explain a failure that no longer exists). Second, when a round fails, read the new evidence rather than reaching for the next idea — see `systematic-debugging`.
+
+## Intermittent failures need repetition, not a single green
+
+A flaky test that passes once has not been verified; you have observed one sample of a distribution. A single green after a race-condition fix is the weakest evidence in this whole file, because the failing case was always the minority outcome.
+
+- **Run it repeatedly** — enough times that the previous failure rate would have shown up, and say how many. "Passed 20 consecutive runs, previously failed roughly 1 in 4" is evidence; "it passed" is not.
+- **Prefer independent runs** over one loop in one process, when the flake involves environment, ordering, or startup timing.
+- **Say what the fix removed.** If you can name the mechanism that made it non-deterministic and show it's gone, repetition confirms; if you can't, repetition is all you have and the confidence should be stated as lower.
+
+## Abnormal duration is a signal, not "still pending"
+
+A run taking far longer than its norm is telling you something — a hang, a deadlock, a wait on something that will never arrive. Treat it as an observation to act on: compare against a known-good duration for that job, and when it's well past, go look rather than continuing to wait. A job you cancelled after 15 minutes because it was stuck is a *result* — it is often the most informative one you'll get, and it belongs in the evidence.
+
+The same applies to delegated work: a subagent or background job that reports "running" is claiming liveness, not proving it. Check for actual progress — new output, a moved artifact, a commit — before treating a long-running delegate as healthy.
+
+## A check deferred twice is a defect
+
+Naming an unverified item is honest the first time. The second time the *same* check is skipped for the *same* environmental reason — a missing token, an environment that won't come up, a suite that "doesn't run here" — the honest report has become a standing gap, and the gap is the defect.
+
+At that point the missing verification is the work item: fix the environment, wire in the credential, make the suite runnable. Carrying it forward as a recurring caveat means the thing it would have caught is, in practice, untested — and it will stay that way until something breaks in production.
+
 ## When verification finds a defect
 
 Back to `strict-tdd`: write a failing test reproducing the defect, then fix it, then re-verify. A defect found here is the pipeline working — it's cheaper here than after merge.
 
 ## Exit condition
 
-Every acceptance criterion is backed by evidence you observed this session, the full suite is green with clean output, and any unverified items are named explicitly. Hand off to `finish-work`.
+Every acceptance criterion is backed by evidence you observed this session, the full suite is green with clean output, environment-only fixes are proven by a real run in that environment, intermittent failures are backed by repetition rather than a single green, and any unverified items are named explicitly — with anything now deferred a second time raised as a defect rather than a caveat. Hand off to `finish-work`.
+

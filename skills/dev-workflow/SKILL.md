@@ -109,13 +109,15 @@ Track the work item's progress with a task list — one task per phase — so th
 
 | Phase | Skill | Precondition (gate) | Exit condition |
 |-------|-------|---------------------|----------------|
-| 1 | `intake` | A change is requested | Acceptance criteria agreed; bugs have a reproduction |
+| 1 | `intake` | A change is requested | Acceptance criteria agreed; bugs have a reproduction; where the fix had a real choice of level, options presented with the durable one recommended |
+
 | 2 | `architecture-design` / `frontend-design` *(as needed)* | Criteria exist; change adds structure or UI | Design note: boundaries/ports/handlers and/or components/states |
 | 3 | `planning` | Criteria (and design, if any) exist | Ordered increments written, independence marked |
 | 4 | `worktree-setup` | Plan exists | Isolated worktree + branch created |
 | 5 | `acceptance-testing` *(as needed — outer loop)* | User-facing feature or user-flow change | User-level acceptance test written, watched failing against a production-like deployment |
 | 6 | `strict-tdd` + `code-style` | Inside the worktree | Every increment green; committed at green + after refactor; outer acceptance test now green |
-| 7 | `self-review` | Increments implemented | Diff reviewed against criteria, style, smells |
+| 7 | `self-review` | Increments implemented | Diff reviewed against criteria, style, smells, and runtime failure modes |
+
 | 8 | `verification` | Review passed | The change actually ran (incl. the acceptance suite); evidence captured |
 | 9 | `finish-work` | Verified | Integrated (PR/merge), worktree cleaned up |
 
@@ -151,3 +153,7 @@ When the defect's cause isn't obvious — a failure you can't yet explain, a fla
 | "Let me just prototype in the main tree" | Exploration is fine — in a worktree, thrown away after. Prototyping in place is how prototypes ship untested. |
 | "One worktree is overkill for a one-liner" | The worktree costs seconds and keeps main clean. The one-liner that broke main also looked harmless. |
 | "Subagents are slower to set up than just doing it" | For a single increment, maybe. For independent increments or for a fresh-eyes review, they're both faster and better. |
+| "The quick fix makes the symptom go away — ship that for now" | Then say so out loud, with its cost and its removal condition, and recommend the durable option anyway. An unnamed stopgap becomes the design, and the third patch to the same lines costs more than the fix you skipped. |
+| "Presenting options is more neutral than recommending one" | Neutrality hands the judgment to whoever has least context about the code. Present the options *and* mark exactly one recommended — the most durable that fits the real constraints. |
+| "Observability isn't part of this change" | If the failure would be invisible, or this investigation was slow because the evidence wasn't captured, the missing signal is part of the defect. It ships with the fix, not in a later ticket. |
+
