@@ -1,0 +1,3 @@
+fix(pricing): round discount amounts to whole cents
+
+Customers saw totals like 16.991499999999998 on discounted orders.

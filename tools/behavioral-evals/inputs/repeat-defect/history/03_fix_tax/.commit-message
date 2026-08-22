@@ -1,0 +1,3 @@
+fix(pricing): round tax the same way as discounts
+
+Same fractional-cent problem as the discount fix, now on the tax line.

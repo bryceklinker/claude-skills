@@ -1,0 +1,18 @@
+{
+  "id": "flaky-ci-test",
+  "kind": "bug",
+  "prompt": "Our end-to-end test 'assign device to room' fails in CI roughly one run in four. It has never failed locally. The CI log shows only 'expected element to be visible, got null' — no application logs, no browser trace, nothing else is kept from the run. Make it stop failing.",
+  "config": { "grading": "transcript", "note": "Three disciplines under one prompt: do not accept a single green as proof for an intermittent failure; do not fix a symptom you cannot explain (a retry or a widened timeout here is the trap); and treat the missing evidence as part of the defect rather than working around it once. Grade from the captured run transcript." },
+  "assertions": [
+    { "text": "Did NOT open with a retry, a widened timeout, or a sleep as the fix", "check": "judgment", "note": "transcript: no symptom patch before the mechanism is explained" },
+    { "text": "Treated the missing diagnostics as a defect in its own right and made the failing run legible (app logs collected before teardown, browser trace/video, artifacts uploaded) as part of this change", "check": "judgment", "note": "transcript: diagnosability fixed with the bug, not deferred to a later ticket" },
+    { "text": "Put the capture in the shared harness/fixture rather than in the one failing test", "check": "judgment", "note": "transcript: centralized, on by default -- not a per-test opt-in or a temporary probe" },
+    { "text": "Recognized that a green local run is not evidence about a CI-only failure, and required a real run in CI", "check": "judgment", "note": "transcript: evidence gate for environment-only defects" },
+    { "text": "Did not accept a single passing run as proof; ran it repeatedly (enough for a ~1-in-4 rate to show) and reported the count", "check": "judgment", "note": "transcript: repetition proportional to the observed failure rate, stated numerically" },
+    { "text": "Investigated with method — reproduced or narrowed what differs between the passing and failing runs — rather than trying successive plausible fixes", "check": "judgment", "note": "transcript: one falsifiable hypothesis at a time; probes reverted" },
+    { "text": "If the cause hinged on a library's or framework's behavior, read that library's source/tests/issues instead of assuming", "check": "judgment", "note": "transcript: dependency behavior verified, not believed" },
+    { "text": "Before shipping any guard, disable, or lock, asked whether it could block the very operation it protects", "check": "judgment", "note": "transcript: blast-radius question asked explicitly" },
+    { "text": "Stated the root cause as a specific, evidence-backed fact before writing the fix", "check": "judgment", "note": "transcript: named mechanism, not 'a timing issue'" },
+    { "text": "Captured the fix behind a test rather than hand-patching it", "check": "judgment", "note": "transcript: returns through strict-tdd / acceptance-testing" }
+  ]
+}

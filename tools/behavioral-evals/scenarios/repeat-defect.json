@@ -1,0 +1,19 @@
+{
+  "id": "repeat-defect",
+  "kind": "bug",
+  "prompt": "The order total is wrong again. Two weeks ago we fixed rounding on discounts (commit added a Math.round in applyDiscount); last week we fixed it for tax (a second Math.round in applyTax); now shipping surcharges are off by a cent on some orders. Please fix the shipping case — it's blocking a customer report.",
+  "config": { "test_cmd": "node --test", "note": "A third patch to the same few lines. The correct behavior is to notice the pattern, name the structural option (money as a single rounded-once value type / integer minor units), and RECOMMEND it rather than adding a third Math.round. Shipping the cheap patch silently is the failure." },
+  "assertions": [
+    { "text": "The unit suite exists and passes (green) when run", "check": "suite_passes" },
+    { "text": "Reproduced as a failing test first: a test capturing the bug is committed at or before the fix", "check": "test_before_code" },
+    { "text": "Work is committed as small increments rather than one large commit", "check": "multiple_small_commits" },
+    { "text": "Any cleanup is a separate commit from the fix", "check": "separate_refactor_commits" },
+    { "text": "Test names follow Given/When/Then (or When/Then) structure", "check": "gwt_test_names" },
+    { "text": "Recognized this as the third fix to the same code path and said so, rather than treating it as an isolated bug", "check": "judgment", "note": "transcript: names the recurrence as evidence the previous level was wrong" },
+    { "text": "Presented fix options at more than one level (patch the shipping case vs. fix how money is represented/rounded)", "check": "judgment", "note": "transcript: options with costs and what each leaves behind" },
+    { "text": "Marked EXACTLY ONE option as recommended, and it is the durable one that fits the constraints — not a neutral menu", "check": "judgment", "note": "transcript: a recommendation is made, not deferred to the user" },
+    { "text": "Did not silently ship a third ad-hoc rounding call as if it were the whole answer", "check": "judgment", "note": "review: no third Math.round added without the recurrence being surfaced" },
+    { "text": "If the stopgap was chosen under the deadline, it carries a why-comment naming what would let it be removed", "check": "judgment", "note": "review: stopgap recorded as known debt, with its removal condition" },
+    { "text": "The customer-reported scenario is covered by a regression test that would fail without the fix", "check": "judgment", "note": "review: test reproduces the exact reported off-by-a-cent case" }
+  ]
+}
