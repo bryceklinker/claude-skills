@@ -37,10 +37,24 @@ Repeat until you can state the cause as a specific, confirmed fact: *"the timest
 Finding the cause is where this skill ends. The fix re-enters the discipline:
 
 1. **Write a failing test that captures the bug** at the right level — a unit test via `strict-tdd` for a logic fault, or an acceptance test via `acceptance-testing` if it only reproduces end to end. Watch it fail for the reason you diagnosed.
-2. **Fix it** — the minimum change that makes that test pass.
+2. **Decide what level to fix at, then fix it there.** The minimum change means the *minimum diff at the right level* — not the shallowest patch that turns the test green. A cause usually offers several levels: suppress the symptom, fix the cause, or remove the structure that let the cause exist. Where they trade off, lay the options out and recommend the most durable one that fits the constraints (`intake/references/fix-options.md` has the four levels and how to choose). A stopgap chosen deliberately ships with a *why*-comment naming what would have to be true to remove it.
 3. **Verify** the original reproduction now behaves correctly, and the regression test guards it forever.
 
+Two signals that you fixed at the wrong level, and should go back up: **this is the second or third patch to the same few lines**, or **the "fix" is a guard, delay, or retry wrapped around behavior you never actually explained.** Both mean the symptom moved. Re-open the search at the level above.
+
 You never patch a defect without a test that would have caught it. That is what keeps the pipeline a ratchet: every bug found makes the suite permanently stronger. Techniques for bisection, instrumentation, and the nastier classes of bug live in `references/techniques.md`.
+
+## If it was hard to see, that's a finding
+
+When the investigation was slow because the evidence wasn't there — you had to add logging to learn what the failure was, re-run with tracing on, or reproduce it a second time just to capture output the first run threw away — the missing diagnosability is a defect in its own right, and the fix belongs in the same change as the bug fix. Otherwise the next failure in this area costs exactly as much. Capture belongs in the shared harness, on by default, not in a probe you revert (see `acceptance-testing/references/diagnosability.md`).
+
+Note it explicitly: *"this took three runs because the container logs were discarded on teardown"* is a finding, not a complaint.
+
+## Read the thing before you theorize about it
+
+A hypothesis about a library's, framework's, or platform's behavior is not evidence, no matter how reasonable it sounds. If the cause hinges on what some external component does — how a control handles an event, what a lifecycle guarantees, whether an API is re-entrant — **read its source, its tests, or its issue tracker before you build a fix on the assumption.** The dependency is vendored, installed, or on GitHub; reading the actual implementation takes minutes and resolves the question, where "this should disable dragging" is a belief that survives two failed CI runs.
+
+The same applies to your own repo: confirm you're reading the code that actually ran. A stale checkout, an unpulled branch, or a diff from an earlier attempt will happily explain a failure that no longer exists.
 
 ## Rationalizations to reject
 
@@ -52,6 +66,11 @@ You never patch a defect without a test that would have caught it. That is what 
 | "I don't have time to bisect" | Bisection is logarithmic; guessing is not. Bisecting is the fast path, not the slow one. |
 | "I'll clean up the debug logging later" | Revert probes as you go. Later never comes and the cruft causes the next bug. |
 | "The stack trace is noise" | The stack trace is the map. Read it fully before theorizing. |
+| "A guard here will stop it happening" | A guard that blocks a symptom you can't explain usually blocks the working path too. Explain the mechanism first, then decide the level. |
+| "This should disable it / that API surely handles it" | "Should" is a belief about someone else's code. Read their source or tests; the answer is minutes away and the guess costs a CI round-trip. |
+| "It failed again — try the next idea" | Two fixes on the same symptom means the level is wrong, not that the idea was. Go up a level rather than sideways. |
+| "I'll add better logging after I fix it" | The missing evidence is part of the defect. Land it with the fix or the next failure costs the same. |
+| "It's still running, it's probably just slow" | A run taking far longer than its norm is a hang signal. Compare against a known-good duration instead of waiting it out. |
 
 ## Exit condition
 

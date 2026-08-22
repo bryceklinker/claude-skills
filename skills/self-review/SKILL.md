@@ -1,6 +1,6 @@
 ---
 name: self-review
-description: "Use after implementing increments and before verification or merge — to review the full diff against the acceptance criteria, code-style, and the smell catalog with fresh eyes. Trigger whenever an implementation is complete and you're tempted to call it done — a feature, a bugfix, and just as much a small in-session adjustment or a change made in response to feedback, which skip review most often and need it just as much. Best run as a subagent that did NOT write the code, so the review is unbiased. Invoked by dev-workflow as phase 6."
+description: "Use after implementing increments and before verification or merge — to review the full diff against the acceptance criteria, code-style, the smell catalog, and its runtime failure modes (unawaited work, swallowed errors, stopgaps that will bring you back) with fresh eyes. Trigger whenever an implementation is complete and you're tempted to call it done — a feature, a bugfix, and just as much a small in-session adjustment or a change made in response to feedback, which skip review most often and need it just as much. Best run as a subagent that did NOT write the code, so the review is unbiased. Invoked by dev-workflow as phase 6."
 ---
 
 # Self-Review — fresh eyes on the diff before it ships
@@ -15,7 +15,7 @@ This is not a rubber stamp. A review that finds nothing on a non-trivial diff us
 
 ## What to review against
 
-Review the **entire diff for the work item** against three explicit standards, in order:
+Review the **entire diff for the work item** against four explicit standards, in order:
 
 ### 1. Acceptance criteria (does it do the right thing?)
 
@@ -41,6 +41,29 @@ Check the diff against `code-style` and its references, especially the `smells.m
 - Is the test code itself clean, or does it carry the smells in `test-utilities.md` (mystery guest, irrelevant detail, assertion roulette)?
 - Was each behavior driven by a test, not retrofitted?
 
+### 4. Durability and failure modes (will it hold, and what happens when it breaks?)
+
+The first three standards ask whether the diff is correct and well-shaped. This one asks whether it will still be the right code in six months, and what it does on the bad path.
+
+**A mechanical scan — every hit is either justified in place or a must-fix.** Go looking for these by name in the diff; they don't announce themselves in review the way a long method does:
+
+- **Work started but not awaited** — a discarded task (`_ =`), a floating promise, a bare `go`/`create_task`, `async void` or any async handler with no return path, a background loop, a timer callback, an event subscription. For each: *if this throws, who finds out?* The three legal answers are awaited by a caller, self-guarding with a *why*-comment, or observed at shutdown. Anything else is a defect even though nothing is failing today. See `code-style/references/failure-modes.md`.
+- **Loops whose guard sits outside the try** — one bad iteration silently ending a background worker.
+- **Empty catches, swallowed errors, and lowered log levels** — a failure that now happens invisibly.
+- **Non-null assertions and suppressions** added to make a compiler quiet.
+- **Subscriptions with no matching unsubscribe.**
+
+**Durability.** Is this fixed at the right level, or is it a patch that will bring us back here?
+
+- Is the change a guard, retry, delay, or disable wrapped around a mechanism nobody explained? That's a symptom fix wearing a cause fix's clothes.
+- Does the diff touch code that was *already* patched recently for the same symptom? A third round in the same few lines says the level was wrong — flag it even if this round works.
+- Does a stopgap carry a *why*-comment naming what would let it be removed? An unnamed one becomes the design.
+- Does the change buy its green by **weakening a guarantee** — making a confirmation non-blocking, dropping a check, accepting before the server agreed? That's a product decision, not a bugfix detail; it must be surfaced, not slipped in.
+
+**Blast radius.** For anything that blocks, disables, locks, serializes, or guards: *could this block the operation it is meant to protect?* Name what the change makes impossible, not only what it prevents.
+
+**Diagnosability.** Would a failure here be visible? If the diff removes signal — teardown that discards logs, a retry reporting only the last attempt, an assertion that reports `false` instead of the value it saw — that's a regression in the same sense a broken test is (`acceptance-testing/references/diagnosability.md`).
+
 ## How to report findings
 
 Produce a findings list, each entry keyed to `file:line`, stating the problem and the specific standard it violates. Separate must-fix (a violated rule, an unmet criterion) from suggestions (a judgment call). Be concrete — "extract lines 40–58 into `applyDiscount`; the method is doing validation and calculation" beats "this method is long." For a smell, name the resolving technique from `refactoring` (its smell → technique map) so the fix is unambiguous — "Extract Function", "Hide Delegate", "Replace Conditional with Polymorphism" — not just "clean this up."
@@ -53,4 +76,4 @@ Every must-fix goes back through `strict-tdd`, not patched in place: write a fai
 
 ## Exit condition
 
-Every must-fix finding is resolved through the proper loop and the diff cleanly satisfies criteria, style, and honest tests. Hand off to `verification`.
+Every must-fix finding is resolved through the proper loop and the diff cleanly satisfies criteria, style, honest tests, and the durability/failure-mode scan. Hand off to `verification`.

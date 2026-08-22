@@ -19,6 +19,13 @@ Ask questions **one at a time** until you can answer these. Don't interrogate; c
 - **Scope** — what's explicitly in, and just as importantly, what's out? Where's the boundary?
 - **Behavior at the edges** — empty inputs, failures, concurrent use, the unhappy paths that tests will need.
 - **Constraints** — existing patterns to follow, interfaces that can't change, performance or compatibility limits.
+- **Durability** — how long does this need to hold? Is this the permanent shape of the thing, or a deliberate stopgap with something better behind it? Ask when the answer isn't obvious; the default assumption is permanent, because that's what a stopgap becomes when nobody names it one.
+
+## Look past the literal ask
+
+Take the request at face value for *scope*, not for *diagnosis*. Someone reporting a bug describes the symptom that reached them, which is often not the worst thing in that code path — a report about a noisy warning can sit ten lines from a data-loss bug nobody noticed. So while you're reproducing and reading the surrounding code, notice what else is wrong there and say so.
+
+That doesn't license scope creep. Name what you found, state whether it's in or out of this change, and get agreement — "the warning is cosmetic; the same function also drops the file when the target exists — do you want both?" Silently fixing only what was asked, when you saw the bigger defect, is the failure this guards against.
 
 Then write **acceptance criteria** as concrete, checkable statements — each one something a test could later assert. Prefer observable behavior over implementation:
 
@@ -44,6 +51,14 @@ Do not plan or attempt a fix until you have reproduced the failure — ideally a
 
 Resist the pull to jump straight to a suspected cause. "I bet it's the null check" is a hypothesis for `systematic-debugging`, not a substitute for reproducing the actual failure.
 
+## When there's a real choice, present options — and recommend one
+
+Most work has one obvious shape and needs no menu. But when the change can be made at genuinely different levels — patch the symptom, fix the cause, or change the structure that allowed it — don't pick silently and don't hand over a neutral list. Lay out the options with their costs and **recommend the most durable one that fits the real constraints**, saying why.
+
+The recommendation is the deliverable. A menu with no recommendation moves the judgment to whoever has less context about the code than you do, and the cheapest-looking option wins by default. If a stopgap is chosen anyway, that's a legitimate answer — record it as one, with the condition that would let it be removed.
+
+`references/fix-options.md` has the four levels, the questions that decide between them, and how to write the options up.
+
 ## Exit condition
 
-You're done with intake when there is a written, agreed set of acceptance criteria — and for bugs, a reproduction (preferably a failing test). Hand off to `planning`.
+You're done with intake when there is a written, agreed set of acceptance criteria — and for bugs, a reproduction (preferably a failing test). Where the change had a real choice of level, the chosen option and its rationale are recorded alongside them. Hand off to `planning`.
