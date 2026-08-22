@@ -84,7 +84,7 @@ The plugin ships nine purpose-built subagents so `dev-workflow` can run the pipe
 
 ## Design philosophy
 
-The suite encodes one opinionated methodology: Clean Code, Fowler's *Refactoring*, Meszaros' *xUnit Test Patterns*, ports-and-adapters, CQRS, and classicist (Detroit-school) TDD. The rules are strict on purpose — each removes a recurring source of bugs — but every rule is stated with the *why*, so the discipline is legible rather than dogmatic. The full rationale lives in [`PRINCIPLES.md`](PRINCIPLES.md) — the canonical statement of the eleven principles the skills embody.
+The suite encodes one opinionated methodology: Clean Code, Fowler's *Refactoring*, Meszaros' *xUnit Test Patterns*, ports-and-adapters, CQRS, and classicist (Detroit-school) TDD. The rules are strict on purpose — each removes a recurring source of bugs — but every rule is stated with the *why*, so the discipline is legible rather than dogmatic. The full rationale lives in [`PRINCIPLES.md`](PRINCIPLES.md) — the canonical statement of the thirteen principles the skills embody.
 
 ## Maintaining the suite
 

@@ -4,7 +4,9 @@
 Given a produced git repository and a scenario definition, it mechanically
 checks the assertions the craft-code pipeline should have honored — built test-first,
 no doubles of owned/in-process code, no non-null-assertion escape hatches,
-separate refactor commits, Given/When/Then test names, and so on — and emits a
+separate refactor commits, Given/When/Then test names, no detached work left
+without a failure owner, and so on
+ — and emits a
 grading.json in the same shape the existing benchmark aggregator understands.
 
 Assertions whose `check` is "judgment" are left passed=null: they need a human
@@ -40,7 +42,25 @@ MOCK_RE = re.compile("|".join(MOCK_PATTERNS))
 # excludes `!=`, `!==`, `!!`, logical-not `!foo`, and TS definite-assignment `x!:`
 NONNULL_RE = re.compile(r"[\w\)\]]\s*!(?![=!])(?=\s*[\.\)\];,])")
 
+# detached work: started without a caller waiting on it. Deliberately narrow --
+# these five shapes are unambiguous; a floating promise in JS is not detectable
+# without type information, so it is left to the judgment assertions.
+DETACHED_PATTERNS = [
+    r"\basync\s+void\b",                     # C#: throws on the thread pool
+    r"^\s*_\s*=\s*[\w\.]+\s*\(",             # C#: discarded task
+    r"^\s*void\s+[\w\.]+\s*\(",              # TS: deliberately-ignored promise
+    r"^\s*go\s+[\w\.]+\s*\(",                # Go: bare goroutine
+    r"^\s*(?:asyncio|loop)\.create_task\s*\(",  # Python: unreferenced task
+]
+DETACHED_RE = re.compile("|".join(DETACHED_PATTERNS), re.M)
+GUARD_RE = re.compile(r"\b(try|catch|except|recover|Catch)\b")
+
 TITLE_RE = re.compile(r"""(?:\bit|\btest|\bdescribe)\s*\(\s*['"`]([^'"`]+)['"`]""")
+# naming.md sanctions a describe/it block as surface syntax "but keep the
+# Given/When/Then structure intact" -- so the pair is judged composed, the way a
+# reader sees it, not as two fragments neither of which reads as a spec alone.
+DESCRIBE_RE = re.compile(r"""\bdescribe\s*\(\s*['"`]([^'"`]+)['"`]""")
+CASE_RE = re.compile(r"""(?:\bit|\btest)\s*\(\s*['"`]([^'"`]+)['"`]""")
 GWT_RE = re.compile(r"(given\b.*\bwhen\b.*\bthen\b)|(\bwhen\b.*\bthen\b)", re.I)
 
 
@@ -186,18 +206,62 @@ def check_no_non_null_assertion(repo: str) -> tuple[Optional[bool], str]:
     return True, "no non-null-assertion / null-forgiving operator in production code"
 
 
+def composed_test_titles(source: str) -> list[str]:
+    """Test titles as a reader sees them: each case joined to its enclosing describe."""
+    titles, context = [], None
+    for line in source.splitlines():
+        describe = DESCRIBE_RE.search(line)
+        if describe:
+            context = describe.group(1)
+            continue
+        case = CASE_RE.search(line)
+        if case:
+            titles.append(f"{context} {case.group(1)}" if context else case.group(1))
+    if not titles:
+        titles = TITLE_RE.findall(source)
+    return titles
+
+
 def check_gwt_test_names(repo: str) -> tuple[Optional[bool], str]:
     titles = []
     for path in walk_code(repo):
         if not is_test_file(path):
             continue
-        titles += [t for t in TITLE_RE.findall(read(path))]
+        titles += composed_test_titles(read(path))
     titles = [t for t in titles if len(t.split()) >= 2]
     if not titles:
         return None, "no test titles found to check"
     good = [t for t in titles if GWT_RE.search(t)]
     ok = len(good) >= max(1, int(0.6 * len(titles)))
     return ok, f"{len(good)}/{len(titles)} test titles follow Given/When/Then"
+
+
+def check_detached_work_owned(repo: str) -> tuple[Optional[bool], str]:
+    """Every detached call site has a visible failure owner.
+
+    Heuristic by design: a hit counts as owned when a try/catch (or the language's
+    equivalent) appears within 15 lines either side -- the same glance a reviewer
+    makes. It catches the shape the discipline cares about: work started with
+    nobody to hand a failure to.
+    """
+    hits, unowned = [], []
+    for path in walk_code(repo):
+        if is_test_file(path):
+            continue
+        lines = read(path).splitlines()
+        for i, line in enumerate(lines):
+            if not DETACHED_RE.search(line):
+                continue
+            where = f"{rel(repo, path)}:{i + 1}"
+            hits.append(where)
+            window = "\n".join(lines[max(0, i - 15):i + 16])
+            if not GUARD_RE.search(window):
+                unowned.append(where)
+    if not hits:
+        return True, "no detached call sites found in production code"
+    if unowned:
+        return False, f"{len(unowned)}/{len(hits)} detached call site(s) with no visible failure owner: " + ", ".join(unowned[:5])
+    return True, f"{len(hits)} detached call site(s), each with a guard in scope: " + ", ".join(hits[:5])
 
 
 CHECKS = {
@@ -208,6 +272,7 @@ CHECKS = {
     "no_non_null_assertion": lambda repo, cfg, commits, tc: check_no_non_null_assertion(repo),
     "gwt_test_names": lambda repo, cfg, commits, tc: check_gwt_test_names(repo),
     "suite_passes": lambda repo, cfg, commits, tc: check_suite_passes(repo, cfg, tc),
+    "detached_work_owned": lambda repo, cfg, commits, tc: check_detached_work_owned(repo),
 }
 
 

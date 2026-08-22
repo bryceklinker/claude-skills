@@ -1,6 +1,7 @@
 ---
 name: architecture-design
-description: "Use after intake and before planning — to design the structure of a change that adds new moving parts: where the domain boundary sits, which ports and adapters it needs, where operations and their handlers live, how data flows across HTTP/GraphQL/gRPC and persistence, and what the shared types are. Trigger whenever a feature introduces a new module, a new integration, a new persistence or transport concern, or a non-trivial refactor of existing structure — anything where 'how is this shaped?' isn't already obvious. Produces a short design note that planning then decomposes into increments. Skip it for changes that add no new structure — a tweak inside an existing, well-shaped module. Not for pinning down requirements (intake), sequencing increments (planning), or writing the code."
+description: "Use after intake and before planning — to design the structure of a change that adds new moving parts: where the domain boundary sits, which ports and adapters it needs, where operations and their handlers live, how data flows across HTTP/GraphQL/gRPC and persistence, and what the shared types are. Trigger whenever a feature introduces a new module, a new integration, a new persistence or transport concern, background or scheduled work, or a non-trivial refactor of existing structure — anything where 'how is this shaped?' isn't already obvious.
+ Produces a short design note that planning then decomposes into increments. Skip it for changes that add no new structure — a tweak inside an existing, well-shaped module. Not for pinning down requirements (intake), sequencing increments (planning), or writing the code."
 ---
 
 # Architecture Design — decide the shape before you slice it
@@ -21,6 +22,8 @@ Work from the agreed acceptance criteria (from `intake`) and settle only what th
 - **Operations — inputs separated from handling.** Which operations this introduces, each as an immutable input data object plus its own dedicated handler — never a growing `Service`/`Manager`/`Utility`. A message + handler pair (CQRS) is the usual shape and a fine default (`CreateOrderCommand` → `CreateOrderCommandHandler`), but any shape that keeps the inputs as data and the handling separate is fine. If you split reads from writes, a query never mutates while a write handler may return data.
 - **Data flow across boundaries.** How a request moves from a driving adapter (HTTP/GraphQL/gRPC/CLI) into a handler, out through ports, and back. Note where the shared domain types live and how the wire shapes mirror them.
 - **Where it lives.** Which feature folder owns this; whether anything genuinely belongs in `shared` (only if more than one feature needs it).
+- **What runs detached, and who owns its failure.** If the design introduces work with no caller waiting on it — a background loop, a poller, a scheduled job, an event subscriber, a queue consumer, a timer — name for each: who catches and logs its failure, what happens when it stops (does anything notice?), and how it shuts down. Detached work with no named owner is a design defect, not an implementation detail (see `code-style/references/failure-modes.md`).
+- **What this reveals when it breaks.** For each new moving part, answer two questions in a line each: *what signal says it broke*, and *what evidence says why*. A component whose only failure mode is "it quietly stops working" is unfinished — give it a log, a health signal, or a surfaced error before it ships. Where craft-ops is available, its `observability-design` skill owns the runtime half of this (SLOs, symptom-based alerting, health signals) and is worth deferring to for anything user-facing or operationally significant; where it isn't, answer the two questions here rather than skipping them.
 
 The full rule set behind these decisions lives in `code-style/references/architecture.md` and `patterns.md` — this skill is the *act of applying them* to one work item.
 
@@ -31,7 +34,9 @@ Produce a short design note — a paragraph and a sketch, not a treatise. Save i
 - The hexagon sketch: domain in the center, ports named, adapters at the edge.
 - The operations — their input data objects and handlers.
 - The new types and where they live.
-- Any decision with a tradeoff, stated with its *why* — so a later reader (or a reviewer) understands the choice rather than guessing at it.
+- For any detached work: its failure owner, what notices when it stops, and how it shuts down.
+- Any decision with a tradeoff
+, stated with its *why* — so a later reader (or a reviewer) understands the choice rather than guessing at it.
 
 ## Guardrails
 
@@ -41,4 +46,5 @@ Produce a short design note — a paragraph and a sketch, not a treatise. Save i
 
 ## Exit condition
 
-A written design note: the domain boundary, the ports/adapters, the operations (input data objects + handlers), the shared types, and where it all lives — enough for `planning` to decompose into thin increments. Hand off to `planning`.
+A written design note: the domain boundary, the ports/adapters, the operations (input data objects + handlers), the shared types, where it all lives, the failure owner and shutdown story for anything detached, and what each new part reveals when it breaks — enough for `planning` to decompose into thin increments. Hand off to `planning`.
+

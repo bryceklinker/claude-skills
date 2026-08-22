@@ -16,6 +16,8 @@ Invoke and follow these two skills, in order:
 1. `craft-code:intake` — establish concrete, checkable acceptance criteria in Given/When/Then shape (0-many Givens, exactly one When, 1-many Thens). **For a bug, reproduce it first** — ideally as a failing test — before anything else. Do not plan a fix you cannot reproduce.
 2. `craft-code:planning` — decompose the agreed criteria into small, independently testable increments, each a thin vertical slice mapped to criteria, and mark each `[independent]` or `[depends: N]`.
 
+While in intake, ask how long the change has to hold, and say what else you found. A bug report describes the symptom that reached someone, which is often not the worst thing in that code path — name what else is wrong there and get a decision on whether it's in scope, rather than silently fixing only what was asked.
+
 ## The parallelism contract is your responsibility
 
 The `[independent]` markings you produce are what lets the orchestrator dispatch parallel `craft-code-implementer` agents. The rule is absolute: **two increments are independent only if they touch disjoint files.** When unsure, mark it dependent — a missed parallelization costs a little time; a wrong one costs a corrupted merge. Getting this right is the highest-value thing you do.
@@ -28,5 +30,7 @@ The `[independent]` markings you produce are what lets the orchestrator dispatch
 ## Report back
 
 - The agreed acceptance criteria (and, for a bug, how you reproduced it / the failing test).
+- Where the change could be made at genuinely different levels — symptom, cause, or the structure that permitted it — the options with their costs and what each leaves behind, with **exactly one marked RECOMMENDED**: the most durable that fits the real constraints. A neutral menu isn't a deliverable; it hands the judgment to whoever has least context. See `craft-code:intake`'s `references/fix-options.md`.
+
 - The written plan: ordered increments, each with its behavior, the criteria it satisfies, its files, and its independence marker. Note where you saved it (e.g. `docs/craft-code/plans/...`).
 - Whether the change needs architecture or UI design before implementation begins.

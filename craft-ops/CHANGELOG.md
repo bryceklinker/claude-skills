@@ -5,6 +5,19 @@ All notable changes to the `craft-ops` plugin are recorded here. The format foll
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new domains and skills; the suite's core discipline stays stable.
 
+## [0.12.0] — 2026-08-22
+
+Two additions from the same retrospective that drove `craft-code` 0.5.0, read
+through an ops lens: a mitigation is not a fix, and a pipeline that only
+explains itself when it's green costs a round-trip on every failure.
+
+### Added
+- **Principle 8 — mitigate fast, remediate at the cause, and recommend the durable fix.** Under an incident the fastest safe action wins; that is mitigation, and it is the right call. The failure mode is letting it *become* the fix — the nightly restart, the silenced alert, the capacity added to hide a leak. Each buys a quiet week and makes the real cause harder to see. So mitigation ends with the cause tracked as work, remediation options carry **exactly one recommendation**, and a mitigation deliberately kept records the condition that would let it go. (Previous principle 8, *state the why*, is now 9.)
+- **Failure diagnostics as an eighth `cicd-pipeline-design` checklist item.** What a *red* run leaves behind: service logs collected **before** the environment is torn down, traces and reports, uploaded on cancellation and timeout as well as failure, named per attempt so a re-run cannot overwrite the evidence you were reading. Recorded per project as `cicd.failure_artifacts` in `.craft-ops.yml`.
+
+### Changed
+- **`incident-response` will not close an incident on a quiet pager alone.** The lever pulled in phase 2 removed the harm, not the mechanism; before close, the cause is written down as tracked work with a recommended level, and a mitigation left in place carries its removal condition. Otherwise it silently becomes the architecture.
+
 ## [0.11.0] — 2026-08-13
 
 ### Changed

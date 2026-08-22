@@ -8,6 +8,7 @@ An acceptance test is only as trustworthy as the environment it runs against. Th
 - External dependencies: real, or an external deployed fake
 - What "external deployed fake" means (and what it is not)
 - Data setup and isolation
+- Namespacing: the environment must not be able to touch anything else
 - Driving the system through its real interface
 - Where these tests run
 
@@ -47,6 +48,24 @@ The line: **`strict-tdd` substitutes inside the process; acceptance testing subs
 - **Set up state through the real interface where you can** — create the account by calling the real signup API, not by inserting rows — so the setup exercises real code paths too. Fall back to seeding the real database directly only when driving the UI/API for setup is impractical.
 - **Isolate tests** so they don't contaminate each other: a fresh database per run (disposable container), transactional rollback, or per-test namespacing of data. Flaky order-dependent acceptance tests erode the trust the suite exists to build.
 - **Reset external fakes** between tests the same way you reset the database — clear their recorded interactions and reprogram their responses per scenario.
+
+## Namespacing: the environment must not be able to touch anything else
+
+An acceptance environment is disposable, which means something routinely tears it down — and teardown is destructive by design. The danger is that most orchestration tools identify a "stack" **implicitly**, by a default derived from context, and two different stacks can silently resolve to the same identity. Docker Compose defaults its project name to the containing directory's basename, so a checkout at `~/code/haus` and a deployment at `/etc/haus` are both the project `haus` — and a `compose down` run from the wrong place takes down the running one. Kubernetes' current context, Terraform's workspace, and a cloud CLI's default profile all fail the same way.
+
+<HARD-GATE>
+The acceptance environment declares its identity explicitly and uniquely — a `name:` in the compose file, an explicit namespace, an explicit workspace or profile — and every teardown targets that identity by name. Never rely on an implicit default, on the current working directory, or on the ambient context to decide what a destructive command acts on.
+</HARD-GATE>
+
+Practical rules:
+
+- **Unique per checkout and per run.** Two worktrees of the same repo, or two concurrent CI jobs, must not collide — include a run identifier or the worktree name in the project/namespace, not just the repo name.
+- **Teardown is scoped and specific.** Bring down *this* project by name; never a blanket "stop everything," a prune of all containers/volumes, or a delete of everything matching a bare label.
+- **Ports and volumes are namespaced too**, or a test run binds the port a real service is already serving on.
+- **Before any destructive command, confirm what it resolves to.** Print the resolved project/namespace/context and check it's the ephemeral one. This costs a line and prevents the whole class.
+- **Delegated work inherits the risk.** A subagent or script running teardown has the same authority and less context; the isolation must hold structurally rather than by the runner remembering to be careful.
+
+This is not hypothetical caution — an acceptance-test teardown reaching a live stack is a production outage caused by a test.
 
 ## Driving the system through its real interface
 

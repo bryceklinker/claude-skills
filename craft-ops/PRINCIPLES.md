@@ -30,7 +30,13 @@ One artifact promoted unchanged means environment-specific values can't live ins
 
 A deploy is "done" when it's observed healthy in the actual target environment — a passing health check, real traffic served, a metric that moved — not when the pipeline job turns green. Green is a claim about the pipeline; evidence is a claim about the system. *(craft-code: judgment is independent, and "done" rests on evidence.)*
 
-## 8. State the why; keep the escape hatch
+## 8. Mitigate fast, remediate at the cause — and recommend the durable fix
+
+During an incident, the fastest safe action wins: roll back, fail over, scale out, flip the flag. That is mitigation, and it is the right call — restoring service beats understanding it. But mitigation is not a fix, and the failure mode of ops work is that it's allowed to become one: the restart script that runs nightly, the alert everyone silences, the capacity added to hide a leak. Each buys a quiet week and makes the real cause harder to see.
+
+So mitigation ends with the cause tracked as work, not with the pager going quiet. And when the remediation options are laid out — patch the symptom, fix the cause, or change the structure that permitted it — **exactly one is recommended, and it's the most durable one that fits the real constraints.** A neutral menu hands the judgment to whoever has least context. A mitigation kept deliberately ships with its removal condition recorded, so it stays known debt instead of becoming the architecture. And the same defect recurring — the third rollback for the same class of failure, the check skipped twice for the same missing credential — is itself the evidence that the level was wrong. *(craft-code: fix the cause at its level, and recommend the durable option.)*
+
+## 9. State the why; keep the escape hatch
 
 Every strict rule here is legible rather than dogmatic because it comes with its reason. When a rule genuinely fights the problem in front of you, that tension is worth a conscious, recorded note — not a silent abandonment of the discipline. The rules are strict so that applying them by reflex frees attention for the actual incident, the actual outage, the actual deadline. *(craft-code: state the why; keep the escape hatch — inherited verbatim.)*
 

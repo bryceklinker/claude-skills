@@ -11,7 +11,9 @@ These rules are framework- and language-agnostic; they're about how code should 
 
 **Immutability by default.** This is the highest-priority rule. Construct values fully formed and don't mutate them; return new values instead of changing existing ones. Immutable data is what makes concurrency safe, makes reasoning local, and makes whole classes of aliasing bugs impossible. Reach for mutation only where a measured need forces it, and isolate it when you do.
 
-**No comments — except to explain *why* awkward code exists.** Code says *what* and *how*; a comment that restates that is noise that rots. The only comment worth writing explains a *why* the code cannot: a non-obvious workaround, an ordering constraint, a deliberate deviation forced by something external. If you're tempted to comment *what* the code does, rename things and extract methods until the code says it itself.
+**No comments — except to explain *why* awkward code exists.** Code says *what* and *how*; a comment that restates that is noise that rots. The only comment worth writing explains a *why* the code cannot: a non-obvious workaround, an ordering constraint, a deliberate deviation forced by something external. If you're tempted to comment *what* the code does, rename things and extract methods until the code says it itself. When the awkwardness is a **deliberate stopgap**, the comment also names the condition that would let it go — the upstream fix, the version, the ticket — so it stays known debt instead of hardening into the design.
+
+**Every failure has an owner — including the ones with no caller.** Detached work (a discarded task, a fire-and-forget call, an `async void` handler, a background loop, an event subscriber, a timer callback) has nobody to return a result to: what it throws is swallowed or takes the process down, and the signature says nothing either way. Three shapes are legal — **await it** at a caller that handles the failure; **self-guard it**, so the body catches, logs, and decides, with a *why*-comment saying who owns it; or **observe it at shutdown**, keeping the handle and awaiting it where the lifecycle ends. "Nobody is watching this" is not one of them. Before writing any call site that starts work without awaiting it, name the owner. Per-construct catalog: `references/failure-modes.md`.
 
 **Results over exceptions.** Model expected failure as a returned result that carries success or a named reason for failure. Exceptions are for the truly exceptional — genuinely unrecoverable conditions — not for control flow the caller is expected to handle. A result type makes the failure path visible in the signature; an exception hides it and invites the caller to forget it. See `references/architecture.md` for the result-type shape.
 
@@ -27,6 +29,7 @@ These rules are framework- and language-agnostic; they're about how code should 
 |----------------|------|
 | Naming anything, or writing a test name | `references/naming.md` |
 | Structuring modules, layers, dependencies, result types, null objects | `references/architecture.md` |
+| Starting work you don't await, handling an event, or writing a background loop | `references/failure-modes.md` |
 | Choosing or recognizing a design pattern | `references/patterns.md` |
 | Reviewing or refactoring; something smells off | `references/smells.md` |
 

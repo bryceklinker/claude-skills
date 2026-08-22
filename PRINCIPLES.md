@@ -25,11 +25,13 @@ A double asserts *how* your code talks to a collaborator, not *what* it achieves
 
 *Embodied by:* `strict-tdd` (+ `references/testing-doubles.md`), `acceptance-testing` (+ `references/environment.md`).
 
-## 4. Failure is a value, not an exception
+## 4. Failure is a value, and every failure has an owner
 
 Model expected failure as a returned result carrying success or a named reason. Exceptions are for the genuinely unrecoverable, not for control flow the caller is expected to handle — a result makes the failure path visible in the signature; an exception hides it and invites the caller to forget it. In the same spirit, avoid nulls: prefer null objects with safe behavior, and never suppress an absence with a non-null-assertion operator, which silences the compiler without removing the null.
 
-*Embodied by:* `code-style` (+ `references/architecture.md`, `references/smells.md`).
+That covers code with a caller. **Where there is no caller, the failure still needs a named owner** — a discarded task, a fire-and-forget call, an `async void` handler, a background loop, an event subscriber, a timer callback. Nothing downstream will handle what these throw: the failure is silently swallowed or it takes the process down, and either way the signature says nothing. Detached work is only legal when someone is named to catch, log, and decide — the code that awaits it, a self-guarding body that handles its own failure, or a lifecycle that observes it at shutdown. "Nobody is watching this" is not a valid answer.
+
+*Embodied by:* `code-style` (+ `references/architecture.md`, `references/failure-modes.md`, `references/smells.md`).
 
 ## 5. Immutability by default
 
@@ -61,13 +63,29 @@ The person who wrote the code is primed to see what they intended; fresh eyes se
 
 *Embodied by:* `self-review`, `verification`.
 
-## 10. Find the cause before you change anything
+## 10. A failure you can't see is a defect
+
+Behavior that fails invisibly is worse than behavior that fails loudly, because nothing will ever tell you it broke. So diagnosability is part of the work, not a thing bolted on after an outage: when a test or a deployment fails, the artifacts needed to explain *why* — the application's own logs, the trace, the video or screenshot, the failing request and response — must already be there, captured by default, without anyone having to reproduce the failure with more instrumentation turned on. That means capture is centralized in the shared harness rather than opted into per test, and it survives the failure rather than being discarded with the container.
+
+The same question applies to the running system: when this breaks in production, what will show that it broke, and what will show why? A design that can't answer is unfinished. And when an investigation is hard because the evidence wasn't there, *that* is a finding worth fixing — not an inconvenience to route around this once.
+
+*Embodied by:* `acceptance-testing` (+ `references/diagnosability.md`), `architecture-design`, `systematic-debugging`; craft-ops' `observability-design` for the runtime half.
+
+## 11. Find the cause before you change anything
 
 A bug is an information problem, not a typing problem. Reproduce it, narrow the search space by bisection, and confirm one falsifiable hypothesis at a time before touching code. Guessing moves the symptom; method finds the root. Only once the cause is a specific, evidence-backed fact does the fix re-enter the pipeline as a failing test.
 
 *Embodied by:* `systematic-debugging` (+ `references/techniques.md`).
 
-## 11. State the why; keep the escape hatch
+## 12. Fix the cause at its level, and recommend the durable option
+
+Knowing the cause doesn't settle *where* to fix it. The same bug can be patched at the symptom, at the cause, or at the structure that let the cause exist — and the cheapest of those is the one that brings you back to the same file a third time. So the minimum change means the minimum *diff at the right level*, never the shallowest patch that turns the test green.
+
+Where the levels genuinely trade off, lay the options out — symptom, cause, structural, make-it-observable — with their costs, and **recommend the most durable one that fits the real constraints.** Recommending is the point: presenting three neutral choices pushes the judgment onto someone with less context than you. If a stopgap is chosen anyway, it ships with a *why*-comment naming what would have to be true to remove it, so it stays a known debt rather than becoming the design. And a symptom that recurs — the third patch to the same thirty lines, the check deferred twice for the same environmental reason — is itself the evidence that the level was wrong.
+
+*Embodied by:* `intake` (+ `references/fix-options.md`), `systematic-debugging`, `self-review`, `verification`.
+
+## 13. State the why; keep the escape hatch
 
 Every strict rule here is legible rather than dogmatic because it comes with its reason. When a rule genuinely fights the problem in front of you, that tension is worth a conscious, recorded note — a *why*-comment is literally the sanctioned escape hatch — not a silent abandonment of the discipline. The rules are strict so that applying them by reflex frees attention for the actual problem; they are not strict for their own sake.
 

@@ -20,6 +20,8 @@ Invoke and follow `craft-code:architecture-design`. Working from the agreed acce
 - The **operations** — each an immutable input data object plus its own dedicated handler, never a growing `Service`/`Manager`/`Utility`. A message + handler pair (CQRS) is the usual shape and a fine default, but any shape that keeps inputs as data and handling separate is fine; if you split reads from writes, a query never mutates while a write handler may return data.
 - The **data flow** from driving adapter → handler → ports → back, and the **shared types**, with the wire shapes (HTTP/GraphQL/gRPC) mirroring the domain shapes.
 - **Where it lives** — which feature folder; `shared` only if more than one feature genuinely needs it.
+- **Who owns the failure of anything detached** — for each background loop, poller, scheduled job, event subscriber, queue consumer, or timer the design introduces: who catches and logs its failure, what notices if it stops, and how it shuts down. Detached work with no named owner is a design defect, not an implementation detail.
+- **What each new part reveals when it breaks** — one line each: the signal that says it broke, and the evidence that says why. A component whose only failure mode is "it quietly stops working" isn't finished.
 
 Read the existing codebase first. The best design often reuses the shape that's already there — "fits the existing checkout feature, adds one operation and its handler" is a great result, not a lazy one.
 

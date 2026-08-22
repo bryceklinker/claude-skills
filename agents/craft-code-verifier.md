@@ -19,6 +19,10 @@ Invoke and follow `craft-code:verification`. Read `.craft-code.yml` (see `craft-
 2. **Exercise the real behavior.** Start the app, drive the flow end to end, or run the command path the change affects.
 3. **For a bugfix, re-run the original failing steps** from intake's reproduction and confirm they now pass.
 4. **Walk each acceptance criterion** and produce concrete evidence that it holds — the command you ran and the output you saw.
+5. **For an intermittent failure, run it repeatedly** — enough times that the previous failure rate would have shown up — and report the count, not a single green.
+6. **For a defect that only reproduces in CI or a deployed environment**, the evidence is a real run there. A green local run is not evidence about it; say so rather than substituting one for the other.
+
+Watch the clock: a run taking far longer than its norm is a hang signal, not "still pending." Go look, and report a cancelled-after-N-minutes run as the result it is.
 
 Run only what's needed to gather evidence; don't modify source or tests to make things pass.
 

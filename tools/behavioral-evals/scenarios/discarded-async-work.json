@@ -1,0 +1,19 @@
+{
+  "id": "discarded-async-work",
+  "kind": "feature",
+  "prompt": "Add a background sync to our device service: every 30 seconds it should poll the upstream device API and update the local device cache, starting when the service starts and stopping cleanly when it shuts down. Callers read from the cache and must never block on the poll. The upstream API is flaky — it times out and returns 5xx fairly often.",
+  "config": { "test_cmd": "node --test", "note": "The point of this scenario is the failure path, not the polling. A detached loop whose iteration can throw is the shape that silently stops working while the service looks healthy; the discipline requires a named owner and a test for that path." },
+  "assertions": [
+    { "text": "The unit suite exists and passes (green) when run", "check": "suite_passes" },
+    { "text": "Behavior was driven test-first: a test is committed at or before the code it covers", "check": "test_before_code" },
+    { "text": "Work is committed as small increments rather than one large commit", "check": "multiple_small_commits" },
+    { "text": "Every detached call site has a visible failure owner (guard in scope), not a bare discard", "check": "detached_work_owned" },
+    { "text": "Tests do not double the owned cache or polling code", "check": "no_owned_mocks" },
+    { "text": "Test names follow Given/When/Then (or When/Then) structure", "check": "gwt_test_names" },
+    { "text": "A test asserts the loop SURVIVES a failing poll iteration — one upstream error does not end the background sync", "check": "judgment", "note": "review: test drives a throwing/5xx upstream and asserts the next tick still runs" },
+    { "text": "A test asserts the failure is surfaced (logged/reported), not swallowed silently", "check": "judgment", "note": "review: failure path observable, not an empty catch" },
+    { "text": "Shutdown is handled: the loop is cancelled and its completion observed rather than abandoned", "check": "judgment", "note": "review: dispose/stop path awaits or observes the task; cancellation not treated as an error" },
+    { "text": "The upstream call is treated as a failure-returning boundary, not a throw the caller is expected to remember", "check": "judgment", "note": "review: result-carrying failure at the seam per principle 4" },
+    { "text": "If a detached start is used, a why-comment names who owns its failure", "check": "judgment", "note": "review: the sanctioned escape hatch is a stated owner, not silence" }
+  ]
+}

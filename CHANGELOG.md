@@ -5,6 +5,31 @@ All notable changes to the `craft-code` plugin are recorded here. The format fol
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new skills and agents; the pipeline's core discipline stays stable.
 
+## [0.5.0] — 2026-08-22
+
+Four gaps found by reading a quarter of real pull requests built with this
+pipeline, then closed and checked against behavioral evals. The theme running
+through all four: the suite was good at *doing* the work and quiet about
+whether the work would hold.
+
+### Added
+- **Three principles.** *A failure you can't see is a defect* and *fix the cause at its level, and recommend the durable option* join the set, and principle 4 grew a second half — failure is a value **where there is a caller**; where there isn't, it still needs a named owner.
+- **Fix levels, with a recommendation.** `intake/references/fix-options.md` gives the four levels (symptom, cause, structural, make-it-observable), the questions that choose between them — including *could this guard block the operation it's guarding?* — and a write-up format where **exactly one option is marked recommended**. A neutral menu is not a deliverable; it hands the judgment to whoever has least context about the code.
+- **Runtime failure modes.** `code-style/references/failure-modes.md` asks one question at every call site — *if this throws, who finds out?* — and admits three answers: awaited, self-guarding with a why-comment, or observed at shutdown. Storing a task handle nothing ever awaits is a discard with extra steps.
+- **Diagnosability as part of the work.** `acceptance-testing/references/diagnosability.md` requires capture from the shared fixture rather than per-test opt-in — the test that fails is the one nobody remembered to instrument — with app logs collected *before* teardown removes the containers. Projects record the wiring under a new `diagnostics` block in `.craft-code.yml`.
+- **Behavioral eval harness.** `tools/behavioral-evals/produce.sh` drives each scenario in a throwaway repo with the plugin loaded from the checkout, and resumes after a usage limit. Three new scenarios cover the new rules; `run.sh` now grades the work-item branch rather than the seed, and reports `NOTRUN` rather than a confident OK for a scenario that never ran.
+
+### Changed
+- **`systematic-debugging` no longer says "the minimum change that makes that test pass."** It says the minimum diff *at the right level*, and names two tells that the level was wrong: a second or third patch to the same few lines, or a guard wrapped around a mechanism nobody explained. It also asks you to read a dependency's source before theorising about it, and treats a slow investigation as evidence of missing diagnosability.
+- **`verification` holds a higher bar.** A CI-only defect needs a real run in CI; a flake needs repetition proportional to its failure rate, not one green; an abnormally long run is a hang signal, not "still pending"; and a check deferred twice for the same environmental reason stops being an honest caveat and becomes the defect.
+- **`self-review` gained a fourth standard** — a mechanical scan for unawaited work, swallowed errors and lowered log levels, plus durability and blast radius.
+- **`strict-tdd` sweeps each increment for work with no caller** at the refactor step, and treats an unowned one as missing behavior needing its own RED. Its GREEN step decides the *level* of a defect fix rather than reaching for the shallowest patch.
+- **`architecture-design` asks what each new part reveals when it breaks**, and who owns the failure of anything detached.
+- **The acceptance environment must name itself.** An explicit compose project / namespace / workspace, with every teardown targeting it by name — an implicit default resolved from the working directory is how a test teardown reaches a live stack.
+
+### Fixed
+- **`refactoring` kept the commit ratchet by reference only.** Entered directly on a "clean this up" request it never loaded `strict-tdd`, so nothing enforced what it delegated: one eval run finished with a complete decomposition, 46 green tests, and not a single commit. The commit rhythm and the Given/When/Then rule are now stated in the skill, behind a hard gate that green-and-uncommitted is not a result, and a multi-file restructure routes through `dev-workflow`.
+
 ## [0.4.1] — 2026-08-15
 
 The repo gained an actual release process, and this bump is what exercises it

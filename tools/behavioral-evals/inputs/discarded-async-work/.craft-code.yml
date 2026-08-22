@@ -1,0 +1,7 @@
+stack: [javascript]
+package_manager: npm
+commands:
+  test: node --test
+  run:  node src/index.js
+git: { main_branch: main }
+paths: { plans: docs/craft-code/plans, design: docs/craft-code/design }

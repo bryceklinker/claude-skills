@@ -1,0 +1,6 @@
+stack: [typescript]
+package_manager: npm
+commands:
+  test: node --test
+git: { main_branch: main }
+paths: { plans: docs/craft-code/plans, design: docs/craft-code/design }

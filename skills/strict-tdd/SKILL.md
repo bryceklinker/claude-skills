@@ -46,6 +46,8 @@ A test that passes the first time is testing something that already exists — f
 
 Write the simplest thing that makes this one test pass. Not the general solution, not the configurable version, not the next three behaviors you can see coming — YAGNI. The next test will force the next piece of generality honestly.
 
+**When the increment is a defect fix, "simplest" means at the right level — decide which before you type.** The same red can be answered by patching the symptom, fixing the cause, or removing the structure that let the cause exist, and the cheapest answer is the one that brings you back here a third time. Two tells that you're about to fix too low: **the same few lines have been patched before** (read the file's history — a recurrence is evidence, not coincidence), or the fix you're reaching for is a guard, retry, or delay around a mechanism you can't explain. Where the levels genuinely trade off, lay them out with their costs and **recommend one** rather than picking silently — `intake/references/fix-options.md` has the four levels and the write-up format. Take the level decision here even when the bug arrived with an obvious cause and you never passed through `intake` or `systematic-debugging`; that path is exactly where a third patch gets pasted.
+
 Then **run it and watch it pass** — this test, and the whole suite. Output should be pristine: no new warnings, no errors. Other tests broke? Fix them now, before moving on.
 
 ### COMMIT THE GREEN — before you touch the design
@@ -61,6 +63,10 @@ Reach green → commit → THEN refactor. Never refactor before the green is com
 With the green committed, improve the design without changing behavior: remove duplication, sharpen names, extract methods, apply the patterns in `code-style`. Reach for a **named technique** rather than a freehand cleanup — match the smell to its technique via `refactoring` (its smell → technique map and `references/techniques.md` give the safe, small-step mechanics), keeping the suite green after each step. **Refactor the test code too** — test code is real code and decays the same way. Duplicated setup, unclear arrange steps, and copy-pasted assertions are smells in a test just as in production. Extract them into the shared test utilities (see `references/test-utilities.md`).
 
 Keep the suite green throughout the refactor. If it goes red, the last change was behavior, not refactoring — revert and reconsider.
+
+**Before leaving the refactor step, sweep the increment for work with no caller.** A test drives the happy path you asked for; it says nothing about a task you started and didn't await. For every call site this increment added that begins work without waiting for it — a discarded task, a floating promise, an `async void` or other no-return handler, a background loop, a timer, an event subscription — answer *if this throws, who finds out?* The legal answers are: awaited by a caller that handles it, self-guarding with a *why*-comment, or observed at shutdown (`code-style/references/failure-modes.md`).
+
+Where the answer is "nobody," that's not a refactor — it's missing behavior, so it gets its own RED: a test that the loop survives a failing iteration, that the handler logs instead of escaping, that shutdown observes the task. The failure path is behavior, and behavior needs a test.
 
 ### COMMIT THE REFACTOR
 
@@ -116,4 +122,5 @@ Refactoring is a behavior-preserving change, so it's covered by existing tests: 
 
 ## Exit condition
 
-Every increment's behavior is covered by a test that was watched failing and then passing; production and test code are refactored clean; commits landed at green and after refactor; the whole suite is green with pristine output. Hand off to `self-review`.
+Every increment's behavior is covered by a test that was watched failing and then passing; production and test code are refactored clean; every call site that starts work without awaiting it has a named failure owner and a test covering that path; commits landed at green and after refactor; the whole suite is green with pristine output. Hand off to `self-review`.
+

@@ -1,0 +1,14 @@
+stack: [javascript]
+package_manager: npm
+commands:
+  test:       node --test
+  acceptance: npx playwright test
+  run:        node src/index.js
+acceptance_env:
+  up:        docker compose -f docker-compose.acceptance.yml up -d --wait
+  down:      docker compose -f docker-compose.acceptance.yml down -v
+  database:  postgres:16
+  ui_driver: playwright
+  base_url:  http://localhost:8080
+git: { main_branch: main }
+paths: { plans: docs/craft-code/plans, design: docs/craft-code/design }

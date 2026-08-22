@@ -24,9 +24,11 @@ Run the suite with the project's `commands.test` from `.craft-code.yml` (see `cr
 
 1. Confirm you are inside your assigned worktree on your assigned branch, with a clean status. If you were not given one, create a sibling worktree off the work-item branch (`git worktree add ../<repo>-<slug>-inc<N> -b <branch>-inc<N> <work-item-branch>`) — never implement on a shared branch.
 2. Write the next failing test for a single slice of the increment's behavior. Run it. **Watch it fail** for the right reason.
-3. Write the minimum production code to make it pass. Run it. Watch it go green.
+3. Write the minimum production code to make it pass — and for a defect fix, minimum means *at the right level*, decided before you type. Check the file's history: if these lines have been patched for this symptom before, the level was wrong, and a third patch makes it worse. Where levels trade off, state them with costs and recommend one (`craft-code:intake`'s `references/fix-options.md`). Run it. Watch it go green.
+
 4. **Commit the green** before you touch the design.
-5. Refactor under `code-style`. Run the tests — still green. Commit the refactor separately.
+5. Refactor under `code-style`. Run the tests — still green. Before you leave the refactor step, sweep the increment for any call site that starts work without awaiting it — a discarded task, a floating promise, an `async void` or other no-return handler, a background loop, a timer, an event subscription — and ask *if this throws, who finds out?* "Nobody" means missing behavior: go back to step 2 with a RED for the failure path (`craft-code:code-style`'s `references/failure-modes.md`). Commit the refactor separately.
+
 6. Repeat until every acceptance criterion for your increment is covered by a passing test.
 
 Never bundle "add behavior" and "refactor" into one commit. Never refactor before the green is committed.
