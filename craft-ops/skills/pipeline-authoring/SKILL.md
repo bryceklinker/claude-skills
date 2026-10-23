@@ -1,54 +1,36 @@
 ---
 name: pipeline-authoring
-description: "Use when turning a CI/CD pipeline design note (from cicd-pipeline-design) into the actual pipeline definition — writing the real pipeline-as-code and its step scripts. Applies opinionated authoring rules: prefer script files over inline scripts, build once and promote the same artifact, pinned/hermetic/idempotent steps, no secrets in the definition, DRY across stages, fail-fast ordering. It WRITES the pipeline (unlike cicd-pipeline-design, which only designs it), but defers the production loop to craft-code: extracted logic (scripts/generators) is built under strict-tdd, and the declarative pipeline glue is proven by verification — running the real pipeline against a test artifact. Not for deciding the pipeline's shape (that is cicd-pipeline-design), nor for infrastructure, deployment, or observability authoring."
+description: "Use when turning a CI/CD pipeline design note (from cicd-pipeline-design) into the actual pipeline definition — writing the real pipeline-as-code and its step scripts. Applies opinionated authoring rules: script files over inline scripts, build once and promote the same artifact, pinned/hermetic/idempotent steps, no secrets in the definition, no duplicated stage logic, fail-fast ordering. It WRITES the pipeline (unlike cicd-pipeline-design, which only designs it) and proves it by running it: each step script executes through the exact entrypoint the pipeline calls and does its job, and the real pipeline runs against a test artifact — no separate unit-test suite for scripts unless one carries substantial decision logic. Not for deciding the pipeline's shape (that is cicd-pipeline-design), nor for infrastructure, deployment, or observability authoring."
 ---
 
-# Pipeline Authoring — write the pipeline the design already decided
+# Pipeline Authoring
 
-## Why this exists
+Turn a `cicd-pipeline-design` note into real pipeline-as-code without re-deciding the design. Read `cicd.*` and `environments.order` from `.craft-ops.yml` first (`craft-ops-conventions`). If the note is missing, ambiguous, or wrong, send it back to `cicd-pipeline-design`.
 
-A design note is not a running pipeline. Left to guesswork, the gap between the two fills in with inline shell scripts nobody can unit test, stages that quietly diverge from what was decided, and a definition that's never actually reviewed like code. This skill turns a `cicd-pipeline-design` note into real, reviewed pipeline-as-code — without re-litigating the design and without hand-waving the discipline that makes the result trustworthy.
+## Prove it by running it
 
-Unlike the `-design` skills, it *does* write code — so it leans on craft-code to write it well.
+A pipeline and its scripts are tested by executing them and watching them do the job (`PRINCIPLES.md` core 2):
 
-## Seams
+- **Each step script** runs through the exact entrypoint the pipeline uses (`./ci/deploy.sh`, `python -m ci.promote`) against a real or throwaway target, and you observe the outcome — the artifact built and pushed with the expected digest, the version computed, the check failing when it should. Where a script would touch something real, run it against a scratch target or with its own `--dry-run`.
+- **The pipeline itself** runs for real against a test artifact on a scratch branch or disposable tag: the stages ran in the designed order, a failing gate actually blocked promotion (make it fail and watch), and the artifact promoted is the one that was built.
+- **When no runner is available**, the minimum is linting/validating the pipeline definition plus running every script locally through its entrypoint.
 
-- **Consumes** the `cicd-pipeline-design` note as input. That note already made the shape decisions — artifact strategy, stage ordering, gate map, promotion flow, reproducibility seams, secrets boundary, evidence of done. This skill does not re-decide them.
-- **Reads `.craft-ops.yml`** for this project's `cicd.artifact_registry`, `cicd.artifact_identity`, and `environments.order` before authoring — see `craft-ops-conventions`, which records and reads it.
-- **Defers the production loop to craft-code** — named generically so this skill degrades gracefully without craft-code installed: `strict-tdd` for the extracted logic, `verification` for the pipeline glue, `code-style` and `self-review` for how it's written and checked.
-- **Review and verification** go to `craft-code-reviewer` / `craft-code-verifier` where those agents exist.
-
-## The production-discipline split
-
-State it plainly, because the two halves are proven differently:
-
-- **Extracted real logic** — scripts, generators, policy code, anything with a decision or a computation in it — is production code. It goes through craft-code `strict-tdd`: a failing test first, then the minimal code to pass it.
-- **The declarative pipeline glue** — the stage/job wiring itself — isn't unit-testable in the same sense. It's proven by craft-code `verification`: run the real pipeline against a test artifact and observe the outcome, not by reasoning about the YAML. At minimum — even when no runner is available — **smoke-invoke each extracted script through the exact entrypoint the glue calls** (`python -m ci.promote --help`, `./ci/deploy.sh --dry-run`): the unit tests import the functions directly and never cross that seam, so a wrong module name or broken CLI path passes a green suite and fails on the first real run. See `references/testing-and-verifying-pipelines.md`.
-
-This skill's job is to maximize how much lands on the testable side of that split. Every non-trivial decision pushed out of the glue and into a script is more of the pipeline covered by strict-tdd instead of resting on "it looked right."
+Don't write a unit-test suite for a script by default; it would mostly mock the CI system and registry the script drives. Add one only when a script holds real decision logic with more cases than running it covers cheaply — a version computation, a policy with many branches — and then build it with craft-code's `strict-tdd` where installed. `references/testing-and-verifying-pipelines.md` has the detail.
 
 ## Domain rules
 
-**Prefer script files over inline scripts.** Non-trivial step bodies live in version-controlled script files that the pipeline calls — never as inline shell/YAML blocks buried in the step definition. Inline scripts can't be unit tested, can't be linted with the rest of the codebase, and hide logic from `git diff` and code review. If a step body branches, loops, parses output, or makes more than a one-line decision, it belongs in a script. See `references/pipeline-as-code-hygiene.md`.
+- **Script files over inline scripts.** A step body that branches, loops, parses output, or makes more than a one-line decision lives in a version-controlled script the pipeline calls — runnable locally, lintable, and reviewable as a diff. Straight-line one-liners can stay inline. `references/pipeline-as-code-hygiene.md`.
+- **Build once, promote the same artifact** — never rebuild per environment.
+- **Pinned, hermetic, idempotent** steps; re-running one is safe.
+- **No secrets in the definition**; inject them at run time.
+- **No duplicated stage logic** — factor it into one script or template; don't build a templating layer for a single use.
+- **Stages in the order the design decided.** If they can't be, the design is stale.
+- **Only what the design calls for** — no extra stages, environments, or wrapper scripts.
 
-Beyond that:
+## Writing it well
 
-- **Build once, promote the same artifact.** The pipeline produces one immutable artifact and moves it unchanged across environments; it never rebuilds per environment.
-- **Pinned, hermetic, idempotent.** Toolchain and dependency versions are pinned, builds run in isolated environments, and re-running a step is always safe and yields the same result.
-- **No secrets in the definition.** Nothing secret is ever written into the pipeline file or baked into the artifact — secrets and environment config are injected at run time.
-- **DRY across stages.** Repeated step logic is factored into a shared script or template, not copy-pasted per stage — copy-paste drift is how one stage silently diverges from the others.
-- **Fail-fast ordering matching the design.** Stages run in the order the design note settled on — cheapest and most-likely-to-fail first. If the pipeline being authored doesn't match that order, the design note is wrong or stale, not the authoring.
-- **Reviewed like code.** The pipeline definition and its scripts go through the same review the application code does — no clicked-together jobs, no changes that bypass PR review.
-
-Testing and verifying depth — what counts as adequate coverage for extracted logic, and how to structure a verification run for the glue — is in `references/testing-and-verifying-pipelines.md`.
-
-## Guardrails
-
-- **Do not re-decide the design.** If the design note is missing, ambiguous, or looks wrong, stop and send it back to `cicd-pipeline-design` rather than deciding the shape here.
-- **Do not reimplement TDD or verification.** Defer to craft-code's `strict-tdd` and `verification`; this skill supplies the domain rules, not a competing test methodology.
-- **Don't inline non-trivial step logic.** If a step body is growing past a couple of straight-line commands, extract it to a script before it grows further.
-- **No secrets in the definition, ever** — not as a placeholder, not "just for now."
+Apply craft-code's `code-style` to scripts, commit each piece once it's been run and seen working, commit refactors separately, and send the finished diff to `adversarial-review` and `verification` (`craft-code-reviewer` / `craft-code-verifier` where available). Without craft-code installed, apply the same discipline directly.
 
 ## Exit condition
 
-The pipeline definition and its extracted step scripts exist in the repo. The extracted logic is covered by tests written under strict-tdd; the declarative glue has been verified by running the real pipeline against a test artifact and observing the result — and, at minimum, every script the glue calls has been smoke-invoked through the exact entrypoint the pipeline uses, so the wiring-to-code seam is proven connected, not assumed. Both are committed the craft-code way — reviewed, no secrets, no dead scaffolding left behind.
+The pipeline definition and its scripts are in the repo; every script has run through its real entrypoint and done its job; the pipeline has run against a test artifact (or, without a runner, been validated with every script run locally); reviewed, no secrets, no leftover scaffolding.
