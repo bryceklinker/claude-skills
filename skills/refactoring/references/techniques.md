@@ -14,6 +14,7 @@ one technique at a time and commit it on its own.
 4. Simplifying Conditionals — Decompose Conditional, Consolidate Conditional, Guard Clauses, Replace Conditional with Polymorphism, Introduce Null Object
 5. Simplifying Method Calls — Rename, Introduce Parameter Object, Preserve Whole Object, Replace Parameter with Query, Separate Query from Modifier
 6. Dealing with Generalization — Pull Up, Push Down, Extract Superclass/Interface, Replace Subclass with Delegate, Collapse Hierarchy
+7. Removing — Remove Dead Code, Remove Parameter, Inline Single-Use Abstraction
 
 ---
 
@@ -200,3 +201,16 @@ one technique at a time and commit it on its own.
 
 ### Collapse Hierarchy
 **What:** merge a superclass and subclass that no longer differ enough to justify separation. **Answers:** a hierarchy left thin by other refactorings. **Mechanics:** move members into one class; redirect; delete the other; run tests.
+
+## 7. Removing
+
+The simplest refactoring is a deletion. Each of these shrinks the code while every test stays green; reach for them first when `adversarial-review` or a refactor step finds complexity the criteria don't need.
+
+### Remove Dead Code
+**What:** delete code nothing reaches — unused functions, branches that can't execute, commented-out blocks, flags that are never set. **Answers:** dead code, speculative generality. **Mechanics:** confirm it's unreachable (search for callers, check reflection/config entry points); delete it; run tests. **Craft-Code note:** version control remembers it; the codebase doesn't need to.
+
+### Remove Parameter
+**What:** drop a parameter no caller varies or the function never uses. **Answers:** long parameter list, speculative generality. **Mechanics:** remove it from the signature; update callers; run tests.
+
+### Inline Single-Use Abstraction
+**What:** collapse an interface with one implementation, a wrapper that only forwards, or a helper used once back into its caller. **Answers:** speculative generality, middle man. **Mechanics:** use Inline Function, Inline Class, Remove Middle Man, or Collapse Hierarchy as the shape dictates; run tests after each step. **Craft-Code note:** keep the abstraction only if it's a real seam — external I/O or a second implementation that exists today.

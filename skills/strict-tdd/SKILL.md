@@ -1,126 +1,42 @@
 ---
 name: strict-tdd
-description: "Use when implementing ANY increment of production code — features, bugfixes, refactors, behavior changes, and adjustments requested as feedback or a casual 'just change/tweak/fix X' — before writing or editing implementation. This is a strict, classicist form of TDD: no code before a failing test, one test at a time, watch it go red then green, commit at green AND after refactor, and use real implementations wherever they run deterministically in-process (no mocking/stubbing your own code OR real in-process libraries; doubles only at genuine external/non-deterministic seams). Trigger it for every increment in the plan. If you're about to edit production code in response to any request — a feature, a bug, or a small adjustment/correction — and you haven't watched a test fail, stop and use this."
+description: "Use when implementing any increment of production code — features, bugfixes, behavior changes, and adjustments requested as feedback or a casual 'just change/tweak/fix X' — before writing or editing implementation. Classicist TDD paced for an agent: write the increment's tests first, run them and confirm each fails for the right reason, write the minimum code to pass, commit, refactor with the refactoring skill, commit, then the next increment. Uses real implementations wherever they run deterministically in-process (no mocking your own code or real in-process libraries); doubles only at external or non-deterministic seams. If you're about to edit production code and haven't watched a test fail, use this. Not for ops scripts and pipeline/infra glue, which craft-ops proves by running them."
 ---
 
-# Strict TDD — the classicist discipline
+# Strict TDD
 
-## The core loop
+Tests first, watched failing, then the least code that passes. The unit of work is an **increment** from the plan, not a single assertion: you write all of the increment's tests up front, because you can hold its whole behavior at once and a run-edit-run loop per assertion adds time without adding information. What keeps it honest is that every test is seen failing for the right reason before any implementation exists.
 
-Write one failing test. Watch it fail for the right reason. Write the minimum code to pass. Watch it pass. **Commit the green — then** refactor, production *and* test code, and commit that separately. Then the next test. The order matters: green is committed before any refactoring, so it's always a point you can fall back to.
+## The cycle, per increment
 
-Run the unit suite from `.craft-code.yml`'s `commands.test` (see `craft-code-conventions`) — never the acceptance suite in this loop. Two scopes matter, and conflating them is where the discipline quietly erodes:
+1. **Write the increment's tests.** One test per behavior the increment adds, named Given/When/Then (`code-style/references/naming.md`), driving real code through its public interface. Add only the bare signature (an empty function, a type) needed for them to compile, so failures are assertions rather than errors.
+2. **Run them and read every failure.** Each must fail because the behavior is missing. An import error, typo, or compile failure is not a red — fix it and re-run. A test that already passes isn't specifying anything new — fix it or delete it.
+3. **Write the minimum code to pass them all.** Not the general solution, not the next increment's behavior, not configurability nobody asked for. Run the scoped tests, then the full unit suite (`commands.test` from `.craft-code.yml`; see `craft-code-conventions`). Output clean — no new warnings.
+4. **Commit** tests and code together (`feat:` / `fix:`). This green commit is your fallback point; never refactor on top of an uncommitted green.
+5. **Refactor** production and test code using the `refactoring` skill — a named technique per smell, suite green after each step. Deleting is refactoring too: anything the tests don't need goes.
+6. **Commit the refactor** on its own (`refactor:`). If nothing needed refactoring, there is no second commit.
+7. Start the next increment.
 
-- **While iterating on one behavior**, run the *narrowest* command that covers the code you're touching — a single project or test file (`dotnet test tests/Haus.Zigbee.Tests`, `pnpm test src/checkout`, `cargo test -p checkout`). This is the tight red→green loop, and it has to be fast enough to run on *every* change without thinking about it.
-- **Before you commit a green, and before you hand off**, run the full `commands.test` unit suite so you know the increment didn't break something outside the file you were watching.
+If an increment needs more than a handful of tests, or the code to pass them sprawls across many files, it's too big to see failing cleanly — split it (`planning`).
 
-The reason to split them is human, not cosmetic: if "run it" means booting the whole multi-project aggregate suite on every keystroke, it's slow enough that you stop running it — and a red→green loop you don't actually run is no loop at all. Scope tight to move; widen to commit. Neither scope is the acceptance suite.
+While iterating, run the narrowest command that covers the code you're touching; widen to the full unit suite before each commit. The acceptance suite is never part of this loop.
 
-**If you didn't watch the test fail, you don't know that it tests anything.** A test written after the code passes immediately, which proves nothing — not that the behavior is right, not that the test would ever catch a regression.
+## Rules
 
-## The iron law
+- **No production code without a failing test demanding it.** If you wrote code first, delete it and re-derive it from the tests — code you wrap a test around afterwards was never seen to be needed.
+- **Adjustments are behavior changes.** "Make it retry instead of throw" gets a red test first. The red also proves the change was needed: if you can't make a test fail without it, the code may already do what was asked.
+- **Keep the tests minimal.** One test per behavior; don't pin the same behavior twice at the same level, and don't test what the type system or framework already guarantees. Extract a builder or helper when the same setup appears a third time, not before (`references/test-utilities.md`).
+- **Use the real thing wherever it runs deterministically in-process** — your own code and real libraries alike. Doubles only at the network, filesystem, clock, randomness, or another process, and even there prefer a real lightweight substitute (temp dir, fixed clock, in-memory port implementation) over a mock. A unit that's hard to test without doubling something runnable has a design problem: pass collaborators in or split the I/O from the logic. Details: `references/testing-doubles.md`.
+- **For a defect, decide the fix level before you type.** If the same lines were patched before for the same symptom, or the fix is a guard, retry, or delay around a mechanism you can't explain, you're fixing too low. Where levels genuinely trade off, lay them out and recommend one (`intake/references/fix-options.md`).
+- **Every detached call site has a failure owner.** Before leaving the refactor step, check each place the increment starts work without awaiting it (a discarded task, floating promise, `async void`, background loop, timer, subscription) and answer *if this throws, who finds out?* If nobody, that's missing behavior: give it its own red (`code-style/references/failure-modes.md`).
 
-<HARD-GATE>
-NO PRODUCTION CODE IS WRITTEN OR EDITED WITHOUT A FAILING TEST DEMANDING IT.
+## Stop and restart the cycle when
 
-Wrote code before the test? Delete it — actually delete it, don't keep it as "reference" and don't adapt it while writing the test. Re-derive it from the test. Code you kept and wrapped a test around is code tested after the fact, which is not TDD and doesn't earn the trust TDD earns.
-</HARD-GATE>
-
-This feels wasteful the first time and stops feeling wasteful once you've watched a "reference" implementation smuggle in a bug that the after-the-fact test happily approved.
-
-## Red → Green → Refactor, one test at a time
-
-Work **one test at a time**. Not a batch of tests, not the whole increment's worth of assertions up front — one behavior, driven to green, before the next. Batching tests hides which one is driving which line of code and makes red-green meaningless.
-
-### RED — write one failing test
-
-One test, one behavior, a name that reads as a specification. Use the **Given / When / Then** convention (Given optional; When and Then required) — see `code-style` for naming. Drive real code through its real interface; do not reach for a double (see the doubles rule below).
-
-Then **run it and watch it fail.** Confirm:
-- It fails — it doesn't error on a typo or a missing import.
-- It fails for the *expected reason*: the behavior is missing, not something incidental.
-
-A test that passes the first time is testing something that already exists — fix the test. A test that errors — fix the error and re-run until it fails cleanly.
-
-### GREEN — minimum code to pass
-
-Write the simplest thing that makes this one test pass. Not the general solution, not the configurable version, not the next three behaviors you can see coming — YAGNI. The next test will force the next piece of generality honestly.
-
-**When the increment is a defect fix, "simplest" means at the right level — decide which before you type.** The same red can be answered by patching the symptom, fixing the cause, or removing the structure that let the cause exist, and the cheapest answer is the one that brings you back here a third time. Two tells that you're about to fix too low: **the same few lines have been patched before** (read the file's history — a recurrence is evidence, not coincidence), or the fix you're reaching for is a guard, retry, or delay around a mechanism you can't explain. Where the levels genuinely trade off, lay them out with their costs and **recommend one** rather than picking silently — `intake/references/fix-options.md` has the four levels and the write-up format. Take the level decision here even when the bug arrived with an obvious cause and you never passed through `intake` or `systematic-debugging`; that path is exactly where a third patch gets pasted.
-
-Then **run it and watch it pass** — this test, and the whole suite. Output should be pristine: no new warnings, no errors. Other tests broke? Fix them now, before moving on.
-
-### COMMIT THE GREEN — before you touch the design
-
-The instant the test passes and the suite is green, **commit it.** This happens *before* any refactoring. That green commit is the entire safety mechanism of the cycle: a behavior-complete, known-good point you can fall back to if the next step goes wrong. Refactor on top of an uncommitted green and you've thrown that safety away — and you'll end up with one commit that tangles new behavior with cleanup, which can't be reviewed or reverted cleanly.
-
-<HARD-GATE>
-Reach green → commit → THEN refactor. Never refactor before the green is committed, and never bundle "add behavior" and "refactor" into one commit. If you catch yourself cleaning up code that isn't committed green yet, stop and commit first.
-</HARD-GATE>
-
-### REFACTOR — clean up, staying green
-
-With the green committed, improve the design without changing behavior: remove duplication, sharpen names, extract methods, apply the patterns in `code-style`. Reach for a **named technique** rather than a freehand cleanup — match the smell to its technique via `refactoring` (its smell → technique map and `references/techniques.md` give the safe, small-step mechanics), keeping the suite green after each step. **Refactor the test code too** — test code is real code and decays the same way. Duplicated setup, unclear arrange steps, and copy-pasted assertions are smells in a test just as in production. Extract them into the shared test utilities (see `references/test-utilities.md`).
-
-Keep the suite green throughout the refactor. If it goes red, the last change was behavior, not refactoring — revert and reconsider.
-
-**Before leaving the refactor step, sweep the increment for work with no caller.** A test drives the happy path you asked for; it says nothing about a task you started and didn't await. For every call site this increment added that begins work without waiting for it — a discarded task, a floating promise, an `async void` or other no-return handler, a background loop, a timer, an event subscription — answer *if this throws, who finds out?* The legal answers are: awaited by a caller that handles it, self-guarding with a *why*-comment, or observed at shutdown (`code-style/references/failure-modes.md`).
-
-Where the answer is "nobody," that's not a refactor — it's missing behavior, so it gets its own RED: a test that the loop survives a failing iteration, that the handler logs instead of escaping, that shutdown observes the task. The failure path is behavior, and behavior needs a test.
-
-### COMMIT THE REFACTOR
-
-If you refactored, commit that as its own "refactor X" commit. Now you have two small, honest commits — "add X behavior" then "refactor X" — each independently reviewable and revertible. (A cycle that genuinely needed no refactoring just has the one green commit; that's fine. The rule is only that a refactor never rides along inside the behavior commit.)
-
-Then start the next test.
-
-## The doubles rule — use the real thing wherever you can run it
-
-Strict TDD departs sharply from the mockist habit. The default is real collaborators, and the bar for introducing a test double is high:
-
-<HARD-GATE>
-Use the REAL implementation of a dependency whenever it runs deterministically and in-process. That includes your own code AND real third-party libraries — `@mui/*`, `lodash`, MediatR, FluentValidation, date/money libraries, and the like are real, in-process, deterministic code: wire them up for real, never double them.
-
-Introduce a test double ONLY at a genuine external or non-deterministic seam: the network, the filesystem, the system clock, randomness, message brokers, third-party services over the wire, or a database you don't control. And even there, prefer a real lightweight substitute (in-memory database, temp directory, injected fixed clock) over a mock of the interaction.
-</HARD-GATE>
-
-The reasoning: a double asserts *how* your code talks to a collaborator, not *what* your code achieves. Double something that could have run for real and you get a test that passes while the real integration is broken, and that shatters on every refactor because it's pinned to structure instead of behavior. The exception is the boundary — you double the network or the clock not because it's third-party, but because it's slow, flaky, or non-deterministic and can't run honestly inside a unit test. The test of whether to double is never "do I own it"; it's **"can the real thing run deterministically here?"** If yes, use it.
-
-If a unit is painful to test without doubling something you could otherwise run, that pain is a design signal, not a reason to reach for a double. The design is too coupled — invert the dependency, pass collaborators in, or split the responsibility. Listen to the test. Full boundary definition and worked examples: `references/testing-doubles.md`.
-
-## Build up test utilities
-
-Tests should get *easier* to write as the suite grows, because each test contributes reusable setup. Instead of hand-assembling objects in every test, build a vocabulary of test utilities — Test Data Builders, Object Mothers, custom assertions, and fixtures — that make each new test short and intention-revealing. This is a first-class part of the work, not an afterthought. Patterns and when to use each: `references/test-utilities.md`.
-
-## Refactoring changes nothing about the above
-
-Refactoring is a behavior-preserving change, so it's covered by existing tests: keep them green as you go, and if the refactor reveals missing coverage, add the failing test first. "Refactoring" that needs new behavior isn't refactoring — it's a new increment; give it its own RED.
-
-## Red flags — stop and restart the cycle
-
-- Production code exists with no test that failed first → delete it, start from RED.
-- You were asked to *adjust / change / fix* existing code and reached for the editor without a failing test → stop. That adjustment is a behavior change; it needs its RED first, and the red test is also what proves the change was actually needed.
-- A test passed the moment you wrote it → it's testing existing behavior or nothing; fix it.
-- You can't say why the test failed → you didn't watch it fail; re-run and read the failure.
-- You doubled something that could have run for real (your code, or a real in-process library) → remove the double, use the real thing or invert the dependency.
-- Several assertions for several behaviors landed in one test → split them; one behavior per test.
-- One commit mixes new behavior and refactoring → separate them next cycle; commit at green and after refactor.
-
-## Rationalizations to reject
-
-| Excuse | Reality |
-|--------|---------|
-| "Too simple to test" | Simple code still breaks, and the test costs seconds. |
-| "The user asked for a specific change, I'll just make it" | A requested change is a spec for behavior. Write it as a failing test first: that proves the change is needed AND that it's covered. Going straight to the edit is how you "fix" something that wasn't actually broken. |
-| "I'll write the tests after" | Tests-after pass immediately and prove nothing. You never saw them catch anything. |
-| "I'll mock this library to keep the test isolated" | If it runs in-process and deterministically, use it for real. Doubling it tests your mock, not your code. |
-| "I need to mock this, it's my own service" | Ownership isn't the question — determinism is. If it can run here, run it. If it can't, the coupling is the bug. |
-| "Deleting this working code is wasteful" | Sunk cost. Untrusted code is the liability; the test-first rewrite is the asset. |
-| "Batching the tests is faster" | Batching hides which test drives which code and kills red-green. One at a time. |
-| "I'll commit once at the end" | Then behavior and refactor are tangled and nothing is cleanly reviewable or revertible. |
-| "The test is hard to write" | The design is hard to use. The test is telling you something — listen. |
+- production code exists that no failing test demanded;
+- you can't say why a test failed, or you never ran it before implementing;
+- a double stands in for something that could run for real;
+- a commit mixes new behavior with refactoring.
 
 ## Exit condition
 
-Every increment's behavior is covered by a test that was watched failing and then passing; production and test code are refactored clean; every call site that starts work without awaiting it has a named failure owner and a test covering that path; commits landed at green and after refactor; the whole suite is green with pristine output. Hand off to `self-review`.
-
+Every behavior in the increment is covered by a test that was seen failing for the right reason, then passing; the code is the least that passes; refactors landed separately; detached work has a named owner; the full unit suite is green with clean output. Hand off to `adversarial-review`.

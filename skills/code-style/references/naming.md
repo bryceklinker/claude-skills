@@ -53,7 +53,7 @@ Given a VIP customer and an empty cart, when checkout is opened, then it is bloc
 Given a promo code that has expired, when it is applied, then the order total is unchanged and a failure naming "expired" is returned
 ```
 
-- One **When** per test keeps each test pinned to a single behavior — the thing `strict-tdd` drives one at a time.
+- One **When** per test keeps each test pinned to a single behavior — so a failing test names exactly one broken behavior.
 - Multiple **Thens** are fine when they're facets of the same outcome; if they're really unrelated behaviors, that's a hint to split.
 - Name the *behavior*, never the method (`whenChargeCalled_itWorks` says nothing). A reader should understand the requirement from the name without reading the body.
 - Adapt the surface syntax to the framework (a `describe/it` block, an underscore-joined method name, an attribute string) but keep the Given/When/Then structure intact.

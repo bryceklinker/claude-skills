@@ -106,4 +106,4 @@ Cleanup runs on the failure path, which is exactly when the system is already un
 
 - **While writing** (`strict-tdd`'s refactor step): every new call site that starts work without waiting for it gets an owner *before* the increment is done, and the failure path gets a test — the loop keeps running after a bad iteration, the handler logs instead of escaping.
 - **Design time** (`architecture-design`): a design that introduces background work names the owner and the shutdown story up front.
-- **Review** (`self-review`): a mechanical scan of the diff for discards, `async void`, floating promises, bare `go`/`create_task`, subscriptions, and loops — each one either has an owner or is a must-fix finding.
+- **Review** (`adversarial-review`): a mechanical scan of the diff for discards, `async void`, floating promises, bare `go`/`create_task`, subscriptions, and loops — each one either has an owner or is a must-fix finding.

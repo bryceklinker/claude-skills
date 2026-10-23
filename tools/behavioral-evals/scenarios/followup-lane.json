@@ -8,6 +8,6 @@
     { "text": "Did NOT author a fresh formal intake document or a new plan file for the follow-up; collapsed intake to a stated done-condition and let the failing test be the criterion", "check": "judgment", "note": "transcript: no new intake/plan artifact; done-condition spoken" },
     { "text": "Kept strict-tdd: a failing test was written and watched red before the production change", "check": "test_before_code", "note": "the lane collapses paperwork, never the red test" },
     { "text": "Reused the existing work-item worktree; no new worktree, no edits on the base branch", "check": "judgment", "note": "transcript: worktree reused" },
-    { "text": "Kept fresh-eyes self-review and verification before calling the follow-up done", "check": "judgment", "note": "transcript: review + verify not skipped for being small" }
+    { "text": "Kept fresh-eyes adversarial-review and verification before calling the follow-up done", "check": "judgment", "note": "transcript: review + verify not skipped for being small" }
   ]
 }

@@ -1,94 +1,98 @@
 # Craft-Code Principles
 
-The one place the *why* behind the whole methodology is stated. Individual skills restate the slice of this they need to stand alone, but this is the canonical source — when a skill says "see the craft-code principles," it means here. Every rule in the suite is strict on purpose: each removes a recurring source of bugs or friction. None is dogma, because each is given with its reason, and each has an escape hatch for the case where it genuinely fights the problem in front of you.
+The canonical *why* behind the suite. Skills restate only the slice they need and point here. Each rule removes a recurring source of bugs or waste; each comes with its reason so it can be applied with judgment rather than by rote.
 
-## 1. Discipline over the speed that isn't
+## 1. Use less to achieve more
 
-The failures that cost the most — building the wrong thing, untested code, style drift, regressions — almost always come from skipping a step because it "felt unnecessary this time." There is no lane that skips the failing test or the fresh-eyes review, because that's where the bugs live. The pipeline removes the per-change decision to skip; the gate is cheap, the missed assumption is not. The one sanctioned lightening — `dev-workflow`'s in-session follow-up lane — collapses only the *paperwork* of intake and planning for work whose criteria were already agreed this session; it never collapses the test or the review. A lighter path for agreed follow-ups is honest; a fast lane past the tests is the trap.
+Complexity is the cost every later change pays, so the goal is the smallest system that meets the criteria reliably: the fewest moving parts, layers, abstractions, files, dependencies, options, and tests that together prove the behavior. Every addition earns its place against a criterion in front of you, not a future you imagine. Prefer deleting to adding, the existing shape to a new one, a function to a class, a plain value to a framework, one good test to three overlapping ones.
 
-*Embodied by:* `dev-workflow` and its gates.
+Minimal is not fragile. What the criteria demand — handling the failure path, a test for each behavior, the signal that shows it broke — is part of the minimum. What gets cut is the speculative: unused flexibility, interfaces with one implementation, wrapper layers, configuration nobody asked for, defensive code for states that can't occur, tests that pin the same behavior twice, scaffolding left behind.
 
-## 2. Tests come first, and they are a ratchet
+When another rule here would add structure the change doesn't need, this one wins. Patterns, handlers, builders, and abstractions are tools for removing complexity; used without their signal they add it.
 
-No production code is written or edited without a failing test demanding it — watched failing, then passing, so you know it tests something. Every defect found becomes a permanent test that would have caught it. The suite only ever tightens. This is a design tool as much as a safety net: a thing that's hard to test is telling you the design is hard to use.
+*Embodied by:* every skill; checked explicitly in `adversarial-review`.
+
+## 2. Discipline over the speed that isn't
+
+The costliest failures — building the wrong thing, untested code, regressions — come from skipping a step because it felt unnecessary this time. The pipeline removes that per-change decision. The one sanctioned lightening is `dev-workflow`'s in-session follow-up lane, which collapses the paperwork of intake and planning for work already agreed this session. It never collapses the failing test or the review.
+
+*Embodied by:* `dev-workflow`.
+
+## 3. Tests come first, and they are a ratchet
+
+No production code is written or edited without failing tests demanding it. For each increment, write its tests first, run them, and confirm each fails for the right reason — the behavior is missing, not a typo or a broken import. Then write the minimum code to pass, commit, refactor, commit. A test you never saw fail proves nothing. Every defect found becomes a permanent test. A thing that's hard to test is telling you its design is hard to use.
 
 *Embodied by:* `strict-tdd`, `acceptance-testing`, `systematic-debugging`.
 
-## 3. Two loops, two levels of substitution
+## 4. Two loops, two levels of substitution
 
-Quality comes from exercising the real thing, and the question is never "do I own this code?" but **"can the real thing run deterministically here?"**
+The question is never "do I own this?" but **"can the real thing run deterministically here?"**
 
-- **Inner loop (unit).** Use real collaborators — your own code and real in-process libraries alike. Substitute *in code* only at genuine external or non-deterministic seams: the network, filesystem, clock, randomness. Even there, prefer a real lightweight substitute over a mock.
-- **Outer loop (acceptance).** Keep the deployed application byte-for-byte what ships and substitute *outside* the process: a real database in a container, and for the few dependencies that can't be real, an external deployed fake at the same network boundary — never a code-level double reaching into the running app.
+- **Inner loop (unit).** Real collaborators — your code and real in-process libraries. Substitute in code only at genuinely external or non-deterministic seams (network, filesystem, clock, randomness), and prefer a real lightweight substitute over a mock.
+- **Outer loop (acceptance).** The deployed application is exactly what ships; substitute only outside the process — a real database in a container, an external deployed fake at the network boundary.
 
-A double asserts *how* your code talks to a collaborator, not *what* it achieves; used where the real thing could have run, it passes while the real integration breaks.
+A double asserts how your code talks to a collaborator, not what it achieves; used where the real thing could run, it passes while the integration breaks.
 
-*Embodied by:* `strict-tdd` (+ `references/testing-doubles.md`), `acceptance-testing` (+ `references/environment.md`).
+*Embodied by:* `strict-tdd`, `acceptance-testing`.
 
-## 4. Failure is a value, and every failure has an owner
+## 5. Failure is a value, and every failure has an owner
 
-Model expected failure as a returned result carrying success or a named reason. Exceptions are for the genuinely unrecoverable, not for control flow the caller is expected to handle — a result makes the failure path visible in the signature; an exception hides it and invites the caller to forget it. In the same spirit, avoid nulls: prefer null objects with safe behavior, and never suppress an absence with a non-null-assertion operator, which silences the compiler without removing the null.
+Expected failure is a returned result carrying success or a named reason; exceptions are for the genuinely unrecoverable. Avoid nulls, and never silence an absence with a non-null assertion. Work with no caller — a discarded task, a background loop, an event handler, a timer — still needs someone named to catch, log, and decide: an awaiting caller, a self-guarding body, or a lifecycle that observes it at shutdown.
 
-That covers code with a caller. **Where there is no caller, the failure still needs a named owner** — a discarded task, a fire-and-forget call, an `async void` handler, a background loop, an event subscriber, a timer callback. Nothing downstream will handle what these throw: the failure is silently swallowed or it takes the process down, and either way the signature says nothing. Detached work is only legal when someone is named to catch, log, and decide — the code that awaits it, a self-guarding body that handles its own failure, or a lifecycle that observes it at shutdown. "Nobody is watching this" is not a valid answer.
+*Embodied by:* `code-style` (+ `references/failure-modes.md`).
 
-*Embodied by:* `code-style` (+ `references/architecture.md`, `references/failure-modes.md`, `references/smells.md`).
+## 6. Immutability by default
 
-## 5. Immutability by default
-
-Construct values fully formed and return new ones rather than mutating in place. Immutable data is what makes concurrency safe, keeps reasoning local, and makes whole classes of aliasing bugs impossible. Reach for mutation only where a measured need forces it, and isolate it when you do. This is the highest-priority style rule, and it prevents most race conditions before they can exist.
+Construct values fully formed and return new ones rather than mutating. It makes concurrency safe, keeps reasoning local, and removes whole classes of aliasing bugs. Mutate only where a measured need forces it, and isolate it.
 
 *Embodied by:* `code-style`.
 
-## 6. The domain is independent of how data enters or leaves
+## 7. The domain is independent of how data enters or leaves
 
-HTTP, GraphQL, gRPC, the database, the queue — details at the edge. The core domain knows nothing of them. Dependencies point inward: the domain defines ports for what it needs; the outer layers implement them. Organize by feature, not by technical layer, so a feature's boundaries are visible and it can be extracted or deleted cleanly. This is what makes the domain testable with real collaborators — the only thing you substitute is an adapter.
+Transport and persistence are edge details. The domain defines what it needs; the edges implement it; dependencies point inward. Organize by feature, not by layer. Introduce a port where there is a real seam to cross — external I/O or a second implementation — not by reflex.
 
 *Embodied by:* `architecture-design`, `code-style/references/architecture.md`.
 
-## 7. Small, single-purpose units — separate *what* from *how*
+## 8. Small, single-purpose units
 
-Methods over ~10 lines are a smell; extract until each does one thing at one level of abstraction. Structure behavior by separating *what* from *how*: a behavior's inputs are an immutable data object, and the handling lives in a separate, dedicated unit — one per operation — rather than a `Service`/`Manager`/`Utility` that only ever grows. A message + handler pair (CQRS) is one common shape of this and a fine default, but it's the input-data/handler separation that's the rule, not the Command/Query names. When you do split reads from writes, keep it firm — a query never mutates — while a write handler may return the data the caller needs. Isolate branching behind factories and strategies; keep control flow reading top-to-bottom as guard clauses.
+A unit does one thing at one level of abstraction; long methods are a smell. Keep a behavior's inputs as plain data, separate from the code that acts on them, and never grow a `Service`/`Manager`/`Utility` grab-bag. The simplest form that honors this — usually a function taking an input value — is the default; reach for classes, handlers, factories, and strategies when the code in front of you calls for them.
 
 *Embodied by:* `code-style` (+ `references/patterns.md`, `references/smells.md`).
 
-## 8. Code explains itself; comments explain only *why*
+## 9. Code explains itself; comments explain only *why*
 
-Names carry meaning: variables are nouns, functions are verbs, booleans announce themselves (`isActive`, `hasBalance`). A file's name matches its contents. The only comment worth writing explains a *why* the code cannot — a non-obvious constraint or a deliberate, externally-forced awkwardness. A comment restating *what* the code does is noise that rots; rename and extract until the code says it itself.
+Names carry meaning: nouns for values, verbs for functions, booleans that announce themselves. The only comment worth writing explains a constraint or deliberate awkwardness the code cannot.
 
 *Embodied by:* `code-style/references/naming.md`.
 
-## 9. Judgment is independent, and "done" rests on evidence
+## 10. Judgment is adversarial and independent; done rests on evidence
 
-The person who wrote the code is primed to see what they intended; fresh eyes see what's actually there. Review and verification run as independent passes (and, in parallel work, as agents that didn't write the code). A claim of done is backed by output observed this session — the full suite green, the acceptance suite green, each acceptance criterion exercised — never by inspection or reasoning alone. If you didn't run it, you don't know.
+The author sees what they intended. A reviewer who didn't write the code, and who sets out to break it, sees what's there: the assumption nobody checked, the input nobody tried, the test that would pass with the bug still present, the part that could be deleted. A claim of done is backed by output observed this session — never by inspection alone.
 
-*Embodied by:* `self-review`, `verification`.
+*Embodied by:* `adversarial-review`, `verification`.
 
-## 10. A failure you can't see is a defect
+## 11. A failure you can't see is a defect
 
-Behavior that fails invisibly is worse than behavior that fails loudly, because nothing will ever tell you it broke. So diagnosability is part of the work, not a thing bolted on after an outage: when a test or a deployment fails, the artifacts needed to explain *why* — the application's own logs, the trace, the video or screenshot, the failing request and response — must already be there, captured by default, without anyone having to reproduce the failure with more instrumentation turned on. That means capture is centralized in the shared harness rather than opted into per test, and it survives the failure rather than being discarded with the container.
+When a test or deployment fails, the evidence that explains why — logs, trace, screenshot, the failing request — must already be captured, by default, in the shared harness. The same question applies in production: what will show that it broke, and why? If an investigation was hard because evidence was missing, that gap is a finding to fix.
 
-The same question applies to the running system: when this breaks in production, what will show that it broke, and what will show why? A design that can't answer is unfinished. And when an investigation is hard because the evidence wasn't there, *that* is a finding worth fixing — not an inconvenience to route around this once.
+*Embodied by:* `acceptance-testing` (+ `references/diagnosability.md`), `systematic-debugging`; craft-ops' `observability-design`.
 
-*Embodied by:* `acceptance-testing` (+ `references/diagnosability.md`), `architecture-design`, `systematic-debugging`; craft-ops' `observability-design` for the runtime half.
+## 12. Find the cause before you change anything
 
-## 11. Find the cause before you change anything
+A bug is an information problem. Reproduce it, narrow by bisection, and confirm one falsifiable hypothesis at a time. Only a confirmed cause re-enters the pipeline as a failing test.
 
-A bug is an information problem, not a typing problem. Reproduce it, narrow the search space by bisection, and confirm one falsifiable hypothesis at a time before touching code. Guessing moves the symptom; method finds the root. Only once the cause is a specific, evidence-backed fact does the fix re-enter the pipeline as a failing test.
+*Embodied by:* `systematic-debugging`.
 
-*Embodied by:* `systematic-debugging` (+ `references/techniques.md`).
+## 13. Fix the cause at its level, and recommend the durable option
 
-## 12. Fix the cause at its level, and recommend the durable option
+The minimum change is the minimum diff *at the right level*, not the shallowest patch that turns a test green. Where symptom, cause, and structural fixes genuinely trade off, lay them out and recommend the most durable one that fits the real constraints. A stopgap ships with a *why*-comment naming what would let it be removed. A symptom that recurs in the same lines is evidence the level was wrong.
 
-Knowing the cause doesn't settle *where* to fix it. The same bug can be patched at the symptom, at the cause, or at the structure that let the cause exist — and the cheapest of those is the one that brings you back to the same file a third time. So the minimum change means the minimum *diff at the right level*, never the shallowest patch that turns the test green.
+*Embodied by:* `intake` (+ `references/fix-options.md`), `systematic-debugging`, `adversarial-review`.
 
-Where the levels genuinely trade off, lay the options out — symptom, cause, structural, make-it-observable — with their costs, and **recommend the most durable one that fits the real constraints.** Recommending is the point: presenting three neutral choices pushes the judgment onto someone with less context than you. If a stopgap is chosen anyway, it ships with a *why*-comment naming what would have to be true to remove it, so it stays a known debt rather than becoming the design. And a symptom that recurs — the third patch to the same thirty lines, the check deferred twice for the same environmental reason — is itself the evidence that the level was wrong.
+## 14. State the why; keep the escape hatch
 
-*Embodied by:* `intake` (+ `references/fix-options.md`), `systematic-debugging`, `self-review`, `verification`.
-
-## 13. State the why; keep the escape hatch
-
-Every strict rule here is legible rather than dogmatic because it comes with its reason. When a rule genuinely fights the problem in front of you, that tension is worth a conscious, recorded note — a *why*-comment is literally the sanctioned escape hatch — not a silent abandonment of the discipline. The rules are strict so that applying them by reflex frees attention for the actual problem; they are not strict for their own sake.
+When a rule genuinely fights the problem in front of you, depart from it deliberately and record why — a *why*-comment is the sanctioned escape hatch. Silent abandonment is not.
 
 ---
 
-*Lineage:* this methodology draws on Clean Code, Fowler's *Refactoring*, Meszaros' *xUnit Test Patterns*, ports-and-adapters / hexagonal architecture, CQRS, and classicist (Detroit-school) TDD.
+*Lineage:* Clean Code, Fowler's *Refactoring*, Meszaros' *xUnit Test Patterns*, ports-and-adapters, CQRS, classicist (Detroit-school) TDD — tempered by YAGNI and "the simplest thing that could possibly work."

@@ -1,114 +1,48 @@
 ---
 name: subagent-execution
-description: "Use when executing the implementation, review, and verification phases of dev-workflow and you want to go faster without losing discipline — by dispatching work to subagents. Trigger whenever the plan has independent increments that could run in parallel, or when you want a fresh-eyes reviewer/verifier that didn't write the code. Covers what context each subagent needs, how to keep parallel work from colliding, and how to reconcile results."
+description: "Use when executing the implementation, review, and verification phases of dev-workflow and you want to go faster without losing discipline — by dispatching work to subagents. Trigger whenever the plan has independent increments that could run in parallel, or when you want a fresh-eyes adversarial reviewer or verifier that didn't write the code. Covers what context each subagent needs, how to keep parallel work from colliding, and how to reconcile results."
 ---
 
-# Subagent Execution — parallelize without breaking discipline
+# Subagent Execution
 
-## Why this exists
+Subagents make the pipeline faster (independent increments at once) and better (a reviewer who didn't write the code). The orchestrator stays thin: it holds the plan, dispatches, checks what came back, and reconciles.
 
-Phases 5–8 (acceptance-testing, TDD, style, review, verify) are the slow part of the pipeline, and much of it is parallelizable — but only if you dispatch carefully. Done well, subagents make the pipeline both faster (independent increments run at once) and better (a reviewer who didn't write the code is less biased). Done carelessly, they collide on shared files and produce merge conflicts that quietly corrupt the discipline. This skill is the choreography that keeps the speed and drops the risk.
+## The team
 
-The core principle: **the orchestrator stays thin and coordinates; subagents do the deep work and report back.** The orchestrator holds the plan, dispatches, and reconciles. It does not itself get lost in the weeds of one increment.
+| Agent | Role | Follows | Access | Model |
+|-------|------|---------|--------|-------|
+| `craft-code-planner` | Criteria + independence-marked plan | `intake` + `planning` | read/write/bash | opus |
+| `craft-code-architect` | Structure: boundaries, ports, operations, types | `architecture-design` | read-only | opus |
+| `craft-code-designer` | UI: components + state inventory | `frontend-design` | read-only | opus |
+| `craft-code-acceptance-tester` | Outer-loop tests + prod-like env | `acceptance-testing` | read/write/bash | opus |
+| `craft-code-implementer` | One increment, own worktree | `strict-tdd` + `code-style` | read/write/bash | opus |
+| `craft-code-reconciler` | Merges increment branches | git integration | read + bash | sonnet |
+| `craft-code-reviewer` | Adversarial review of the diff | `adversarial-review` | read-only | opus |
+| `craft-code-verifier` | Runs the change, gathers evidence | `verification` | read + bash | haiku |
+| `craft-code-debugger` | Root cause of a defect | `systematic-debugging` | read/write/bash | opus |
 
-## The craft-code agent team
+The design, review, and verify agents lack write tools on purpose: they must report rather than quietly patch what they were sent to judge.
 
-The `craft-code` plugin ships nine purpose-built agents covering the pipeline end to end; dispatch to them by name rather than to a generic subagent:
+## Dispatch patterns
 
-| Agent | Role | Skills it follows | Access | Model |
-|-------|------|-------------------|--------|-------|
-| `craft-code-planner` | Criteria + ordered, independence-marked plan | `intake` + `planning` | read / write / bash | opus |
-| `craft-code-architect` | Structure: boundaries, ports, handlers, types | `architecture-design` | **read-only** — design note, no code | opus |
-| `craft-code-designer` | UI: components + full state inventory | `frontend-design` | **read-only** — design note, no code | opus |
-| `craft-code-acceptance-tester` | Outer-loop user-level tests + prod-like env | `acceptance-testing` | read / write / bash | opus |
-| `craft-code-implementer` | Builds one increment in its own worktree | `strict-tdd` + `code-style` | read / write / bash | opus |
-| `craft-code-reconciler` | Merges parallel increment branches back | *(git integration)* | read + bash, **no edit** | sonnet |
-| `craft-code-reviewer` | Fresh-eyes review of a finished diff | `self-review` | **read-only** — reports, never fixes | opus |
-| `craft-code-verifier` | Runs the change and gathers evidence | `verification` | read + bash, **no edit** | haiku |
-| `craft-code-debugger` | Root-cause investigation of a defect | `systematic-debugging` | read / write / bash | opus |
+- **Design:** architect and designer touch disjoint concerns; run them in parallel and feed both notes to the planner.
+- **Acceptance alongside implementation:** the acceptance tester writes the outer tests and environment (never production source) while implementers build increments; its suite is the shared red target.
+- **Parallel implementers:** only for increments marked `[independent]` (disjoint files), each in its own sibling worktree — `git worktree add ../<repo>-<slug>-inc<N> -b <branch>-inc<N> <work-item-branch>`. Dependent increments run in order on the work-item branch. When in doubt, run sequentially.
+- **Review and verification:** fresh agents, in parallel with each other, after increments are merged. Never dispatch review to a `fork`: it inherits your context — the bias the review exists to escape — and keeps write access. A fork asked for a "read-only survey" has been seen implementing and committing its own findings.
 
-**Model tiering** is conservative: every agent that writes code or exercises design/decomposition/review judgment runs on the strong model (`opus`); the mechanical evidence-gatherer (`craft-code-verifier`) runs on `haiku`, and the git-integration role (`craft-code-reconciler`) on `sonnet`. Quality is kept where it's decided; cost is trimmed only where the work is mechanical.
+For one small increment, inline is cheaper than dispatch — but still send review and verification to fresh agents.
 
-The read-only posture of the design and review/verify agents is deliberate: an agent that cannot edit is forced to *produce a note or report* rather than quietly writing code or patching what it finds — the thinking-before-building separation for the front of the pipeline, and the fresh-eyes independence at the back.
+## What each prompt needs
 
-### Design agents (front of the pipeline)
+A subagent starts cold. Give it: the skill(s) to follow; the exact increment or diff, with its criteria and the files it may touch; the worktree, branch, and the commit it's working against; its deliverable; and the blast radius it must stay inside — the named ephemeral stack it may tear down, targeted explicitly.
 
-Before planning, the thinking phases can be dispatched too. `craft-code-architect` (structure) and `craft-code-designer` (UI) address disjoint concerns, so for a full-stack feature dispatch both in parallel; their notes both feed `craft-code-planner`, which turns them into increments. For a change that fits existing structure with no UI, skip these and let `craft-code-planner` handle intake + planning directly. These agents write only design notes — never production code — so they never collide with each other or with anything downstream.
+## Check what came back
 
-### The acceptance loop (runs alongside implementation)
+- **A prompted constraint isn't a guarantee.** After any read-only dispatch, run `git -C <worktree> status --porcelain` and `git -C <worktree> log --oneline <base>..HEAD`. If it wrote or committed, discard that work and re-dispatch to a genuinely read-only agent; never fold unrequested edits in as if reviewed.
+- **Stale checkouts produce confident wrong answers.** Confirm the worktree is at the commit you think before believing a diagnosis.
+- **"Running" is not progress.** Look for new commits, files, or output; a delegate well past its normal duration gets checked, not waited on.
+- **The orchestrator owns the evidence.** A subagent saying the suite is green is an input to verification, not a substitute for it.
 
-For a user-facing feature, dispatch a `craft-code-acceptance-tester` at the start of implementation to write the outer, user-level acceptance tests from the criteria (left failing) and stand up the production-like environment. It runs **in parallel with the implementers**: they drive the inner unit loop on the increments while its outer test is the shared red target the whole feature is aiming at. It touches only the separate acceptance-test suite and environment harness — never production source — so it doesn't collide with implementers editing that source. Once the increments land and merge, it re-runs the outer test; its green is the feature-level proof, and `craft-code-verifier` later executes that same suite as part of gathering done-evidence. Skip it for a pure internal refactor already covered by the existing acceptance suite.
+## Reconcile
 
-## Two kinds of dispatch
-
-### 1. Parallel implementers (speed)
-
-For increments `planning` marked `[independent]` (disjoint files), dispatch each to its own `craft-code-implementer` running the full strict-TDD + code-style loop.
-
-**The independence rule is absolute:** only dispatch increments in parallel if they touch disjoint files. Two subagents editing the same file is not parallelism — it's a merge conflict corrupting the ratchet. When in doubt, run sequentially.
-
-Each implementer subagent gets its own **sibling worktree** off the work-item branch:
-
-```bash
-git worktree add ../<repo>-<slug>-inc<N> -b <branch>-inc<N> <work-item-branch>
-```
-
-It implements its increment there (red → green → refactor → commit), then the orchestrator merges the increment branch back into the work-item branch. Because the increments touch disjoint files, these merges are clean.
-
-Dependent increments (`[depends: ...]`) run **sequentially** on the work-item branch, in an order where each one's test can be written against slices that already exist.
-
-### 2. Fresh-eyes reviewer and verifier (quality)
-
-After the increments are implemented and merged into the work-item branch, dispatch **separate** agents for review and verification — agents that did not write the code:
-
-- A `craft-code-reviewer` reviews the full diff against acceptance criteria, `code-style`, and smells.
-- A `craft-code-verifier` actually runs the change and gathers evidence.
-
-These can run in parallel with each other. The value here is independence of judgment: the implementer is primed to see what they intended; a fresh agent sees what's actually there.
-
-**Dispatch review and verification to a fresh agent, never to a `fork`.** A fork inherits your full conversation context — which is precisely the bias the fresh-eyes split exists to escape. A fork sees what you *intended*; a cold `craft-code-reviewer` sees what's actually *there*. Worse, a fork carries full write access and no structural barrier against "helpfully" fixing what it finds and committing it — in parallel with your own foreground work, silently corrupting the very diff under review. This has happened: a fork told "read-only survey, do not edit" inherited biased context, implemented its own findings, and committed them anyway, and the edits first looked like unattributed external changes. Use the read-only `craft-code-reviewer` / `craft-code-verifier`: they start cold (genuine fresh eyes) and *cannot* edit (forced to report, not patch). If your runtime offers only a fork for a review-type dispatch, that is the wrong tool — reach for a fresh, non-forked agent with a read-only toolset, and treat any prompted "read-only" as unverified until you check it (see below).
-
-### A prompted constraint is not a guarantee — verify it held
-
-"Read-only," "don't commit," "report, don't fix" in a subagent prompt is a *request*, not an enforced boundary. A capable agent under a "be helpful" prior will sometimes edit and commit against it anyway — a `fork` most of all, since it kept full tool access. A constraint you didn't check is a constraint you're only hoping held.
-
-So after **any** read-only or advisory dispatch returns, before you trust its output, look at what it actually did:
-
-```bash
-git -C <worktree> status --porcelain          # a read-only agent leaves this empty
-git -C <worktree> log --oneline <base>..HEAD  # and adds no commits of its own
-```
-
-If it wrote or committed against a read-only brief, its "review" is not a fresh-eyes review — it's a biased self-edit riding on inherited context. Discard the edits (`git restore` / `git reset`), re-dispatch to a genuinely read-only agent, and treat the incident as a signal that the *dispatch mechanism*, not just the prompt, needs to carry the constraint. Never fold a read-only agent's unrequested edits into the work as if they were reviewed — they weren't.
-
-## What every subagent needs in its prompt
-
-A subagent starts cold. Give it enough to work without re-deriving context, and be explicit that the craft-code discipline still applies — a subagent does not get to skip TDD or style because it's "just one increment."
-
-Include:
-- **The relevant craft-code skill(s)** it must follow (e.g. `strict-tdd` + `code-style`, or `self-review`).
-- **The exact increment or diff** it owns — increment number, behavior, acceptance criteria, and the files it may touch.
-- **The worktree/branch** it should operate in.
-- **Its precise deliverable** — e.g. "increment green and committed at green + after refactor" for an implementer; "a findings list keyed to file:line" for a reviewer.
-- **The reminder that discipline holds:** no code before a red test, doubles only at boundaries, commit at green and after refactor. State it — subagents under a narrow task are the ones most tempted to cut the corner.
-- **The blast radius it must stay inside** — the named ephemeral stack/namespace it may tear down, and the fact that a destructive command must target that identity explicitly. A delegate has the same authority you do and far less context about what else is running on the machine; an implicit compose project or ambient cluster context is how a test teardown takes down a live one (`acceptance-testing/references/environment.md`).
-
-## Delegation doesn't transfer the evidence burden
-
-Two failure modes are specific to working through agents, and both look like progress.
-
-**A stale checkout produces a confident, wrong answer.** A subagent reasoning about a branch it fetched an hour ago will diagnose a failure that no longer exists and propose a fix for code you already changed. Before dispatching — and before believing a diagnosis — confirm the worktree is at the commit you think it is (`git log -1`, `git status`), and say which commit the work is against in the prompt.
-
-**"Running" is a claim, not proof of liveness.** A delegate can stall silently: the status stays green, no output arrives, and waiting feels like the responsible thing. Probe for *actual* progress — new commits, changed files, fresh output — rather than trusting the status alone, and treat a delegate that's well past its normal duration the way `verification` treats an abnormally long CI run: as a signal to go look. A stalled agent restarted at ten minutes costs less than one waited on for an hour.
-
-Both reduce to the same rule: **the orchestrator owns the evidence.** A subagent's report is an input to verification, not a substitute for it — if it says the suite is green, you still need output you observed.
-
-## Reconciling results
-
-- **Implementers → reconciler:** dispatch a `craft-code-reconciler` to merge each increment branch back into the work-item branch. Because increments were disjoint, conflicts shouldn't occur; if one does, the plan's independence marking was wrong — the reconciler stops and flags it as a planning defect rather than papering over it with a manual merge, and the orchestrator re-marks the colliding increments dependent and re-sequences them.
-- **Reviewer / verifier:** first confirm the read-only constraint held (`git status --porcelain` / `git log` on the worktree — see "A prompted constraint is not a guarantee" above); a review agent that edited the code under review invalidated its own fresh-eyes independence. Then collect their findings. Any defect sends you back to `strict-tdd` — write a failing test that reproduces it, then fix. Never hand-patch a finding without a test. When the defect's cause isn't obvious, dispatch a `craft-code-debugger` to find the root cause first (it reproduces, narrows, and confirms one hypothesis at a time, reverting its probes), then hand the confirmed cause to a `craft-code-implementer` to capture as a failing test and fix.
-- **Then advance** to `finish-work` only when review is clean and verification produced real evidence.
-
-## When NOT to use subagents
-
-Parallelism has overhead. For a single small increment, or a plan with no independent increments, dispatching costs more than it saves — just run the phases inline. The fresh-eyes review/verify split is still worth it even for small changes, because its payoff is judgment quality, not speed. Use `dispatching-parallel-agents` for the general mechanics of launching agents; this skill is specifically about keeping the craft-code discipline intact while you do.
+A `craft-code-reconciler` merges increment branches into the work-item branch; a conflict means the independence marking was wrong — re-mark those increments dependent and re-sequence. Review findings and verification defects go back to `strict-tdd` with a failing test; an unclear cause goes to `craft-code-debugger` first. Advance to `finish-work` only when review is clean and verification produced real evidence.

@@ -1,8 +1,10 @@
 # Smells
 
-A smell is a surface symptom of a deeper design problem. None is automatically a bug, but each is a prompt to look closer and usually to refactor. This is the checklist `self-review` runs the diff against, and the list to keep in mind during every `strict-tdd` refactor step. Each entry names the smell, why it hurts, and the named refactoring that resolves it — the **Resolve with →** pointer names the technique and its home in `refactoring/references/techniques.md`, where the safe mechanics live. When you're asked to *find* smells, name the resolving technique in the same breath: spotting the smell and choosing its fix are one step, and the `refactoring` skill owns the move.
+A smell is a surface symptom of a deeper design problem. None is automatically a bug, but each is a prompt to look closer and usually to refactor. This is the checklist `adversarial-review` runs the diff against, and the list to keep in mind during every `strict-tdd` refactor step. Each entry names the smell, why it hurts, and the named refactoring that resolves it — the **Resolve with →** pointer names the technique and its home in `refactoring/references/techniques.md`, where the safe mechanics live. When you're asked to *find* smells, name the resolving technique in the same breath: spotting the smell and choosing its fix are one step, and the `refactoring` skill owns the move.
 
 ## Table of contents
+- Speculative generality
+- Dead code
 - Long method (> 10 lines)
 - Large class
 - Duplicate code
@@ -15,6 +17,14 @@ A smell is a surface symptom of a deeper design problem. None is automatically a
 - Comments that explain *what*
 - Nulls
 - Non-null assertions (null-forgiving operator)
+
+## Speculative generality
+
+**Smell:** structure built for a future that hasn't arrived — an interface with one implementation, a parameter or option no caller varies, a base class with one subclass, a layer that only forwards, a config switch nobody sets, a helper called once. **Why it hurts:** every one is a concept a reader must learn and a file they must open, paid for in advance against a need that usually never comes in the shape imagined. **Fix:** delete it and call the concrete thing; re-introduce the abstraction when a second real case exists. The exception is a genuine seam — external I/O you substitute in tests. **Resolve with →** Inline Single-Use Abstraction (Inline Function / Inline Class / Remove Middle Man / Collapse Hierarchy); Remove Parameter.
+
+## Dead code
+
+**Smell:** code nothing reaches — unused functions and exports, branches that can't execute, commented-out blocks, leftover scaffolding and probes. **Why it hurts:** readers can't tell it's dead, so they maintain it, test it, and reason around it. **Fix:** delete it; version control remembers. **Resolve with →** Remove Dead Code.
 
 ## Long method (> 10 lines)
 
