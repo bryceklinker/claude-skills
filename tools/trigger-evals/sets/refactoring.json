@@ -1,0 +1,20 @@
+[
+  { "query": "refactor this OrderService, it's a 400-line grab bag doing everything", "should_trigger": true },
+  { "query": "this method is way too long, break it up but keep the behavior identical", "should_trigger": true },
+  { "query": "reduce the duplication between these two handlers, same logic in both", "should_trigger": true },
+  { "query": "extract the validation out of the controller into its own thing", "should_trigger": true },
+  { "query": "simplify this nested if-else pyramid in pricing.ts", "should_trigger": true },
+  { "query": "there's a train-wreck call chain order.getCustomer().getAddress().getCode() — clean up the Law of Demeter violation", "should_trigger": true },
+  { "query": "tidy up cart.ts — improve the structure, no behavior change", "should_trigger": true },
+  { "query": "find the code smells in this module and tell me which refactoring fixes each", "should_trigger": true },
+  { "query": "this switch on payment type is duplicated in three places, make it polymorphic", "should_trigger": true },
+  { "query": "what refactoring should I use for a class with a long parameter list everywhere?", "should_trigger": true },
+  { "query": "rewrite the checkout so it caches results in redis", "should_trigger": false },
+  { "query": "add retry-on-busy logic to the ApsSender", "should_trigger": false },
+  { "query": "review this PR diff and flag any problems", "should_trigger": false },
+  { "query": "run prettier over this file to fix the formatting", "should_trigger": false },
+  { "query": "bump the MediatR version and fix whatever API breaks", "should_trigger": false },
+  { "query": "explain what the strategy pattern is and when to use it", "should_trigger": false },
+  { "query": "there's a race condition double-booking slots — fix the concurrency bug", "should_trigger": false },
+  { "query": "write acceptance criteria for the new discount feature", "should_trigger": false }
+]

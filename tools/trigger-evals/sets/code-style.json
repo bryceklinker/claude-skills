@@ -1,0 +1,58 @@
+[
+  {
+    "query": "clean up this module to match our house style \u2014 naming, immutability, no comments",
+    "should_trigger": true
+  },
+  {
+    "query": "this function is 40 lines with a nested if/else pyramid, refactor it to our conventions",
+    "should_trigger": true
+  },
+  {
+    "query": "is this class idiomatic for us? it feels like a data class with logic elsewhere",
+    "should_trigger": true
+  },
+  {
+    "query": "the booleans here aren't named well and there's a law-of-demeter train wreck, fix the style",
+    "should_trigger": true
+  },
+  {
+    "query": "replace this growing Manager class with our preferred command/query structure",
+    "should_trigger": true
+  },
+  {
+    "query": "these functions throw for expected failures \u2014 convert to our results-over-exceptions style",
+    "should_trigger": true
+  },
+  {
+    "query": "there's a logic bug: the discount is applied twice, fix the behavior",
+    "should_trigger": false
+  },
+  {
+    "query": "write the failing test first for this new behavior",
+    "should_trigger": false
+  },
+  {
+    "query": "run prettier and eslint --fix across the repo",
+    "should_trigger": false
+  },
+  {
+    "query": "what does the strategy pattern look like in general?",
+    "should_trigger": false
+  },
+  {
+    "query": "reproduce the crash before changing anything",
+    "should_trigger": false
+  },
+  {
+    "query": "verify the refactor didn't break anything by running the app",
+    "should_trigger": false
+  },
+  {
+    "query": "set up a worktree for this cleanup",
+    "should_trigger": false
+  },
+  {
+    "query": "add a new endpoint to the API",
+    "should_trigger": false
+  }
+]

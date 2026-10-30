@@ -19,6 +19,7 @@ agents/craft-code-*.md          craft-code subagents
 craft-ops/skills/, agents/      the same two shapes, for the ops plugin
 PRINCIPLES.md                   craft-code's canonical "why" (craft-ops has its own)
 tools/behavioral-evals/         discipline regression guard
+tools/trigger-evals/            does each description fire on the right requests
 tools/hook-tests/               tests for .githooks/commit-msg
 docs/superpowers/specs|plans/   design docs and implementation plans, dated
 ```
@@ -46,7 +47,7 @@ Producing repos for behavioral evals is the expensive, non-deterministic half an
 
 ## Authoring conventions
 
-**Frontmatter is the interface.** A `SKILL.md` carries `name` + `description`; an agent adds `tools` and `model`. The `description` is a *trigger specification*, not a summary — it states when to use the skill, and explicitly when NOT to (the negative clauses are what stop overlapping skills from stealing each other's requests). Descriptions are tuned against eval sets by the trigger optimizer in `craft-code-workspace/`; treat rewrites as a behavioral change, not cosmetics.
+**Frontmatter is the interface.** A `SKILL.md` carries `name` + `description`; an agent adds `tools` and `model`. The `description` is a *trigger specification*, not a summary — it states when to use the skill, and explicitly when NOT to (the negative clauses are what stop overlapping skills from stealing each other's requests). Descriptions are measured against `tools/trigger-evals/sets/` (`tools/trigger-evals/ab.sh` A/Bs them against another checkout); treat rewrites as a behavioral change, not cosmetics.
 
 **Progressive disclosure.** SKILL.md bodies stay short (under ~50 lines). Depth goes in `references/*.md` and is linked, not inlined.
 
@@ -74,4 +75,4 @@ Cutting a release (see `docs/releasing.md` for the full procedure and failure mo
 
 ## Working in this repo
 
-Changes here are prose, so `craft-code`'s own pipeline (`dev-workflow`, `strict-tdd`) does not apply — there is no failing test to write for a skill edit. The equivalent discipline is: state the *why* in `PRINCIPLES.md`, keep the trigger description honest about its boundaries, and run the behavioral evals after editing a skill to confirm you didn't quietly loosen the discipline it encodes.
+Changes here are prose, so `craft-code`'s own pipeline (`dev-workflow`, `strict-tdd`) does not apply — there is no failing test to write for a skill edit. The equivalent discipline is: state the *why* in `PRINCIPLES.md`, keep the trigger description honest about its boundaries, and run the behavioral evals (and, for a description change, the trigger evals) after editing a skill to confirm you didn't quietly loosen the discipline it encodes.

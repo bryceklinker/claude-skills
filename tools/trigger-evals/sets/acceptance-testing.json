@@ -1,0 +1,58 @@
+[
+  {
+    "query": "write an end-to-end test that drives the real UI and API for the checkout flow against a deployed build",
+    "should_trigger": true
+  },
+  {
+    "query": "set up an acceptance test for the signup journey that runs against a real database in a container",
+    "should_trigger": true
+  },
+  {
+    "query": "write the outer acceptance test up front and leave it failing while we build the feature with TDD",
+    "should_trigger": true
+  },
+  {
+    "query": "we need a user-journey test through the whole system before we start the increments",
+    "should_trigger": true
+  },
+  {
+    "query": "prove the whole promo-code flow works end to end against a production-like deployment",
+    "should_trigger": true
+  },
+  {
+    "query": "stand up the app with a real postgres container and a fake payment gateway service, then test the purchase flow like a user",
+    "should_trigger": true
+  },
+  {
+    "query": "write the failing unit test for the discount calculator and watch it go red",
+    "should_trigger": false
+  },
+  {
+    "query": "run the full suite and gather evidence that we're done before merging",
+    "should_trigger": false
+  },
+  {
+    "query": "what are the acceptance criteria we agreed on for this feature?",
+    "should_trigger": false
+  },
+  {
+    "query": "mock the payment gateway in this unit test so it stays in-process",
+    "should_trigger": false
+  },
+  {
+    "query": "review the finished diff for smells before we merge",
+    "should_trigger": false
+  },
+  {
+    "query": "break this feature into small independently testable increments",
+    "should_trigger": false
+  },
+  {
+    "query": "bump the playwright dependency to the latest version",
+    "should_trigger": false
+  },
+  {
+    "query": "reproduce the null-pointer bug at the unit level before we plan a fix",
+    "should_trigger": false
+  }
+]

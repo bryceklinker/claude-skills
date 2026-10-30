@@ -1,0 +1,18 @@
+[
+  { "query": "review my diff against the acceptance criteria and our style before I merge", "should_trigger": true },
+  { "query": "try to break this change — assume it's wrong and find out where", "should_trigger": true },
+  { "query": "what assumptions is this implementation making that might not hold?", "should_trigger": true },
+  { "query": "find a plausible bug in this diff that none of the tests would catch", "should_trigger": true },
+  { "query": "are there tests here that can't actually fail? check before we call it done", "should_trigger": true },
+  { "query": "poke holes in the refund feature before I open the PR — edge cases, failure paths, anything unowned", "should_trigger": true },
+  { "query": "what in this change could be deleted with every criterion still met?", "should_trigger": true },
+  { "query": "I just made that small retry tweak you asked for — give it a critical pass before we move on", "should_trigger": true },
+  { "query": "review this GitHub PR #482 from a teammate and leave comments", "should_trigger": false },
+  { "query": "run the app and confirm the feature works end to end", "should_trigger": false },
+  { "query": "write the next failing test", "should_trigger": false },
+  { "query": "clarify the requirements for this feature", "should_trigger": false },
+  { "query": "do a security audit of the authentication code", "should_trigger": false },
+  { "query": "merge the branch now that it's reviewed", "should_trigger": false },
+  { "query": "what are common code review best practices?", "should_trigger": false },
+  { "query": "fix the three issues the reviewer flagged", "should_trigger": false }
+]

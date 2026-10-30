@@ -1,0 +1,54 @@
+[
+  {
+    "query": "these three increments touch disjoint files \u2014 dispatch them to parallel subagents to speed things up",
+    "should_trigger": true
+  },
+  {
+    "query": "run the implementation, then hand the diff to a fresh-eyes reviewer and verifier subagent",
+    "should_trigger": true
+  },
+  {
+    "query": "parallelize the independent slices across subagents, each doing its own TDD loop",
+    "should_trigger": true
+  },
+  {
+    "query": "the plan marks increments 1-3 as independent; farm them out to concurrent agents in sibling worktrees",
+    "should_trigger": true
+  },
+  {
+    "query": "use separate agents to review and verify so the implementer isn't grading its own work",
+    "should_trigger": true
+  },
+  {
+    "query": "how do subagents work in Claude Code generally?",
+    "should_trigger": false
+  },
+  {
+    "query": "just implement this one small increment yourself, inline",
+    "should_trigger": false
+  },
+  {
+    "query": "these increments all edit the same file, so handle them yourself",
+    "should_trigger": false
+  },
+  {
+    "query": "write the failing test for increment 1",
+    "should_trigger": false
+  },
+  {
+    "query": "clarify the requirements first",
+    "should_trigger": false
+  },
+  {
+    "query": "merge the finished work",
+    "should_trigger": false
+  },
+  {
+    "query": "set up the worktree for the feature",
+    "should_trigger": false
+  },
+  {
+    "query": "review my diff before merge",
+    "should_trigger": false
+  }
+]

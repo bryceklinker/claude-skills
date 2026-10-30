@@ -1,0 +1,58 @@
+[
+  {
+    "query": "this test is failing and I have no idea why — help me figure out what's going on",
+    "should_trigger": true
+  },
+  {
+    "query": "the app crashes intermittently under load, let's track down the cause",
+    "should_trigger": true
+  },
+  {
+    "query": "there's a regression: sorting broke somewhere in the last ten commits, find where",
+    "should_trigger": true
+  },
+  {
+    "query": "why is the invoice total coming out wrong? dig into the root cause",
+    "should_trigger": true
+  },
+  {
+    "query": "it works locally but fails in CI — figure out what's different",
+    "should_trigger": true
+  },
+  {
+    "query": "this promise chain throws 'undefined is not a function' and I can't explain it, investigate",
+    "should_trigger": true
+  },
+  {
+    "query": "let's nail down the acceptance criteria for this bugfix before we start",
+    "should_trigger": false
+  },
+  {
+    "query": "I've found the cause — it's the timezone conversion; now write the fix test-first",
+    "should_trigger": false
+  },
+  {
+    "query": "break the fix into small independently testable increments",
+    "should_trigger": false
+  },
+  {
+    "query": "review the finished bugfix diff for smells before merge",
+    "should_trigger": false
+  },
+  {
+    "query": "update the vulnerable dependency to patch the CVE",
+    "should_trigger": false
+  },
+  {
+    "query": "add pagination to the users endpoint",
+    "should_trigger": false
+  },
+  {
+    "query": "what are the acceptance criteria we agreed on for this feature?",
+    "should_trigger": false
+  },
+  {
+    "query": "run the full suite and gather evidence that we're done",
+    "should_trigger": false
+  }
+]
