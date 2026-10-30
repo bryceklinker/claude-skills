@@ -53,9 +53,7 @@ The line: **`strict-tdd` substitutes inside the process; acceptance testing subs
 
 An acceptance environment is disposable, which means something routinely tears it down — and teardown is destructive by design. The danger is that most orchestration tools identify a "stack" **implicitly**, by a default derived from context, and two different stacks can silently resolve to the same identity. Docker Compose defaults its project name to the containing directory's basename, so a checkout at `~/code/haus` and a deployment at `/etc/haus` are both the project `haus` — and a `compose down` run from the wrong place takes down the running one. Kubernetes' current context, Terraform's workspace, and a cloud CLI's default profile all fail the same way.
 
-<HARD-GATE>
-The acceptance environment declares its identity explicitly and uniquely — a `name:` in the compose file, an explicit namespace, an explicit workspace or profile — and every teardown targets that identity by name. Never rely on an implicit default, on the current working directory, or on the ambient context to decide what a destructive command acts on.
-</HARD-GATE>
+**The acceptance environment declares its identity explicitly and uniquely — a `name:` in the compose file, an explicit namespace, an explicit workspace or profile — and every teardown targets that identity by name. Never rely on an implicit default, on the current working directory, or on the ambient context to decide what a destructive command acts on.**
 
 Practical rules:
 

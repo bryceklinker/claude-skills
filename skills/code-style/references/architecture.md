@@ -18,6 +18,8 @@ Dependencies point *inward*, toward the domain, never outward. The domain define
 
 Concretely: a domain service does not `import` an HTTP client or an ORM entity. It declares a port and receives an implementation injected from outside. This is what makes the domain testable with real collaborators and boundary fakes (see `strict-tdd/references/testing-doubles.md`) — the only thing you substitute in a test is an adapter.
 
+Ports go where there is a real seam: external I/O, non-determinism, or a second implementation that exists today. In-process domain code calls other in-process domain code directly — wrapping it in an interface adds a file and an indirection with nothing on the other side. Fewer, well-placed ports beat a port per class.
+
 ## Ports and adapters
 
 - **Port** — an interface owned by the domain, expressing a need in domain terms (`OrderRepository`, `PaymentGateway`, `Clock`).

@@ -7,6 +7,6 @@
     { "text": "Recognized the casual 'adjust it' feedback as a behavior change that enters the pipeline, not a conversational tweak applied directly to production code", "check": "judgment", "note": "transcript: named it a change request / STOP-BEFORE-YOU-EDIT, did not open the editor first" },
     { "text": "Wrote a failing test capturing the retry-on-BUSY behavior and watched it red BEFORE editing ApsSender's production code", "check": "test_before_code", "note": "the adjustment gets its RED first" },
     { "text": "Reasoned that the failing test also verifies the adjustment was actually needed, not merely plausible", "check": "judgment", "note": "transcript: test-first as a needed-ness check, per the feedback rule" },
-    { "text": "Ran fresh-eyes self-review before calling the adjustment done", "check": "judgment", "note": "transcript: self-review not skipped for being a small feedback change" }
+    { "text": "Ran fresh-eyes adversarial-review before calling the adjustment done", "check": "judgment", "note": "transcript: adversarial-review not skipped for being a small feedback change" }
   ]
 }

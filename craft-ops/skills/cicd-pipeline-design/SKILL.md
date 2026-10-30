@@ -1,45 +1,27 @@
 ---
 name: cicd-pipeline-design
-description: "Use when setting up CI/CD for a repo, adding or reordering pipeline stages, reviewing an existing pipeline against conventions, or deciding how an artifact is built, gated, and promoted across environments. Produces a short pipeline design note — the artifact strategy, stage ordering, gate map, promotion flow, reproducibility seams, secrets boundary, and evidence-of-done — with each decision's why. It DESIGNS the pipeline; it never writes the pipeline code or configurations (that is a separate authoring skill). Not for provisioning infrastructure, deployment/release strategy, or observability — those are other craft-ops domains."
+description: "Use when setting up CI/CD for a repo, adding or reordering pipeline stages, reviewing an existing pipeline against conventions, or deciding how an artifact is built, gated, and promoted across environments. Produces a short pipeline design note — the artifact strategy, stage ordering, gate map, promotion flow, reproducibility seams, secrets boundary, evidence-of-done, and failure diagnostics — with each decision's why. It DESIGNS the pipeline; it never writes the pipeline code or configurations (that is pipeline-authoring). Not for provisioning infrastructure, deployment/release strategy, or observability — those are other craft-ops domains."
 ---
 
-# CI/CD Pipeline Design — decide the shape before you wire it
+# CI/CD Pipeline Design
 
-## Why this exists
+Decide the pipeline's shape once, deliberately, so authoring is mechanical. The output is a short design note, not pipeline code — that goes to `pipeline-authoring`. Read `.craft-ops.yml` first if it exists (`craft-ops-conventions`).
 
-A pipeline wired by guesswork rebuilds per environment, leaks secrets into places they shouldn't be, and orders stages so the slowest, least-likely-to-fail check runs first — burning a feedback cycle on every commit. Deciding the shape once, deliberately, against the conventions, makes the authoring that follows mechanical rather than another set of judgment calls.
+Design the least pipeline that delivers: only the stages, environments, and gates the repo's real delivery needs today. If the existing pipeline already fits, the note confirms it and records the one thing that changed.
 
-It is a **thinking** phase, not a building one. The output is a short design note, not pipeline code or configurations — that is handed off to the `pipeline-authoring` skill, behind its own review.
+## Areas to account for
 
-## What it decides
+For a whole pipeline, decide all eight. For a targeted change, go deep on the areas it touches and discharge the rest together in one line ("not implicated: promotion, secrets, …") — nothing silently skipped, nothing padded.
 
-Work from the repo's actual build, test, and deploy needs, and settle only what they demand. Each decision below ties back to a principle in `craft-ops/PRINCIPLES.md`.
-
-The eight areas are a **coverage checklist, not a required table of contents.** How much each gets depends on the ask:
-
-- **Designing a whole pipeline** (greenfield, or a redesign): decide all eight — they're all in play.
-- **A targeted change** (reviewing or reorganizing an existing pipeline — reordering stages, fixing a rebuild, tightening one gate): go deep on the areas the change actually touches, and dispatch the rest in a **single one-line "not implicated" note** naming them together. The checklist exists so you don't *silently* skip an area that turns out to matter — a one-liner confirming an area is untouched discharges it completely. A paragraph defending why each unrelated area is unchanged is noise that buries the decision the person actually asked for.
-
-- **Artifact strategy** — the single immutable artifact this pipeline produces, where it's stored, and how it's identified (a content or commit digest, never a mutable tag alone). *Build once.*
-- **Stage ordering for fast feedback** — cheapest and most-likely-to-fail first: lint/format → unit tests → build the artifact → integration/acceptance → deploy. *Fail early.* (see `references/stage-ordering.md`)
-- **The gate map** — which stages are hard automated gates that block the pipeline outright, and which are human promotion gates; where "green main is sacred" stop-the-line applies.
-- **Promotion flow** — the same built artifact moves dev → staging → prod without a rebuild; only config and secrets differ per environment. (see `references/promotion.md`)
-- **Reproducibility seams** — pinned toolchain and dependency versions, a hermetic/ephemeral build environment, no network-dependent build steps. (see `references/reproducible-builds.md`)
-- **Secrets & config boundary** — nothing secret lives in the pipeline definition or gets baked into the artifact; both are injected at deploy time from the environment.
-- **Evidence of done** — the health signal that proves the deploy is good in the target environment (a passing health check, real traffic served, a metric that moved) — not just a green pipeline job.
-- **Failure diagnostics** — what a *red* run leaves behind. A pipeline that only explains itself when it's green wastes a full round-trip per failure, and for an intermittent failure the re-run may not reproduce at all. Decide: which artifacts are captured (service logs collected **before** the environment is torn down, browser traces/videos, test reports, build logs), that they upload on failure *and* on cancellation/timeout, how they're named per job and per attempt so a re-run doesn't overwrite the evidence you were reading, and how long they're retained. Capture is centralized in the shared harness and on by default — "re-run with tracing enabled" is the cost this decision removes. *A failure you can't see is a defect.*
+- **Artifact strategy** — the single immutable artifact, where it's stored, identified by digest rather than a mutable tag alone. (`PRINCIPLES.md` core 3)
+- **Stage ordering** — cheapest and most-likely-to-fail first: lint/format → unit tests → build → integration/acceptance → deploy. (`references/stage-ordering.md`)
+- **Gate map** — which stages are hard automated gates, which are human promotion gates, where a red main stops the line.
+- **Promotion flow** — the same artifact moves dev → staging → prod; only config and secrets differ. (`references/promotion.md`)
+- **Reproducibility seams** — pinned toolchains and dependencies, ephemeral build environments, no network-dependent build steps. (`references/reproducible-builds.md`)
+- **Secrets and config boundary** — nothing secret in the definition or the artifact; injected at deploy time.
+- **Evidence of done** — the signal that proves the deploy is good in the target (health check, real traffic, a metric that moved), not a green job.
+- **Failure diagnostics** — what a red run leaves behind: service logs collected before teardown, traces and videos, test reports, uploaded on failure *and* on cancel/timeout, named per job and attempt, retained long enough to read. Captured by default in the shared harness.
 
 ## Write it down
 
-Save a short design note where the work lives (e.g. `docs/craft-ops/pipelines/YYYY-MM-DD-<name>.md`): the artifact, stage, gate, and promotion decisions, each with its *why*. If the repo has a `.craft-ops.yml`, read it first for the project's build/test commands and target environments — see `craft-ops-conventions`, which records and reads it.
-
-## Guardrails
-
-- **YAGNI on stages and environments.** Don't add a stage or an environment "in case" — only what the repo's actual delivery needs demand today.
-- **Never write the pipeline code or configurations here.** If you catch yourself drafting the actual pipeline definition, stop — that belongs to the authoring skill, behind its own review.
-- **Prefer the existing shape.** If a pipeline already fits the conventions, the right design note is short: confirm it, note the one thing that changed, and move on. Not every change needs a redesign.
-- **Match the note's length to the change.** A targeted fix gets a targeted note — depth on the implicated areas, one line for the rest. If you find yourself writing a full section explaining why an area the ask never touched is "unchanged," collapse it into the one-line not-implicated note. Length signals importance; padding every area to equal weight hides which decision actually mattered.
-
-## Exit condition
-
-A written pipeline design note that accounts for all eight checklist items — artifact strategy, stage ordering, gate map, promotion flow, reproducibility seams, secrets & config boundary, evidence of done, and failure diagnostics — with the implicated ones decided in depth (each with its *why*) and any the change doesn't touch acknowledged in a single one-line not-implicated note. Nothing silently skipped; nothing padded. Hand off to the `pipeline-authoring` skill to implement it.
+Save the note under `paths.pipelines` (e.g. `docs/craft-ops/pipelines/YYYY-MM-DD-<name>.md`), each decision with its *why*. Length tracks the change: depth where it's implicated, one line for the rest. Then hand off to `pipeline-authoring`.

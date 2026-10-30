@@ -13,7 +13,7 @@
     { "text": "A test asserts the loop SURVIVES a failing poll iteration — one upstream error does not end the background sync", "check": "judgment", "note": "review: test drives a throwing/5xx upstream and asserts the next tick still runs" },
     { "text": "A test asserts the failure is surfaced (logged/reported), not swallowed silently", "check": "judgment", "note": "review: failure path observable, not an empty catch" },
     { "text": "Shutdown is handled: the loop is cancelled and its completion observed rather than abandoned", "check": "judgment", "note": "review: dispose/stop path awaits or observes the task; cancellation not treated as an error" },
-    { "text": "The upstream call is treated as a failure-returning boundary, not a throw the caller is expected to remember", "check": "judgment", "note": "review: result-carrying failure at the seam per principle 4" },
+    { "text": "The upstream call is treated as a failure-returning boundary, not a throw the caller is expected to remember", "check": "judgment", "note": "review: result-carrying failure at the seam per principle 5" },
     { "text": "If a detached start is used, a why-comment names who owns its failure", "check": "judgment", "note": "review: the sanctioned escape hatch is a stated owner, not silence" }
   ]
 }

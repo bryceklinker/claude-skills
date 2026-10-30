@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A **content repository**, not an application: it holds two independently-versioned Claude Code plugins made of Markdown skills and agents. There is no build step, no package manager, and no compiled artifact — the deliverable *is* the prose, and its quality bar is behavioral (does the skill fire on the right requests, and does an agent following it actually behave?).
 
-- **`craft-code`** (repo root) — a disciplined software-development suite. One enforced pipeline: `intake → design → planning → worktree-setup → [acceptance-testing wrapping strict-tdd + code-style] → self-review → verification → finish-work`. `dev-workflow` is the orchestrator.
+- **`craft-code`** (repo root) — a disciplined software-development suite. One enforced pipeline: `intake → design → planning → worktree-setup → [acceptance-testing wrapping strict-tdd + code-style] → adversarial-review → verification → finish-work`. `dev-workflow` is the orchestrator.
 - **`craft-ops/`** (subdirectory) — a sibling DevOps suite. A *library*, not a pipeline: no orchestrator, reach for the skill whose domain is in front of you.
 
 Both ship from one marketplace (`.claude-plugin/marketplace.json`) but install and version separately.
@@ -48,7 +48,9 @@ Producing repos for behavioral evals is the expensive, non-deterministic half an
 
 **Frontmatter is the interface.** A `SKILL.md` carries `name` + `description`; an agent adds `tools` and `model`. The `description` is a *trigger specification*, not a summary — it states when to use the skill, and explicitly when NOT to (the negative clauses are what stop overlapping skills from stealing each other's requests). Descriptions are tuned against eval sets by the trigger optimizer in `craft-code-workspace/`; treat rewrites as a behavioral change, not cosmetics.
 
-**Progressive disclosure.** SKILL.md bodies stay short (most under ~80 lines; `dev-workflow` at ~150 is the outlier). Depth goes in `references/*.md` and is linked, not inlined.
+**Progressive disclosure.** SKILL.md bodies stay short (under ~50 lines). Depth goes in `references/*.md` and is linked, not inlined.
+
+**Write for current models.** State each rule once, plainly, with its reason. No `<HARD-GATE>` tags, capitalized warnings, or rationalization tables — recent models follow plain instructions closely, and emphatic framing makes them overcorrect. And apply principle 1 to the prose itself: if a sentence doesn't change what an agent does, cut it.
 
 **Cite the principles; don't restate them.** `PRINCIPLES.md` is the single source of the *why*. Skills restate only the slice they need to stand alone and point at "the craft-code principles (`PRINCIPLES.md` at the plugin root)." When you change a rule, change it there first.
 

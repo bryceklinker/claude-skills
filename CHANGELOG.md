@@ -5,6 +5,26 @@ All notable changes to the `craft-code` plugin are recorded here. The format fol
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new skills and agents; the pipeline's core discipline stays stable.
 
+## [0.6.0] — 2026-10-29
+
+The suite was producing working code with too much in it, through a TDD loop
+paced for a human, described in prose written for older models. This release
+makes less the default, in the code and in the skills themselves.
+
+### Added
+- **Principle 1 — use less to achieve more.** The least code, tests, and architecture that meet the criteria reliably; what the criteria genuinely need (failure handling, a test per behavior, a signal for when it breaks) is part of the minimum. When another style rule would add structure the change doesn't need, this one wins. It shows up as a plain function as the default shape, ports only at real seams, "not before" signals on Factory/Strategy/Builder/Repository/Unit of Work, speculative generality and dead code as smells, a *Removing* section in the refactoring catalog, and test helpers extracted on the third repeat rather than up front.
+- **`adversarial-review`.** Review now assumes the diff is wrong and tries to prove it in five passes: challenge the assumptions (including how the criteria were read), hunt implementation gaps, hunt test gaps (name a plausible bug and show no test catches it, by mutating and seeing green), challenge complexity, then style. Every finding carries a concrete failure scenario, and the report closes with the attacks the code survived. `craft-code-reviewer` follows it.
+
+### Changed
+- **`strict-tdd` batches per increment.** Write the increment's tests, run them and confirm each fails for the right reason, write the minimum code, commit, refactor with `refactoring`, commit the refactor separately, then the next increment. Planning sizes increments so their tests can be written together. The implementer agent runs the same loop.
+- **Every skill, agent, and the principles were rewritten for current models.** Each rule stated once, plainly, with its reason; no `HARD-GATE` tags, capitalized warnings, or rationalization tables. Always-loaded prose went from about 43.6k words to 20.0k, references from 43.3k to 32.3k, and every SKILL.md body is under ~50 lines. The follow-up lane's invariants are unchanged.
+
+### Removed
+- **`self-review`** — replaced by `adversarial-review`. Anything invoking `craft-code:self-review` by name must switch to `craft-code:adversarial-review`.
+
+### Verified
+A/B against 0.5.0: behavioral evals 9/9 scenarios passing (0.5.0: 6 passing, 2 failing, 1 not run); trigger evals 122/186 vs. 118/186 across the 12 changed descriptions, with no false fires. Remaining failures, mostly pre-existing weak trigger recall, are tracked in #9.
+
 ## [0.5.0] — 2026-08-22
 
 Four gaps found by reading a quarter of real pull requests built with this

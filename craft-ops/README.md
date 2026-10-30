@@ -97,10 +97,11 @@ discipline directly rather than failing outright.
   note. It is read-only over the target system: no pipeline code, IaC,
   rollout automation, or instrumentation comes out of it.
 - **`craft-ops-author`** — turns a design note into the real code or config,
-  in its own worktree, under `craft-code`'s production discipline: non-trivial
-  step logic is extracted into script files and driven through
-  `strict-tdd`, the declarative glue is proven by `verification`, and both
-  are reviewed and checked the way `craft-code`'s reviewer and verifier already do.
+  in its own worktree, and proves it by running it: each script through its
+  real entrypoint, the pipeline, plan, rollout, or alert against a real or
+  throwaway target. Ops scripts don't get their own unit-test suites unless they
+  carry substantial decision logic. The finished diff goes to `craft-code`'s
+  adversarial reviewer and verifier where installed.
 
 ## Design philosophy
 

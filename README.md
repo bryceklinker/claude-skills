@@ -5,7 +5,7 @@ A disciplined software-development skill suite for Claude Code. Every feature an
 ## The pipeline
 
 ```
-intake → design (architecture / frontend, as needed) → planning → worktree-setup → [ acceptance-testing (outer) wrapping strict-tdd + code-style (inner) ] → self-review → verification → finish-work
+intake → design (architecture / frontend, as needed) → planning → worktree-setup → [ acceptance-testing (outer) wrapping strict-tdd + code-style (inner) ] → adversarial-review → verification → finish-work
 ```
 
 `dev-workflow` is the orchestrator that routes work through these gates and dispatches parallel work via `subagent-execution`.
@@ -51,10 +51,10 @@ To install from a local checkout instead (for development), point the marketplac
 | `planning` | Slice work into small, independently testable increments; mark independence for parallelism. |
 | `worktree-setup` | Isolate the work item in its own git worktree before any code. |
 | `acceptance-testing` | Outer-loop ATDD: user-level test against a production-like deployment (real UI+API, real DB, external fakes), written up front and left failing. As needed. |
-| `strict-tdd` | Classicist TDD: no code before red, one test at a time, red→green, commit at green + after refactor, real collaborators over doubles. |
-| `code-style` | Immutability, no *what*-comments, results over exceptions, null objects, small units, clean/hexagonal architecture, inputs-as-data separated from handlers. |
+| `strict-tdd` | Classicist TDD paced for agents: an increment's tests written first and each seen failing for the right reason, minimum code to pass, commit, refactor, commit; real collaborators over doubles. |
+| `code-style` | The least code that meets the criteria, immutability, no *what*-comments, results over exceptions, null objects, small units, clean/hexagonal architecture, inputs-as-data separated from handlers. |
 | `refactoring` | Behavior-preserving structure change: named techniques (Fowler / refactoring.guru catalog), their safe mechanics, and the map from each smell to the technique that resolves it. Defers to `strict-tdd` for green/commit. |
-| `self-review` | Fresh-eyes review of the diff against criteria, style, and smells. |
+| `adversarial-review` | Assume the diff is wrong and try to prove it: challenge assumptions, hunt implementation and test gaps, flag complexity that could be deleted. |
 | `verification` | Run it; evidence before any claim of done. |
 | `finish-work` | Integrate (PR/merge), settle history, remove worktrees. |
 | `systematic-debugging` | Find a defect's root cause by disciplined investigation — reproduce, narrow, confirm one hypothesis at a time — before changing anything. The front half of the defect loop. |
@@ -74,7 +74,7 @@ The plugin ships nine purpose-built subagents so `dev-workflow` can run the pipe
 | `craft-code-acceptance-tester` | Outer-loop user-level tests + production-like env | `acceptance-testing` | read / write / bash | opus |
 | `craft-code-implementer` | Builds one increment in its own sibling worktree | `strict-tdd` + `code-style` | read / write / bash | opus |
 | `craft-code-reconciler` | Merges parallel increment branches back | *(git integration)* | read + bash, no edit | sonnet |
-| `craft-code-reviewer` | Fresh-eyes review of a finished diff | `self-review` | read-only — reports, never fixes | opus |
+| `craft-code-reviewer` | Adversarial review of a finished diff | `adversarial-review` | read-only — reports, never fixes | opus |
 | `craft-code-verifier` | Runs the change and captures evidence | `verification` | read + bash, no edit | haiku |
 | `craft-code-debugger` | Root-cause investigation of a defect | `systematic-debugging` | read / write / bash | opus |
 
@@ -84,7 +84,7 @@ The plugin ships nine purpose-built subagents so `dev-workflow` can run the pipe
 
 ## Design philosophy
 
-The suite encodes one opinionated methodology: Clean Code, Fowler's *Refactoring*, Meszaros' *xUnit Test Patterns*, ports-and-adapters, CQRS, and classicist (Detroit-school) TDD. The rules are strict on purpose — each removes a recurring source of bugs — but every rule is stated with the *why*, so the discipline is legible rather than dogmatic. The full rationale lives in [`PRINCIPLES.md`](PRINCIPLES.md) — the canonical statement of the thirteen principles the skills embody.
+The suite encodes one opinionated methodology: Clean Code, Fowler's *Refactoring*, Meszaros' *xUnit Test Patterns*, ports-and-adapters, CQRS, and classicist (Detroit-school) TDD. The rules are strict on purpose — each removes a recurring source of bugs — but every rule is stated with the *why*, so the discipline is legible rather than dogmatic. The full rationale lives in [`PRINCIPLES.md`](PRINCIPLES.md) — the canonical statement of the fourteen principles the skills embody, led by *use less to achieve more*.
 
 ## Maintaining the suite
 
@@ -95,11 +95,13 @@ The suite encodes one opinionated methodology: Clean Code, Fowler's *Refactoring
 
 ## Central rules worth knowing
 
-- **No production code without a failing test first.** Watch it fail, watch it pass.
+- **Use less to achieve more.** The fewest moving parts, abstractions, files, and tests that meet the criteria reliably; when another rule would add structure the change doesn't need, this one wins.
+- **No production code without failing tests first.** Write an increment's tests, watch each fail for the right reason, then write the least code that passes.
+- **Review adversarially.** A reviewer who didn't write the code sets out to break it — unchecked assumptions, untried inputs, tests that would pass with the bug present.
 - **Two loops, two levels of substitution.** Inner (`strict-tdd`): real in-process code, doubles only at non-deterministic seams *in code*. Outer (`acceptance-testing`): a production-like deployment with a real database and, where a real service can't be used, an *external deployed fake* — never a code-level double inside the running app.
 - **Use the real thing wherever it runs deterministically in-process** — including real third-party libraries. Doubles only at genuine external/non-deterministic seams (network, filesystem, clock, randomness).
 - **Immutability by default.** The highest-priority style rule.
 - **No comments except to explain *why* awkward code exists.**
-- **Separate *what* from *how*** — a behavior's inputs are an immutable data object; the handling lives in a separate, dedicated unit (one operation, one handler), never a growing `Service`/`Manager`/`Utility`. A message + handler pair (CQRS) is one common shape and a fine default, but the input-data/handler separation is the rule, not the Command/Query names. Where you split reads from writes, a query never mutates and a write handler may return the data the caller needs.
+- **Separate *what* from *how*** — a behavior's inputs are plain data and its handling a separate unit, never a growing `Service`/`Manager`/`Utility`. The default shape is a function taking an input value; classes, handlers, and CQRS naming when the code calls for them.
 - **Every feature/bug goes through the full pipeline** — including the "simple" ones.
 - **Portable by design.** The skills never hardcode commands; a committed `.craft-code.yml` per repo states the concrete ones (test, acceptance, run, lint, DB, base branch) and every skill/agent reads it. The discipline is universal; the commands are per-project.

@@ -1,60 +1,40 @@
 ---
 name: infrastructure-authoring
-description: "Use when turning an infrastructure design note (from infrastructure-design) into the actual infrastructure-as-code — writing the real IaC (Terraform/Pulumi/CloudFormation/CDK/etc.) and any policy or module logic. Applies opinionated authoring rules: prefer small composable modules over duplicated resource blocks; NEVER co-locate a durable resource inside a compute unit (compute references durable resources by input, never creates them); protect durable resources with lifecycle guards; review the plan before every apply; remote/locked state with no secrets in code or state; pinned providers; idempotent and drift-free. It WRITES the IaC (unlike infrastructure-design, which only designs it), but defers the production loop to craft-code: policy/module logic is built under strict-tdd, and the declarative resources are proven by verification — validate/plan and apply against a sandbox. Not for deciding the infrastructure's shape (that is infrastructure-design), nor for pipeline, deployment, or observability authoring."
+description: "Use when turning an infrastructure design note (from infrastructure-design) into the actual infrastructure-as-code — real Terraform/Pulumi/CloudFormation/CDK and any policy or module logic. Opinionated rules: small composable modules over duplicated blocks; NEVER co-locate a durable resource inside a compute unit (compute receives durable resources by input); network foundation first; durable resources in their own segment; lifecycle guards on durable resources; read the plan before every apply; remote/locked state, no secrets in code or state; pinned providers; idempotent and drift-free. It WRITES the IaC and proves it by running it: validate and plan, read the plan, apply to a sandbox, confirm a second plan is empty — no unit-test suite for resource definitions. Not for deciding the infrastructure's shape (infrastructure-design), nor pipeline, deployment, or observability authoring."
 ---
 
-# Infrastructure Authoring — write the infrastructure the design already decided
+# Infrastructure Authoring
 
-## Why this exists
+Turn an `infrastructure-design` note into real IaC without re-deciding the design. Read `cloud.iac_tool` and `cloud.iac_commands` from `.craft-ops.yml` first (`craft-ops-conventions`). If the note is missing, ambiguous, or wrong, send it back to `infrastructure-design`.
 
-A design note is not applied infrastructure. Left to guesswork, the gap between the two fills in with duplicated resource blocks copy-pasted across environments, durable resources wired directly into the compute unit that happens to need them, and applies that go out without anyone reading the plan. This skill turns an `infrastructure-design` note into real, reviewed infrastructure-as-code — without re-deciding the design and without hand-waving the discipline that makes the result trustworthy.
+## Prove it by running it
 
-Unlike the `-design` skills, it *does* write code — so it leans on craft-code to write it well.
+Infrastructure is tested by the tool that applies it (`PRINCIPLES.md` core 2):
 
-## Seams
+1. **`validate`, then `plan`** — always runnable, even with nowhere to apply. Then read the plan: the first check is whether it destroys or replaces a durable resource. A green plan is not a reviewed plan.
+2. **Apply to a sandbox or throwaway environment** and observe the result: the resources exist with the arguments the definition specified.
+3. **Plan again** — it should show no changes. That proves convergence and idempotence.
 
-- **Consumes** the `infrastructure-design` note as input. That note already made the shape decisions — resource tiers, module boundaries, state strategy. This skill does not re-decide them.
-- **Reads `.craft-ops.yml`** for this project's `cloud.iac_tool` and `cloud.iac_commands` before authoring — see `craft-ops-conventions`, which records and reads it.
-- **Defers the production loop to craft-code** — named generically so this skill degrades gracefully without craft-code installed: `strict-tdd` for policy and module logic, `verification` for the declarative resources, `code-style` and `self-review` for how it's written and checked.
-- **Review and verification** go to `craft-code-reviewer` / `craft-code-verifier` where those agents exist.
-
-## The production-discipline split
-
-State it plainly, because the two halves are proven differently:
-
-- **Policy/module logic** — policy-as-code, modules with computed values, generators, anything with scripting or a decision in it — is production code. It goes through craft-code `strict-tdd`: a failing test first, then the minimal code to pass it.
-- **The declarative resources** — the resource blocks and their wiring — aren't unit-testable in the same sense. They're proven by craft-code `verification`: `validate` + `plan`/`diff`, reviewed, then applied against a throwaway or sandbox environment. At minimum, even when no apply target is available, **`validate` + `plan` is the always-runnable minimum verification** — it catches broken references, type errors, and unexpected destroy/replace offline, before any apply. The plan is a diff you must READ, not a step you rubber-stamp.
-
-This skill's job is to maximize how much lands on the testable side of that split. Every computed value or decision pushed out of the declarative resources and into a module or policy script is more of the infrastructure covered by strict-tdd instead of resting on "the plan looked fine."
+Don't unit-test resource blocks; a test that mocks the provider only restates the definition. Policy-as-code is proven by running the policy tool against a plan that should pass and one that should fail. A module with genuinely complex computed logic (CIDR derivation, name generation under length limits) can earn a small test with the IaC tool's own test runner where it has one. `references/testing-and-verifying-infrastructure.md` has the detail.
 
 ## Domain rules
 
-**Prefer small composable modules over duplicated resource blocks.** A resource block copy-pasted across environments or services drifts the moment one copy gets an edit the others don't. Small, composable modules with clear inputs/outputs keep the duplication in one reviewable place. See `references/iac-authoring-hygiene.md`.
+- **Never co-locate a durable resource in a compute unit.** Databases, object stores, queues, topics, and buses live in their own unit; compute receives their IDs, ARNs, or endpoints as inputs. Compute is replaced routinely, and anything defined alongside it goes down with it.
+- **Network foundation first.** The VPC/VNet, subnets, routing, and base security groups are their own unit, applied before anything attaches to them and handed down by reference.
+- **Durable resources in their own network segment**, reachable by default only from the compute network; every other path (bastion, migration or backup runner) named and justified.
+- **Protect durable resources** with deletion/replacement guards; migrate them, never tear down and recreate.
+- **Read the plan before every apply.**
+- **Remote, locked state; no secrets in code or state.**
+- **Pinned providers and modules.**
+- **Small composable modules over duplicated blocks** — but no module for something used once.
+- **Idempotent, no drift.**
 
-**Never co-locate a durable resource inside a compute unit.** Durable resources — a database, object store, queue, topic, or bus — live in their own composable unit, never defined inside the module or stack for an instance, container, function, cluster, or ASG. Compute units receive references to durable resources — IDs, ARNs, endpoints — as inputs; they never create them. Compute is disposable: it gets destroyed, replaced, and rescaled routinely, and a durable resource defined alongside it goes down whenever the compute unit does. Splitting them into separate units is what lets compute churn without ever threatening the data.
+The rule rationale and examples: `references/iac-authoring-hygiene.md`.
 
-**Provision the networking foundation first.** The core virtual network — VPC/VNet, subnets, routing, base security groups — is its own foundational unit, applied *before* any durable or disposable resource that attaches to it. Databases, compute, and load balancers alike receive the network's identifiers — VPC ID, subnet IDs, security-group IDs — as inputs and plug into it; they never define or co-create the network. Author the network last, or inside the unit that uses it, and you force a circular dependency or a scramble to reverse-engineer IDs that should have been handed down. The apply order that falls out is foundation first — network — then the durable and compute layers that reference it. This is the ordering companion to the previous rule: never-co-locate separates units along the *lifecycle* axis; this separates them along the *dependency* axis. See `references/iac-authoring-hygiene.md`.
+## Writing it well
 
-**Isolate durable resources in their own network segment.** Durable resources sit in a dedicated subnet or a separate network — never on the same subnet as the compute that uses them — reachable *by default only from the compute/non-durable network*, default-deny to everything else. Every exception (a bastion, a migration or backup/replication runner, a managed-service control plane) is named and justified up front, never opened ad hoc. A durable resource on the same flat network as disposable compute is reachable by anything that reaches compute; segmenting it collapses the access surface to one reviewable boundary. This is the *reachability* companion to the two rules above — co-location separates lifecycle, foundation-first orders dependency, segmentation restricts reachability. See `references/iac-authoring-hygiene.md`.
-
-Beyond those:
-
-- **Protect durable resources.** Lifecycle guards (deletion/replacement protection, `prevent_destroy` or equivalent) on every durable resource; changes to a durable resource are migrated, never torn down and recreated.
-- **Review the plan before every apply.** No apply goes out on trust — the diff is read by a human or reviewer, every time. This is what catches a durable resource marked for destroy/replace, or a durable resource that snuck into a compute unit's lifecycle.
-- **Remote, locked state — no secrets in code or state.** State lives in a remote backend with locking; nothing secret is ever committed to the IaC or allowed to land unencrypted in state.
-- **Pinned providers.** Provider and module versions are pinned, not left floating, so an apply today produces the same result as an apply next month.
-- **Idempotent, no drift.** Re-running an apply with no intervening change is a no-op; manual out-of-band changes are not how this infrastructure gets modified.
-
-Testing/verifying depth is in `references/testing-and-verifying-infrastructure.md`.
-
-## Guardrails
-
-- **Do not re-decide the design.** If the design note is missing, ambiguous, or looks wrong, stop and send it back to `infrastructure-design` rather than deciding the shape here.
-- **Do not reimplement TDD or verification.** Defer to craft-code's `strict-tdd` and `verification`; this skill supplies the domain rules, not a competing test methodology.
-- **Never co-locate a durable resource in a compute unit** — not "just this once," not "it's a small instance."
-- **No secrets in code or state, ever.**
-- **Review the plan before every apply** — no exceptions for "obviously safe" changes.
+Apply craft-code's `code-style` where it applies, commit each unit once it has applied and converged, commit refactors separately, and send the finished diff to `adversarial-review` and `verification` (`craft-code-reviewer` / `craft-code-verifier` where available). Without craft-code installed, apply the same discipline directly.
 
 ## Exit condition
 
-The IaC and any policy/module logic exist in the repo. The logic is covered by tests written under strict-tdd; the declarative resources are verified by `validate`/`plan` at minimum, and applied against a sandbox with the plan read before the apply. Durable resources and compute units live in separate composable units. All of it is committed the craft-code way — reviewed, no secrets, pinned providers, no dead scaffolding left behind.
+The IaC is in the repo; it validated, its plan was read, it applied to a sandbox (or, with no target, validated and planned), and a second plan showed no changes. Durable and compute resources live in separate units; reviewed, no secrets, pinned providers, no leftover scaffolding.

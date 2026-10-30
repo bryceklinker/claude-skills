@@ -1,55 +1,37 @@
 ---
 name: observability-authoring
-description: "Use when turning an observability design note (from observability-design) into the actual observability-as-code — writing the real instrumentation, dashboards-as-code, alert rules, and runtime-lever wiring. Applies opinionated authoring rules: prefer generated/extracted dashboards-and-alerts-as-code over click-ops; PROVE each alert fires by firing it against a synthetic/replayed signal before trusting it; wire the runtime levers (verbosity/sampling/trace detail) to flip without a redeploy; alert on symptoms not causes; cardinality guardrails (no unbounded labels); no secrets in config. It WRITES the observability-as-code (unlike observability-design, which only designs it), but defers the production loop to craft-code: metric/SLO/lever logic is built under strict-tdd, and the declarative dashboards/alerts are proven by verification — validate + entrypoint-smoke-invoke as the minimum, and firing the alert on a synthetic signal. Not for deciding what to observe (that is observability-design), nor for pipeline, infrastructure, or deployment authoring."
+description: "Use when turning an observability design note (from observability-design) into the actual observability-as-code — writing the real instrumentation, dashboards-as-code, alert rules, and runtime-lever wiring. Applies opinionated authoring rules: dashboards and alerts as code, never click-ops or copy-paste; PROVE each alert fires by firing it against a synthetic/replayed signal (and stays quiet on a healthy one) before trusting it; wire the runtime levers (verbosity/sampling/trace detail) to flip without a redeploy; alert on symptoms not causes; cardinality guardrails (no unbounded labels); no secrets in config. It WRITES the observability-as-code (unlike observability-design, which only designs it) and proves it by running it — rules validated, queries resolving to real data, alerts fired — with no separate unit-test suite for generator scripts unless one carries substantial computation. Not for deciding what to observe (that is observability-design), nor for pipeline, infrastructure, or deployment authoring."
 ---
 
-# Observability Authoring — write the observability the design already decided
+# Observability Authoring
 
-## Why this exists
+Turn an `observability-design` note into real observability-as-code without re-deciding what to observe. Read `observability.*` from `.craft-ops.yml` first (`craft-ops-conventions`). If the note is missing, ambiguous, or wrong, send it back to `observability-design`.
 
-A design note is not running instrumentation. Left to guesswork, the gap between the two fills in with dashboards clicked together by hand and never reproduced, alert thresholds copy-pasted between environments until they drift, and an alert nobody has ever actually watched fire. This skill turns an `observability-design` note into real, reviewed observability-as-code — without re-deciding the design and without hand-waving the discipline that makes the result trustworthy.
+## Prove it by running it
 
-Unlike the `-design` skills, it *does* write code — so it leans on craft-code to write it well.
+Observability is tested by watching it work (`PRINCIPLES.md` core 2):
 
-## Seams
+- **Validate the rules and dashboards** with the backend's own tools (`promtool check rules`, `amtool config check`, the dashboard tool's lint) and run any generator script through its real entrypoint.
+- **Every dashboard query resolves to real data** — not an empty series.
+- **Every alert fires** against a synthetic or replayed signal that should trip it, and stays quiet on a healthy one. An alert never seen firing is a guess; one that fires on everything is noise.
+- **Every runtime lever flips** without a redeploy, and you see the change in the emitted signals.
 
-- **Consumes** the `observability-design` note as input. That note already made the decisions — SLOs, signals, alerting strategy, the runtime levers to expose. This skill does not re-decide them.
-- **Reads `.craft-ops.yml`** for this project's `observability.metrics`, `observability.dashboards`, and `observability.alerts` before authoring — see `craft-ops-conventions`, which records and reads it.
-- **Defers the production loop to craft-code** — named generically so this skill degrades gracefully without craft-code installed: `strict-tdd` for metric/SLO/burn-rate/lever logic, `verification` for the declarative dashboards and alert rules, `code-style` and `self-review` for how it's written and checked.
-- **Review and verification** go to `craft-code-reviewer` / `craft-code-verifier` where those agents exist.
-
-## The production-discipline split
-
-State it plainly, because the two halves are proven differently:
-
-- **Metric/SLO/burn-rate/instrumentation-helper/alert-generator/lever-toggle logic** — anything with a computation or a decision in it — is production code. It goes through craft-code `strict-tdd`: a failing test first, then the minimal code to pass it.
-- **The declarative dashboards-as-code and alert-rule config** — isn't unit-testable in the same sense. It's proven by craft-code `verification`: fire the alert against a synthetic/replayed signal — it trips on a bad signal, it stays quiet on a healthy one — and confirm dashboard queries resolve. At minimum, even when no live signal replay is available, **validate/lint the alert rules + dashboard definitions + entrypoint-smoke-invoke each extracted script is the always-runnable minimum verification.**
-
-This skill's job is to maximize how much lands on the testable side of that split. Every computation pushed out of the declarative alert/dashboard config and into a shared, tested helper is more of the observability covered by strict-tdd instead of resting on "the dashboard looked right."
+Don't write a unit-test suite for generator or lever scripts by default. A burn-rate or SLO computation with real edge cases (empty windows, missing points, boundary flapping) can earn a small test, built with craft-code's `strict-tdd` where installed. `references/testing-and-verifying-observability.md` has the detail.
 
 ## Domain rules
 
-**Prefer generated/extracted over hand-maintained duplication.** Dashboards and alerts are code — generated or extracted, never click-ops or copy-pasted between environments. Instrumentation goes through a shared, tested helper, not ad hoc calls scattered and re-typed at every call site. Hand-maintained duplication drifts the moment one copy changes and the others don't. See `references/observability-as-code-hygiene.md`.
+- **As code, not click-ops.** Dashboards and alerts live in the repo, generated or declared once, never copy-pasted between environments. `references/observability-as-code-hygiene.md`.
+- **Instrumentation through one shared helper** where the same fields are emitted in many places — not before.
+- **Alert on symptoms** — error rate, latency, saturation, SLO burn — not internal causes.
+- **Bounded cardinality** — no user IDs, raw URLs, or request IDs as metric labels.
+- **Levers wired to runtime config or flags**, with default and incident settings and a way back down.
+- **No secrets in dashboard, datasource, or alert config.**
+- **Only the signals the design names** — a signal with no question behind it is cost with no payoff.
 
-**Prove the alert fires.** Verify an alert rule by firing it against a synthetic or replayed signal that should trip it — and confirm it stays quiet on a healthy one — before trusting it. An alert never observed to fire is not verified; it's a guess dressed up as coverage. This is the observability analog of deployment's prove-the-rollback.
+## Writing it well
 
-Then:
-
-- **Wire the runtime levers for real.** Verbosity, sampling, and trace-detail levers are wired to runtime config or flags, not left as constants baked into a build. Default-vs-incident settings, cost guardrails, and auto-revert are part of the wiring, so a lever flips without a redeploy.
-- **Alert on symptoms, not causes.** Page on what the user or the SLO actually experiences — error rate, latency, saturation — not on an internal cause that may or may not be user-visible.
-- **Cardinality guardrails.** Labels are bounded; no unbounded dimension (user ID, raw URL, request ID) goes on a metric label.
-- **No secrets in dashboard/datasource/alert config.** Dashboards, datasource definitions, and alert-rule config reference secrets by indirection — never hold them in plaintext.
-
-Testing/verifying depth is in `references/testing-and-verifying-observability.md`.
-
-## Guardrails
-
-- **Do not re-decide the design.** If the design note is missing, ambiguous, or looks wrong, stop and send it back to `observability-design` rather than deciding what to observe here.
-- **Do not reimplement TDD or verification.** Defer to craft-code's `strict-tdd` and `verification`; this skill supplies the domain rules, not a competing test methodology.
-- **Never trust an alert you haven't fired against a signal that should trip it** — not "just this once," not "it's an obvious threshold."
-- **No secrets in config, ever.**
-- **No unbounded-cardinality labels** — no exceptions for "it's probably fine at current scale."
+Apply craft-code's `code-style` to scripts, commit each piece once it's been run and seen working, commit refactors separately, and send the finished diff to `adversarial-review` and `verification` (`craft-code-reviewer` / `craft-code-verifier` where available). Without craft-code installed, apply the same discipline directly.
 
 ## Exit condition
 
-The instrumentation (via a shared tested helper), dashboards-as-code, alert rules proven to fire, and runtime-lever wiring exist in the repo. Metric/SLO/burn-rate/lever logic is covered by tests written under strict-tdd; the declarative dashboards and alert rules are verified by validate/lint + entrypoint-smoke-invoke at minimum, and by firing each alert against a synthetic or replayed signal — it trips on bad, stays quiet on healthy. All of it is committed the craft-code way — reviewed, no secrets, bounded cardinality, no dead scaffolding left behind.
+Instrumentation, dashboards, alert rules, and lever wiring are in the repo; rules validated, queries resolve, each alert was seen firing on a bad signal and quiet on a healthy one, and each lever flipped at runtime; reviewed, no secrets, bounded cardinality, no leftover scaffolding.

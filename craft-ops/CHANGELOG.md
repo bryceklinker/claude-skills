@@ -5,6 +5,26 @@ All notable changes to the `craft-ops` plugin are recorded here. The format foll
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new domains and skills; the suite's core discipline stays stable.
 
+## [0.13.0] — 2026-10-29
+
+Ops code was being built like application code — a unit-test suite around
+scripts whose real test is whether they run. This release makes running it the
+proof, and makes less the default.
+
+### Added
+- **Core principle 1 — use less to achieve more.** The fewest stages, environments, resources, modules, flags, signals, and scripts that do the job reliably. A rollback path, a health gate, and an alert on user pain are part of the minimum; speculative stages and dashboards nobody reads are not.
+- **Core principle 2 — ops code is proven by running it.** A pipeline step, IaC module, rollout, or alert rule is correct when it executes and does its job against a real or throwaway target. Unit tests are reserved for substantial decision logic. (The previous core principles shift down by two.)
+
+### Changed
+- **The four authoring skills prove by execution.** Pipelines: run each script through the exact entrypoint the pipeline calls, and lint or run the workflow. Infrastructure: validate, plan, read the plan, apply to a sandbox, then plan again and expect no changes. Rollouts: watch one progress, halt on a bad signal, and roll back in a test environment. Observability: see the alert fire on a synthetic signal and stay quiet on a healthy one. `craft-ops-author` follows the same loop: write the least, run it for real, commit once seen working.
+- **Every skill and agent was trimmed for current models**, with all design-checklist areas kept.
+
+### Fixed
+- **`deployment-design` keeps a real release plan for deceptively simple changes.** The trimmed wording read as "a config flip needs no exposure control"; minimal now means the lightest mechanism that still limits exposure, gates on a numeric signal, and can be undone.
+
+### Verified
+A/B against 0.12.0 on the committed eval sets plus a new authoring set: 91/93 vs. 85/93. The authoring skills no longer default to unit-testing glue scripts. The remaining miss is tracked in #9.
+
 ## [0.12.0] — 2026-08-22
 
 Two additions from the same retrospective that drove `craft-code` 0.5.0, read

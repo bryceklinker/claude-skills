@@ -3,52 +3,30 @@ name: dependency-maintenance
 description: "Use to update dependencies and tooling safely — the work dev-workflow deliberately excludes because it changes no product behavior. Trigger whenever bumping package/library versions, updating a lockfile, applying a security/CVE patch, upgrading a framework, runtime, or build tool, or resolving dependency drift. The discipline: one logical update per commit, read the changelog for breaking changes, and run the full unit AND acceptance suites after each so the existing tests prove nothing broke. Not for adding features or changing behavior (that's dev-workflow) — but when an upgrade forces code changes, reimplements a dropped dependency in-house, or surfaces a latent bug, that portion escalates into strict-tdd or the full dev-workflow rather than hiding inside the bump commit."
 ---
 
-# Dependency Maintenance — update without breaking
+# Dependency Maintenance
 
-## Why this exists
+A version bump adds no behavior but can still change an API, tighten a validation, or shift a default. The existing unit and acceptance suites are the safety net; this lane is how you lean on them.
 
-Upgrading a dependency changes no product behavior, so it doesn't belong in `dev-workflow` — there's nothing to design, decompose, or acceptance-test into existence. But "no new behavior" is not "no risk": a version bump can silently change an API, tighten a validation, shift a default, or drag in a transitive break. Ungoverned, these updates are where "nothing changed" outages come from. This skill is the lighter, separate lane for that work — disciplined enough to be safe, without the full feature pipeline it doesn't need.
+## Per update
 
-The safety net here is the one the rest of the suite built: your **existing unit and acceptance tests**. A dependency update is exactly the moment they earn their keep — they're the proof that behavior survived the change.
+1. **Read the changelog** for the version range — breaking changes and security advisories especially.
+2. **Apply one logical update** — one dependency, or a group that must move together — and update the lockfile. Don't let the tool bump neighbors.
+3. **Run the full unit suite, then the acceptance suite** (`commands.test`, `commands.acceptance`). The acceptance suite catches the wiring and runtime breaks bumps most often cause; if a touched flow has no coverage, that's worth filling first.
+4. **Confirm build, lint, and format** still pass (`commands.build`, `commands.lint`, `commands.format_check`).
+5. **Commit that one update**, naming the version delta and why (routine, CVE, unblocking a feature).
 
-## The core discipline
+One update per commit keeps history bisectable and each update independently revertible. Security patches first; majors one at a time. Keep maintenance out of feature commits.
 
-<HARD-GATE>
-One logical update per commit, and the full unit AND acceptance suites green after each one. Never batch unrelated upgrades into a single commit — when something breaks two weeks later, a one-update-per-commit history is bisectable and a giant "bump everything" commit is not.
-</HARD-GATE>
+Before adding a new dependency, check whether the platform or an existing dependency already covers the need; each one is code you now maintain.
 
-"One logical update" is usually one dependency, but may be a coherent group that must move together (a framework and its companion packages). The test is: could this unit be reverted on its own if it caused a regression?
+## Escalate, don't smuggle
 
-Run the suites and checks below with the project's configured commands — `commands.test`, `commands.acceptance`, `commands.lint`, `commands.build` from `.craft-code.yml` (see `craft-code-conventions`) — so "run the suite" means the right thing on this repo.
+- **The upgrade forces code changes** → that part goes through `strict-tdd`, in its own commit separate from the bump. If tests fail because the contract changed, understand why before adjusting them.
+- **You're replacing a dropped dependency with your own code** → that's a feature with behavior parity as its criterion: full `dev-workflow`.
+- **The upgrade surfaces a latent bug** → `systematic-debugging`, then `strict-tdd`, as its own change. A fix hidden in a bump commit can't be reviewed or bisected.
 
-## The loop, per update
-
-1. **Know what's changing.** Read the changelog / release notes for the version range you're crossing — especially the **breaking changes** and **security advisories**. An upgrade you didn't read is a behavior change you didn't review. Note CVEs a security update closes.
-2. **Apply one update.** Bump the single dependency (or the coherent group) and update the lockfile. Don't let the tool opportunistically bump neighbors — pin the scope.
-3. **Run the full unit suite.** All of it, pristine output. A break here is the dependency telling you an assumption moved.
-4. **Run the acceptance suite.** This is the step unit tests can't replace — it exercises the real deployment, real DB, and real integrations against the new versions, catching the wiring and runtime breaks a bump most often causes. If the feature has acceptance coverage (`acceptance-testing`), run it; if a touched flow has none, that gap is worth filling before trusting the upgrade.
-5. **Confirm the build, lint, and format still pass** under the new versions — toolchain updates especially can shift these.
-6. **Commit the single update** with a message naming the version delta and why (routine bump, security patch + CVE, unblock a feature).
-
-## When maintenance uncovers real work — escalate, don't smuggle
-
-A dependency update stays in this lane only while it changes no behavior. Three things routinely push part of the work *out* of this lane and into the pipeline — and the failure mode every time is smuggling them through inside a "bump" commit instead of escalating them honestly:
-
-1. **The upgrade forces code changes.** A major bump changes an API you call, so code must change to compile or pass. This portion **graduates into the `strict-tdd` cycle**. If existing tests fail because the *contract* changed, adjust them deliberately — understand why the library changed the behavior, don't just make the test green. New code written against the new API is written test-first. Keep it in its own commit, separate from the mechanical bump, so "update" and "adapt to the update" are independently reviewable.
-
-2. **You're replacing a dropped dependency with first-party code.** When a library is removed and you reimplement its behavior in-house — it went commercial, was abandoned, or you're deliberately cutting the dependency — that is not maintenance. It's building a feature that happens to preserve an existing contract, and it gets the full **`dev-workflow`** treatment: intake the exact semantics you must match, plan the increments, build it test-first in a worktree. **Behavior parity is the acceptance criterion**, and the old dependency's own tests or docs are where you read that criterion from.
-
-3. **The upgrade surfaces a latent bug.** Building or verifying against new versions often exposes a defect that was there all along. It is *not* part of the bump — resist patching it inline to get the suite green. Route it through **`systematic-debugging`** to find the cause, then **`strict-tdd`** to capture it as a failing test and fix, as its own change with its own commit. A bug fix hidden inside a version-bump commit is invisible to review and impossible to bisect later.
-
-A large migration (a framework major, a runtime jump) that ripples through the codebase may be big enough that the *whole* thing deserves `dev-workflow` — intake its scope, plan the increments, do it in a worktree. Use judgment: a routine patch is this lane; a migration that reshapes code, a dependency you're reimplementing, or a bug you uncovered is the pipeline.
-
-## Prioritization
-
-- **Security patches first.** A CVE fix is not optional maintenance; treat it as urgent and note the advisory it closes.
-- **Patch and minor** updates are low-risk — group-review them, but still one-per-commit for bisectability, and still run both suites.
-- **Majors** get individual, deliberate treatment — they're the ones with the breaking changes that force code work.
-- **Don't mix maintenance with feature work.** A dependency bump riding inside a feature commit hides both. Keep the lanes separate.
+A migration that reshapes the codebase (a framework major, a runtime jump) may deserve `dev-workflow` as a whole.
 
 ## Exit condition
 
-Each update is its own commit with the changelog reviewed, the full unit and acceptance suites green against the new versions, and build/lint/format passing. Any upgrade that forced code changes was handled test-first and committed separately. Dependency drift is resolved without a single unexplained behavior change.
+Each update is its own commit with its changelog read and both suites, build, lint, and format green; any forced code change went through `strict-tdd` separately.
