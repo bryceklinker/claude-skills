@@ -1,0 +1,21 @@
+{
+ "skill_name": "observability-authoring",
+ "note": "Behavioral eval set for craft-ops/observability-authoring. Each prompt asks for a narrated plan (not files) so it can be graded from text; assertions guard the domain rules the authoring skill was validated on, plus craft-ops core 2 (proven by running, no default unit-test suite for glue).",
+ "evals": [
+  {
+   "id": 0,
+   "eval_name": "checkout-slo-alert",
+   "discriminates": "alert proven to fire, levers wired live, guardrails enforced",
+   "prompt": "Observability design note for checkout: 99.5% availability SLO, multi-window burn-rate alert, a dashboard, a runtime lever to raise log/trace detail per route without redeploy, and don't let customer IDs into metric labels. Prometheus + Grafana + Alertmanager. Author it. Don't write files — narrate what you'd create and exactly how you'd prove it works before calling it done.",
+   "assertions": [
+    "Dashboards and alerts are defined as code (generated or committed config), not click-ops",
+    "Proves the alert FIRES against a synthetic or replayed bad signal, and stays quiet on a healthy one",
+    "Runtime lever is wired for real and flipped live without a redeploy (with scope and auto-revert/ceiling)",
+    "Cardinality guardrail keeps customer IDs out of labels, enforced (not just documented)",
+    "Alert rules are validated with the tool (e.g. promtool check / promtool test rules)",
+    "No secrets in the config",
+    "Does NOT default to a broad unit-test suite for the config itself"
+   ]
+  }
+ ]
+}

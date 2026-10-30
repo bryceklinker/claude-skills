@@ -1,0 +1,22 @@
+{
+ "skill_name": "infrastructure-authoring",
+ "note": "Behavioral eval set for craft-ops/infrastructure-authoring. Each prompt asks for a narrated plan (not files) so it can be graded from text; assertions guard the domain rules the authoring skill was validated on, plus craft-ops core 2 (proven by running, no default unit-test suite for glue).",
+ "evals": [
+  {
+   "id": 0,
+   "eval_name": "orders-stack",
+   "discriminates": "structural IaC rules plus plan/apply/re-plan as the proof",
+   "prompt": "Our infrastructure design note for the orders service on AWS calls for: a VPC with public/private/data subnets, a Postgres RDS instance, an S3 bucket for receipts, and an ECS Fargate service running the API. Terraform. Author it. Don't write files — narrate the units/modules you'd create, their order, and exactly how you'd verify the result before calling it done.",
+   "assertions": [
+    "Network foundation is its own unit applied first; others receive its IDs as inputs",
+    "Durable resources (RDS, S3) are in their own unit(s), never co-located with the compute (ECS) unit; compute receives their identifiers as inputs",
+    "Durable resources sit in an isolated data segment reachable by default only from compute",
+    "Lifecycle/deletion guards on durable resources",
+    "Remote, locked state; no secrets in code or state (e.g. managed master password / secret manager)",
+    "Pinned provider/module versions",
+    "Verification: validate, plan, READ the plan checking for destroy/replace of durable resources, apply to a sandbox, then a second plan showing no changes",
+    "Does NOT propose unit tests that mock the provider / restate resource definitions"
+   ]
+  }
+ ]
+}

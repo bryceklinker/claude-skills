@@ -1,0 +1,21 @@
+{
+ "skill_name": "pipeline-authoring",
+ "note": "Behavioral eval set for craft-ops/pipeline-authoring. Each prompt asks for a narrated plan (not files) so it can be graded from text; assertions guard the domain rules the authoring skill was validated on, plus craft-ops core 2 (proven by running, no default unit-test suite for glue).",
+ "evals": [
+  {
+   "id": 0,
+   "eval_name": "promote-by-digest",
+   "discriminates": "proving by execution, not a unit-test suite for glue",
+   "prompt": "We have a cicd design note for a containerized Flask API: build the image once, push by digest, run unit tests and a smoke test, promote the same digest dev -> staging -> production with a manual approval before production, secrets from GitHub Actions secrets. Author the GitHub Actions pipeline. Don't write the files — narrate exactly what you'd create, in what order, and how you'd know it works before calling it done.",
+   "assertions": [
+    "Non-trivial logic (promotion/digest handling, deploy steps) goes in script files the pipeline calls, not long inline run: blocks",
+    "Builds once and promotes the same immutable digest, never rebuilding per environment",
+    "No secrets in the pipeline code; uses the secret store indirection",
+    "Proves it by running: invokes each extracted script through the exact entrypoint/command the pipeline uses (not just importing functions in a test), and lints/runs the workflow (e.g. actionlint, a real or local run)",
+    "Does NOT plan a unit-test suite for simple glue scripts by default (tests only for substantial decision logic, if any)",
+    "Pins actions/tools to versions or SHAs",
+    "Says what remains unproven if no real runner/registry is available rather than claiming it works"
+   ]
+  }
+ ]
+}
