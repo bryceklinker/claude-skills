@@ -99,9 +99,19 @@ def rel(repo: str, path: str) -> str:
 
 # --- git history ----------------------------------------------------------
 
+SEED_TAG = "eval-seed"
+
+
 def git_history(repo: str):
-    """Return list of commits (chronological) as dicts: subject, files[(status, path)], is_merge."""
-    rc, out = sh(["git", "log", "--reverse", "--no-merges", "--format=@@@%H%x1f%s", "--name-status"], repo)
+    """Return the run's commits (chronological) as dicts: subject, files[(status, path)].
+
+    produce.sh tags the seed's tip `eval-seed`; only commits after it are the
+    run's. Grading the seed too lets its own test and code satisfy test-first.
+    An untagged repo (produced before the tag existed) falls back to everything.
+    """
+    rc, _ = sh(["git", "rev-parse", "-q", "--verify", f"refs/tags/{SEED_TAG}"], repo)
+    span = [f"{SEED_TAG}..HEAD"] if rc == 0 else []
+    rc, out = sh(["git", "log", "--reverse", "--no-merges", "--format=@@@%H%x1f%s", "--name-status", *span], repo)
     if rc != 0:
         return []
     commits = []
@@ -156,6 +166,35 @@ def check_test_before_code(repo: str, commits) -> tuple[Optional[bool], str]:
     return ok, (f"first test @commit#{first_test[0]} ('{first_test[1]}'), "
                 f"first prod @commit#{first_prod[0]} ('{first_prod[1]}') → "
                 + ("test-first" if ok else "code-before-test"))
+
+
+INCREMENT_RE = re.compile(r"\s*(feat|fix)(\(|!|:)", re.I)
+
+
+def is_prod_code(path: str) -> bool:
+    return os.path.splitext(path)[1] in CODE_EXT and not is_test_file(path)
+
+
+def check_increment_tests_first(commits) -> tuple[Optional[bool], str]:
+    """Each feat/fix commit that changes production code carries its tests, or
+    follows a test-only commit since the previous increment (tests first, per increment)."""
+    increments, untested = 0, []
+    test_since_last = False
+    for c in commits:
+        touched = [p for s, p in c["files"] if s in ("A", "M")]
+        has_test = any(is_test_file(p) and os.path.splitext(p)[1] in CODE_EXT for p in touched)
+        if INCREMENT_RE.match(c["subject"]) and any(is_prod_code(p) for p in touched):
+            increments += 1
+            if not (has_test or test_since_last):
+                untested.append(c["subject"])
+            test_since_last = False
+        elif has_test:
+            test_since_last = True
+    if increments == 0:
+        return None, "no feat/fix commit changed production code"
+    if untested:
+        return False, f"{len(untested)}/{increments} increment(s) changed code with no test: " + "; ".join(untested[:3])
+    return True, f"{increments} increment(s), each with its tests in or just before the commit"
 
 
 def check_multiple_small_commits(commits) -> tuple[Optional[bool], str]:
@@ -266,6 +305,7 @@ def check_detached_work_owned(repo: str) -> tuple[Optional[bool], str]:
 
 CHECKS = {
     "test_before_code": lambda repo, cfg, commits, tc: check_test_before_code(repo, commits),
+    "increment_tests_first": lambda repo, cfg, commits, tc: check_increment_tests_first(commits),
     "multiple_small_commits": lambda repo, cfg, commits, tc: check_multiple_small_commits(commits),
     "separate_refactor_commits": lambda repo, cfg, commits, tc: check_separate_refactor_commits(commits),
     "no_owned_mocks": lambda repo, cfg, commits, tc: check_no_owned_mocks(repo),
@@ -313,6 +353,9 @@ def main():
     ap.add_argument("--out", default=None, help="write grading.json here (default: stdout)")
     args = ap.parse_args()
 
+    # Without its own .git, git commands walk up and grade whatever repo encloses it.
+    if not os.path.exists(os.path.join(args.repo, ".git")):
+        ap.error(f"{args.repo} is not a git checkout")
     with open(args.scenario) as fh:
         scenario = json.load(fh)
     result = grade(os.path.abspath(args.repo), scenario, args.test_cmd)

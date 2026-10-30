@@ -34,6 +34,7 @@ Each assertion carries a `check`. Most are **deterministic** — decided mechani
 |-------|------------------|
 | `suite_passes` | the configured test command exits 0 |
 | `test_before_code` | a test file is committed at or before the production code it covers |
+| `increment_tests_first` | every `feat:`/`fix:` commit that changes production code carries its tests, or follows a test commit since the previous increment |
 | `multiple_small_commits` | red-green-refactor rhythm, not one big-bang commit |
 | `separate_refactor_commits` | no commit bundles "add behavior" with "refactor" |
 | `no_owned_mocks` | no `jest.fn`/`vi.fn`/`Mock<>`/`Moq`/`unittest.mock`… in tests |
@@ -57,11 +58,9 @@ FORCE=1 ./produce.sh <runs-dir> repeat-defect  # redo one that already succeeded
 
 It leaves `<runs-dir>/<id>/repo` for the grader and `<runs-dir>/<id>/transcript.jsonl` for the transcript-graded assertions. Runs unattended, so it passes `--dangerously-skip-permissions` — keep `<runs-dir>` outside anything you care about. Budget minutes and tens of thousands of tokens per scenario.
 
-Seeds live in `inputs/<id>/`, in one of two shapes: a plain tree copied in as one initial commit, or a `history/NN_name/` series applied as separate commits (each with a `.commit-message`) when the scenario's point *is* the git history — `repeat-defect` needs its two prior rounding fixes to be real commits, or there's no recurrence for the run to notice.
+Seeds live in `inputs/<id>/`, in one of three shapes: a plain tree copied in as one initial commit; a `history/NN_name/` series applied as separate commits (each with a `.commit-message`) when the scenario's point *is* the git history — `repeat-defect` needs its two prior rounding fixes to be real commits, or there's no recurrence for the run to notice; and, on top of either, a `branch/<name>/NN_name/` series committed on a work-item branch in a sibling worktree, where the session then starts. That last shape is for scenarios set mid-work-item (`followup-lane`, `feedback-adjustment`): the agreed criteria, the plan, and the code the prompt talks about all exist, so the run exercises the lane instead of refusing on the premise.
 
-`run.sh` reports **NOTRUN** rather than a result when a run errored (a usage limit mid-batch is the common one) or added no commits above its seed. That distinction matters: a seed repo sails through the deterministic checks, so grading a scenario that never ran reports a confident OK for nothing at all.
-
-**Known gap:** `gate-refusal`, `followup-lane`, and `feedback-adjustment` have no seed. Their prompts describe a session already in flight against code that doesn't exist here (`ApsSender`, a health check, a checkout to tweak), so a run correctly refuses on the premise instead of exercising the gate. They need seeds matching their premises before their judgment items mean anything.
+`produce.sh` tags the seed's tip `eval-seed`, and the grader looks only at commits after it. Without that, a seed that ships a test and its code in the first commit satisfies `test_before_code` whatever the run does.
 
 Two failure modes to watch for, both observed the first time this ran:
  a session that runs in the **wrong working directory** silently grades the wrong repo (the run happens where you invoked it, not in the throwaway — `produce.sh` now `cd`s and warns when a run adds no commits), and a run with the scenarios in view can **read its own grading assertions**, which voids it. Keep `<runs-dir>` outside this checkout so the scenario files aren't in the session's reach.

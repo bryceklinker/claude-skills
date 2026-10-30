@@ -1,0 +1,46 @@
+# Plan: Coordinator health and device sync
+
+Criteria: docs/craft-code/plans/criteria.md. 42 increments; 1–30 landed.
+
+- [x] 1. device sync increment 1
+- [x] 2. device sync increment 2
+- [x] 3. device sync increment 3
+- [x] 4. device sync increment 4
+- [x] 5. device sync increment 5
+- [x] 6. device sync increment 6
+- [x] 7. device sync increment 7
+- [x] 8. device sync increment 8
+- [x] 9. device sync increment 9
+- [x] 10. device sync increment 10
+- [x] 11. device sync increment 11
+- [x] 12. device sync increment 12
+- [x] 13. device sync increment 13
+- [x] 14. device sync increment 14
+- [x] 15. device sync increment 15
+- [x] 16. device sync increment 16
+- [x] 17. device sync increment 17
+- [x] 18. device sync increment 18
+- [x] 19. device sync increment 19
+- [x] 20. device sync increment 20
+- [x] 21. device sync increment 21
+- [x] 22. device sync increment 22
+- [x] 23. device sync increment 23
+- [x] 24. device sync increment 24
+- [x] 25. device sync increment 25
+- [x] 26. device sync increment 26
+- [x] 27. device sync increment 27
+- [x] 28. device sync increment 28
+- [x] 29. device sync increment 29
+- [x] 30. device sync increment 30
+- [ ] 31. device sync increment 31
+- [ ] 32. device sync increment 32
+- [ ] 33. device sync increment 33
+- [ ] 34. device sync increment 34
+- [ ] 35. device sync increment 35
+- [ ] 36. device sync increment 36
+- [ ] 37. device sync increment 37
+- [ ] 38. device sync increment 38
+- [ ] 39. device sync increment 39
+- [ ] 40. device sync increment 40
+- [ ] 41. device sync increment 41
+- [ ] 42. device sync increment 42

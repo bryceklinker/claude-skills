@@ -7,6 +7,7 @@
     { "text": "Recognized this as an in-session follow-up on a live, already-agreed work item and took dev-workflow's follow-up lane — not a fresh cold-start pass", "check": "judgment", "note": "transcript: named the follow-up lane, did not treat it as a new work item" },
     { "text": "Did NOT author a fresh formal intake document or a new plan file for the follow-up; collapsed intake to a stated done-condition and let the failing test be the criterion", "check": "judgment", "note": "transcript: no new intake/plan artifact; done-condition spoken" },
     { "text": "Kept strict-tdd: a failing test was written and watched red before the production change", "check": "test_before_code", "note": "the lane collapses paperwork, never the red test" },
+    { "text": "Each increment's tests land in the same commit as its code, or in a test commit just before it (tests first, per increment)", "check": "increment_tests_first" },
     { "text": "Reused the existing work-item worktree; no new worktree, no edits on the base branch", "check": "judgment", "note": "transcript: worktree reused" },
     { "text": "Kept fresh-eyes adversarial-review and verification before calling the follow-up done", "check": "judgment", "note": "transcript: review + verify not skipped for being small" }
   ]

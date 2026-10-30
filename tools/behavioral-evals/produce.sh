@@ -62,6 +62,26 @@ seed_repo() {
     git -C "$repo" commit -q --allow-empty -m "chore: empty project"
   fi
   git -C "$repo" branch -M main
+  git -C "$repo" tag eval-seed
+}
+
+# A scenario set mid-work-item ships inputs/<id>/branch/<name>/NN_layer/: those
+# layers are committed on <name> in a sibling worktree, and the session starts
+# there -- the state the prompt claims, not an empty repo it has to refuse.
+# Prints the directory the session should run in.
+seed_work_item() {
+  local id="$1" repo="$2" out="$3" seed="$HERE/inputs/$1/branch" branch wt
+  if [ ! -d "$seed" ]; then echo "$repo"; return; fi
+  branch="$(basename "$(ls -d "$seed"/*/ | head -1)")"
+  wt="$out/repo-$branch"
+  git -C "$repo" worktree add -q -b "$branch" "$wt" main
+  for layer in "$seed/$branch"/*/; do
+    rsync -a --exclude ".commit-message" "$layer" "$wt/"
+    git -C "$wt" add -A
+    git -C "$wt" commit -q -F "$layer/.commit-message"
+  done
+  git -C "$wt" tag -f eval-seed >/dev/null
+  echo "$wt"
 }
 
 for id in "${ids[@]}"; do
@@ -97,6 +117,7 @@ EOPY
   rm -rf "$out"
   mkdir -p "$repo"
   seed_repo "$id" "$repo"
+  session_dir="$(seed_work_item "$id" "$repo" "$out")"
   # Count every ref, not HEAD: the pipeline commits on a work-item branch in a
   # sibling worktree, so a finished run can leave main exactly where it started.
   before="$(git -C "$repo" rev-list --count --all)"
@@ -111,7 +132,7 @@ EOPY
   # CLAUDECODE is unset so this can nest inside an interactive session; that
   # guard exists for terminal conflicts, and a subprocess run is not one.
   (
-    cd "$repo" || exit 1
+    cd "$session_dir" || exit 1
     env -u CLAUDECODE claude -p "$prompt" \
       --plugin-dir "$PLUGIN_ROOT" \
       --dangerously-skip-permissions \

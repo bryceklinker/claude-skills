@@ -52,10 +52,12 @@ for sc in "$HERE"/scenarios/*.json; do
   # its repo is still the seed, and a seed sails through the deterministic checks,
   # reporting OK for a scenario that never ran. That false green is worse than a gap.
   target_commits="$(git -C "$repo" rev-list --count HEAD 2>/dev/null || echo 0)"
-  notrun="$($PY - "$RUNS/$id/timing.json" "$sc" "$HERE/inputs/$id" "$target_commits" <<'EOPY'
+  # produce.sh tags the seed's tip; older runs fall back to counting seed layers.
+  tagged_seed="$(git -C "$repo" rev-list --count eval-seed 2>/dev/null || echo "")"
+  notrun="$($PY - "$RUNS/$id/timing.json" "$sc" "$HERE/inputs/$id" "$target_commits" "$tagged_seed" <<'EOPY'
 import json, os, sys
 
-timing_path, scenario_path, seed_dir, target_commits = sys.argv[1:5]
+timing_path, scenario_path, seed_dir, target_commits, tagged_seed = sys.argv[1:6]
 try:
     status = str(json.load(open(timing_path)).get("status", ""))
 except (OSError, ValueError):
@@ -66,7 +68,9 @@ if status.startswith("ERROR") or status == "no result event":
 # How many commits the seed itself contributed -- anything at or below that means
 # the run added nothing, so the repo under grade is the fixture, not a result.
 history = os.path.join(seed_dir, "history")
-if os.path.isdir(history):
+if tagged_seed:
+    seed_commits = int(tagged_seed)
+elif os.path.isdir(history):
     seed_commits = len([d for d in os.listdir(history) if os.path.isdir(os.path.join(history, d))])
 else:
     seed_commits = 1

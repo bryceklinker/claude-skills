@@ -6,6 +6,7 @@
   "assertions": [
     { "text": "The unit suite exists and passes (green) when run", "check": "suite_passes" },
     { "text": "Reproduced as a failing test first: a test capturing the bug is committed at or before the fix", "check": "test_before_code" },
+    { "text": "Each increment's tests land in the same commit as its code, or in a test commit just before it (tests first, per increment)", "check": "increment_tests_first" },
     { "text": "Work is committed as small increments rather than one large commit", "check": "multiple_small_commits" },
     { "text": "Any cleanup is a separate commit from the fix", "check": "separate_refactor_commits" },
     { "text": "Test names follow Given/When/Then (or When/Then) structure", "check": "gwt_test_names" },
