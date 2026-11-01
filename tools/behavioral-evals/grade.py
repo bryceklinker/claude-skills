@@ -200,8 +200,11 @@ def check_increment_tests_first(commits) -> tuple[Optional[bool], str]:
 def check_multiple_small_commits(commits) -> tuple[Optional[bool], str]:
     n = len(commits)
     big = [c["subject"] for c in commits if len(c["files"]) > 15]
-    ok = n >= 3
-    ev = f"{n} non-merge commits"
+    prod = {p for c in commits for s, p in c["files"] if s in ("A", "M") and is_prod_code(p)}
+    # Counting only the run's commits, a one-increment fix is legitimately one
+    # or two commits; the failure is a big change landed in a few big commits.
+    ok = not big and (n >= 3 or len(prod) <= 5)
+    ev = f"{n} non-merge commits touching {len(prod)} production file(s)"
     if big:
         ev += f"; {len(big)} large commit(s) (>15 files)"
     return ok, ev

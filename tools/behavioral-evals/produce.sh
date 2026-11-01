@@ -26,7 +26,7 @@
 set -u
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
-PLUGIN_ROOT="$(cd "$HERE/../.." && pwd)"
+PLUGIN_ROOT="${PLUGIN_ROOT:-$(cd "$HERE/../.." && pwd)}"  # override to evaluate another checkout's skills
 PY="${PY:-/opt/homebrew/bin/python3.14}"
 RUNS_ARG="${1:?usage: ./produce.sh <runs-dir> [scenario-id ...]}"
 shift

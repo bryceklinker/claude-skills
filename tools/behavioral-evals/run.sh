@@ -38,6 +38,22 @@ resolve_target() {
   echo "$best"
 }
 
+# A run can finish on a work-item branch and remove its worktree without merging,
+# leaving the checkout on the seed. If another local branch carries more commits
+# than HEAD, check that branch out beside the repo and grade it instead.
+resolve_branch() {
+  local repo="$1" branch best="" best_count count
+  best_count="$(git -C "$repo" rev-list --count HEAD)"
+  for branch in $(git -C "$repo" for-each-ref refs/heads --format='%(refname:short)'); do
+    count="$(git -C "$repo" rev-list --count "$branch")"
+    if [ "$count" -gt "$best_count" ]; then best_count="$count"; best="$branch"; fi
+  done
+  if [ -z "$best" ]; then echo "$repo"; return; fi
+  local wt="$(dirname "$repo")/graded-$(echo "$best" | tr '/' '-')"
+  [ -e "$wt/.git" ] || git -C "$repo" worktree add -q --detach "$wt" "$best" >/dev/null 2>&1
+  echo "$wt"
+}
+
 pass=0; fail=0; review=0; missing=0
 printf "%-26s %-8s %s\n" "SCENARIO" "RESULT" "detail"
 printf -- "----------------------------------------------------------------\n"
@@ -48,6 +64,7 @@ for sc in "$HERE"/scenarios/*.json; do
     printf "%-26s %-8s %s\n" "$id" "MISSING" "no checkout under $RUNS/$id"
     missing=$((missing+1)); continue
   fi
+  repo="$(resolve_branch "$repo")"
   # A run that errored (usage limit, crash) or built nothing must not be graded:
   # its repo is still the seed, and a seed sails through the deterministic checks,
   # reporting OK for a scenario that never ran. That false green is worse than a gap.
