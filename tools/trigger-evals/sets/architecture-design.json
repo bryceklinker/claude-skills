@@ -1,0 +1,58 @@
+[
+  {
+    "query": "how should we structure the new payments integration — what ports and adapters does it need?",
+    "should_trigger": true
+  },
+  {
+    "query": "design the module boundaries and where the command handlers live for the orders feature before we plan increments",
+    "should_trigger": true
+  },
+  {
+    "query": "figure out the domain boundary and the shared types for this new endpoint that serves both GraphQL and gRPC",
+    "should_trigger": true
+  },
+  {
+    "query": "we're adding a persistence layer for reporting — sketch how the hexagon should look before any code",
+    "should_trigger": true
+  },
+  {
+    "query": "decide where the CQRS handlers go and how data flows from the HTTP controller into the domain for this feature",
+    "should_trigger": true
+  },
+  {
+    "query": "this refactor changes the structure a lot; design the new shape of the modules before we slice it into increments",
+    "should_trigger": true
+  },
+  {
+    "query": "break this feature into small testable increments and mark which ones are independent",
+    "should_trigger": false
+  },
+  {
+    "query": "clean up the naming and extract this long method per our style guide",
+    "should_trigger": false
+  },
+  {
+    "query": "design the empty and error states for the checkout screen",
+    "should_trigger": false
+  },
+  {
+    "query": "what are the acceptance criteria we agreed on for this feature?",
+    "should_trigger": false
+  },
+  {
+    "query": "write the first failing test for the repository adapter and watch it fail",
+    "should_trigger": false
+  },
+  {
+    "query": "review the finished diff for architecture smells before we merge",
+    "should_trigger": false
+  },
+  {
+    "query": "just bump the ORM library to the latest version",
+    "should_trigger": false
+  },
+  {
+    "query": "reproduce the race condition on concurrent checkout before we plan the fix",
+    "should_trigger": false
+  }
+]

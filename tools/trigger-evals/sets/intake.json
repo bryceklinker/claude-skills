@@ -1,0 +1,62 @@
+[
+  {
+    "query": "before I start coding, help me nail down the acceptance criteria for the referral-bonus feature",
+    "should_trigger": true
+  },
+  {
+    "query": "I'm not totally sure what 'in scope' is for this notifications work \u2014 help me pin it down",
+    "should_trigger": true
+  },
+  {
+    "query": "reproduce this bug first: users say the cart total is wrong when a coupon is applied twice",
+    "should_trigger": true
+  },
+  {
+    "query": "let's define what done looks like for the SSO integration before we touch code",
+    "should_trigger": true
+  },
+  {
+    "query": "the ticket just says 'improve search' \u2014 what are the actual requirements and edge cases?",
+    "should_trigger": true
+  },
+  {
+    "query": "help me write out the given/when/then acceptance criteria for password reset",
+    "should_trigger": true
+  },
+  {
+    "query": "customer reports duplicate charges intermittently \u2014 let's establish a reliable repro before fixing",
+    "should_trigger": true
+  },
+  {
+    "query": "ok criteria are agreed, break this into small testable increments now",
+    "should_trigger": false
+  },
+  {
+    "query": "write the failing test for the empty-email case and make it pass",
+    "should_trigger": false
+  },
+  {
+    "query": "set up a worktree for the referral feature",
+    "should_trigger": false
+  },
+  {
+    "query": "review my diff against the acceptance criteria before I merge",
+    "should_trigger": false
+  },
+  {
+    "query": "run the app and confirm the coupon bug is actually fixed",
+    "should_trigger": false
+  },
+  {
+    "query": "what does 'idempotent' mean in the context of our payment webhooks?",
+    "should_trigger": false
+  },
+  {
+    "query": "just merge the branch, everything's done and verified",
+    "should_trigger": false
+  },
+  {
+    "query": "decompose the SSO work into independent slices we can parallelize",
+    "should_trigger": false
+  }
+]

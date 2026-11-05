@@ -1,0 +1,58 @@
+[
+  {
+    "query": "design the checkout screen — what does it look like while loading, when empty, and on error?",
+    "should_trigger": true
+  },
+  {
+    "query": "break the dashboard into components and enumerate every state before we build it",
+    "should_trigger": true
+  },
+  {
+    "query": "plan the UI for the new signup flow, including validation timing and accessibility",
+    "should_trigger": true
+  },
+  {
+    "query": "what states does this data table need — empty, loading, partial, error, populated?",
+    "should_trigger": true
+  },
+  {
+    "query": "design the interactions and keyboard focus order for the modal before we code it",
+    "should_trigger": true
+  },
+  {
+    "query": "lay out the component breakdown and the states for the notifications panel",
+    "should_trigger": true
+  },
+  {
+    "query": "design the ports and adapters for the notifications backend service",
+    "should_trigger": false
+  },
+  {
+    "query": "extract this JSX into smaller components per our style rules",
+    "should_trigger": false
+  },
+  {
+    "query": "write the failing test for the LoadingSpinner component and watch it go red",
+    "should_trigger": false
+  },
+  {
+    "query": "break the profile feature into small testable increments",
+    "should_trigger": false
+  },
+  {
+    "query": "what are the acceptance criteria for the settings page?",
+    "should_trigger": false
+  },
+  {
+    "query": "review the finished component diff for smells before merge",
+    "should_trigger": false
+  },
+  {
+    "query": "bump the @mui/material version to the latest release",
+    "should_trigger": false
+  },
+  {
+    "query": "reproduce the layout bug on mobile before we plan a fix",
+    "should_trigger": false
+  }
+]

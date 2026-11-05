@@ -1,0 +1,58 @@
+[
+  {
+    "query": "set up craft for this repo — it doesn't have a .craft.yml yet",
+    "should_trigger": true
+  },
+  {
+    "query": "what's the command to run the acceptance suite in this project? record it so the agents know",
+    "should_trigger": true
+  },
+  {
+    "query": "configure how craft runs the tests, app, and database for this codebase",
+    "should_trigger": true
+  },
+  {
+    "query": "the test command changed to pnpm test:unit — update the project conventions",
+    "should_trigger": true
+  },
+  {
+    "query": "we moved the acceptance database to postgres 16, capture that for the pipeline",
+    "should_trigger": true
+  },
+  {
+    "query": "discover this project's build, lint, and run commands and write them into .craft.yml",
+    "should_trigger": true
+  },
+  {
+    "query": "run the full test suite and gather evidence that we're done",
+    "should_trigger": false
+  },
+  {
+    "query": "write the first failing unit test for the discount calculator",
+    "should_trigger": false
+  },
+  {
+    "query": "stand up the app and drive the checkout flow end to end",
+    "should_trigger": false
+  },
+  {
+    "query": "bump the eslint dependency to the latest version",
+    "should_trigger": false
+  },
+  {
+    "query": "break this feature into small testable increments",
+    "should_trigger": false
+  },
+  {
+    "query": "review the finished diff for smells before merge",
+    "should_trigger": false
+  },
+  {
+    "query": "what are the acceptance criteria we agreed on for this feature?",
+    "should_trigger": false
+  },
+  {
+    "query": "create the git worktree and branch for this work item",
+    "should_trigger": false
+  }
+]

@@ -1,0 +1,54 @@
+[
+  {
+    "query": "before I say this is done, actually run it and confirm the bug scenario is fixed with evidence",
+    "should_trigger": true
+  },
+  {
+    "query": "verify the checkout feature meets each acceptance criterion, don't just assume",
+    "should_trigger": true
+  },
+  {
+    "query": "run the full suite and the app and prove the refund flow works end to end",
+    "should_trigger": true
+  },
+  {
+    "query": "confirm the empty-email fix by exercising the original failing repro and capturing output",
+    "should_trigger": true
+  },
+  {
+    "query": "gather evidence that every criterion passes before we call this complete",
+    "should_trigger": true
+  },
+  {
+    "query": "write a new failing test for this behavior",
+    "should_trigger": false
+  },
+  {
+    "query": "what does 'flaky test' mean?",
+    "should_trigger": false
+  },
+  {
+    "query": "review the diff for style issues before merge",
+    "should_trigger": false
+  },
+  {
+    "query": "set up CI to run tests on every push",
+    "should_trigger": false
+  },
+  {
+    "query": "clarify what the acceptance criteria should be",
+    "should_trigger": false
+  },
+  {
+    "query": "merge and clean up the worktree",
+    "should_trigger": false
+  },
+  {
+    "query": "decompose the feature into increments",
+    "should_trigger": false
+  },
+  {
+    "query": "the tests pass, just take my word and ship it",
+    "should_trigger": false
+  }
+]

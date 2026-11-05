@@ -35,6 +35,9 @@ timeout-bump prompt, which exercises the discipline dimension instead.
 
 ## Running a set
 
+`run.py --set <file> --root <checkout> --out <dir> [--runs 3]` answers each prompt with that checkout's skill and grades it blind; run it against two checkouts to A/B. Or use `skill-creator`'s loop.
+
+
 Use `skill-creator` (see its SKILL.md). For each prompt, spawn a with-skill
 run and a baseline run (no-skill, or a snapshot of the prior skill version
 when measuring a specific edit), grade each output against the prompt's
@@ -49,6 +52,7 @@ confidence.
 | `deployment-design.json` | `craft-ops/skills/deployment-design` | 3 | completeness, scope-down, discipline-on-simple-change |
 | `observability-design.json` | `craft-ops/skills/observability-design` | 3 | completeness, runtime levers, health-signals-for-deployment |
 | `incident-response.json` | `craft-ops/skills/incident-response` | 3 | mitigate-before-diagnose, the ratchet, doctrine |
+| `{pipeline,infrastructure,deployment,observability}-authoring.json` | the four `-authoring` skills | 1 each | domain rules plus proven-by-running (no default unit-test suite for glue) |
 
 Measured lift (iteration-1, with-skill vs no-skill baseline, sonnet): deployment-design +0.23,
 observability-design +0.21, incident-response +0.39. incident-response shows the largest lift in

@@ -1,0 +1,21 @@
+[
+  { "query": "implement the discount calculation test-first, watch it go red then green", "should_trigger": true },
+  { "query": "write the failing tests for the empty-email rejection, then the minimal code to pass", "should_trigger": true },
+  { "query": "build the rate limiter test-first: write all the tests for this increment, see them fail, then make them pass", "should_trigger": true },
+  { "query": "add the refund logic but drive every line from a failing test first", "should_trigger": true },
+  { "query": "TDD this parser: start with the simplest failing case and grow it", "should_trigger": true },
+  { "query": "implement increment 2 from the plan — tests first, commit at green, then refactor and commit that separately", "should_trigger": true },
+  { "query": "adjust the sender to retry 5 times on a busy status instead of 3", "should_trigger": true },
+  { "query": "make the email validator also reject addresses that have no domain part", "should_trigger": true },
+  { "query": "actually change the health check to report unhealthy when the coordinator is disconnected", "should_trigger": true },
+  { "query": "what is the red-green-refactor cycle, conceptually?", "should_trigger": false },
+  { "query": "review these existing tests for quality and mocking smells", "should_trigger": false },
+  { "query": "just clean up the style in this already-tested file", "should_trigger": false },
+  { "query": "figure out the acceptance criteria for this feature", "should_trigger": false },
+  { "query": "run the whole suite and tell me if it's green", "should_trigger": false },
+  { "query": "our jest config is broken, tests won't even start — fix the config", "should_trigger": false },
+  { "query": "break this feature into increments before coding", "should_trigger": false },
+  { "query": "merge the finished, tested branch", "should_trigger": false },
+  { "query": "rename the variables in this already-tested function for clarity, no behavior change", "should_trigger": false },
+  { "query": "write the deploy script that promotes the image to staging", "should_trigger": false }
+]

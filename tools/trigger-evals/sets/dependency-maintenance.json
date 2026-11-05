@@ -1,0 +1,58 @@
+[
+  {
+    "query": "bump react from 17 to 18 and make sure nothing broke",
+    "should_trigger": true
+  },
+  {
+    "query": "update all the patch-level dependencies this week",
+    "should_trigger": true
+  },
+  {
+    "query": "apply the security patch for the lodash CVE",
+    "should_trigger": true
+  },
+  {
+    "query": "our lockfile has drifted, reconcile the dependency versions",
+    "should_trigger": true
+  },
+  {
+    "query": "upgrade the .NET SDK and the related nuget packages to the latest",
+    "should_trigger": true
+  },
+  {
+    "query": "update eslint and prettier to the latest versions and fix the config",
+    "should_trigger": true
+  },
+  {
+    "query": "add a new checkout feature to the storefront",
+    "should_trigger": false
+  },
+  {
+    "query": "this test fails after the upgrade and I don't know why — find out",
+    "should_trigger": false
+  },
+  {
+    "query": "write a failing test for the new validation rule",
+    "should_trigger": false
+  },
+  {
+    "query": "break the framework migration into small increments",
+    "should_trigger": false
+  },
+  {
+    "query": "reproduce the payment double-charge bug before we plan a fix",
+    "should_trigger": false
+  },
+  {
+    "query": "review the finished diff before we merge",
+    "should_trigger": false
+  },
+  {
+    "query": "design the ports and adapters for the new integration",
+    "should_trigger": false
+  },
+  {
+    "query": "what are the acceptance criteria for this change?",
+    "should_trigger": false
+  }
+]

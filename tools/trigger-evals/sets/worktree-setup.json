@@ -1,0 +1,54 @@
+[
+  {
+    "query": "isolate this feature work in its own git worktree before we start implementing",
+    "should_trigger": true
+  },
+  {
+    "query": "set up an isolated branch/worktree for the refactor so main stays clean",
+    "should_trigger": true
+  },
+  {
+    "query": "we're about to start TDD \u2014 get a worktree going for the promo-code branch",
+    "should_trigger": true
+  },
+  {
+    "query": "spin up sibling worktrees so the independent increments can be built in parallel",
+    "should_trigger": true
+  },
+  {
+    "query": "create a dedicated workspace for this bugfix off main so I don't dirty my current tree",
+    "should_trigger": true
+  },
+  {
+    "query": "what's the difference between git worktree and git clone?",
+    "should_trigger": false
+  },
+  {
+    "query": "merge this branch back into main and delete the worktree",
+    "should_trigger": false
+  },
+  {
+    "query": "resolve the merge conflict in cart.ts",
+    "should_trigger": false
+  },
+  {
+    "query": "write the failing test for the discount increment",
+    "should_trigger": false
+  },
+  {
+    "query": "break the work into increments first",
+    "should_trigger": false
+  },
+  {
+    "query": "git stash my current changes real quick",
+    "should_trigger": false
+  },
+  {
+    "query": "why is my detached HEAD state happening here?",
+    "should_trigger": false
+  },
+  {
+    "query": "clarify the acceptance criteria before anything else",
+    "should_trigger": false
+  }
+]

@@ -38,6 +38,22 @@ resolve_target() {
   echo "$best"
 }
 
+# A run can finish on a work-item branch and remove its worktree without merging,
+# leaving the checkout on the seed. If another local branch carries more commits
+# than HEAD, check that branch out beside the repo and grade it instead.
+resolve_branch() {
+  local repo="$1" branch best="" best_count count
+  best_count="$(git -C "$repo" rev-list --count HEAD)"
+  for branch in $(git -C "$repo" for-each-ref refs/heads --format='%(refname:short)'); do
+    count="$(git -C "$repo" rev-list --count "$branch")"
+    if [ "$count" -gt "$best_count" ]; then best_count="$count"; best="$branch"; fi
+  done
+  if [ -z "$best" ]; then echo "$repo"; return; fi
+  local wt="$(dirname "$repo")/graded-$(echo "$best" | tr '/' '-')"
+  [ -e "$wt/.git" ] || git -C "$repo" worktree add -q --detach "$wt" "$best" >/dev/null 2>&1
+  echo "$wt"
+}
+
 pass=0; fail=0; review=0; missing=0
 printf "%-26s %-8s %s\n" "SCENARIO" "RESULT" "detail"
 printf -- "----------------------------------------------------------------\n"
@@ -48,14 +64,17 @@ for sc in "$HERE"/scenarios/*.json; do
     printf "%-26s %-8s %s\n" "$id" "MISSING" "no checkout under $RUNS/$id"
     missing=$((missing+1)); continue
   fi
+  repo="$(resolve_branch "$repo")"
   # A run that errored (usage limit, crash) or built nothing must not be graded:
   # its repo is still the seed, and a seed sails through the deterministic checks,
   # reporting OK for a scenario that never ran. That false green is worse than a gap.
   target_commits="$(git -C "$repo" rev-list --count HEAD 2>/dev/null || echo 0)"
-  notrun="$($PY - "$RUNS/$id/timing.json" "$sc" "$HERE/inputs/$id" "$target_commits" <<'EOPY'
+  # produce.sh tags the seed's tip; older runs fall back to counting seed layers.
+  tagged_seed="$(git -C "$repo" rev-list --count eval-seed 2>/dev/null || echo "")"
+  notrun="$($PY - "$RUNS/$id/timing.json" "$sc" "$HERE/inputs/$id" "$target_commits" "$tagged_seed" <<'EOPY'
 import json, os, sys
 
-timing_path, scenario_path, seed_dir, target_commits = sys.argv[1:5]
+timing_path, scenario_path, seed_dir, target_commits, tagged_seed = sys.argv[1:6]
 try:
     status = str(json.load(open(timing_path)).get("status", ""))
 except (OSError, ValueError):
@@ -66,7 +85,9 @@ if status.startswith("ERROR") or status == "no result event":
 # How many commits the seed itself contributed -- anything at or below that means
 # the run added nothing, so the repo under grade is the fixture, not a result.
 history = os.path.join(seed_dir, "history")
-if os.path.isdir(history):
+if tagged_seed:
+    seed_commits = int(tagged_seed)
+elif os.path.isdir(history):
     seed_commits = len([d for d in os.listdir(history) if os.path.isdir(os.path.join(history, d))])
 else:
     seed_commits = 1

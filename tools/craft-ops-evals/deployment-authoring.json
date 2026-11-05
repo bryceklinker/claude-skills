@@ -1,0 +1,21 @@
+{
+ "skill_name": "deployment-authoring",
+ "note": "Behavioral eval set for craft-ops/deployment-authoring. Each prompt asks for a narrated plan (not files) so it can be graded from text; assertions guard the domain rules the authoring skill was validated on, plus craft-ops core 2 (proven by running, no default unit-test suite for glue).",
+ "evals": [
+  {
+   "id": 0,
+   "eval_name": "canary-with-flag",
+   "discriminates": "rollback exercised and gates proven to halt, no default unit-test suite",
+   "prompt": "Deployment design note: orders API on Kubernetes, Argo Rollouts canary 10% -> 50% -> 100%, auto-halt if 5xx rate > 1% or p99 > 800ms over 5 minutes, new pricing logic ships dark behind a server-side flag, rollback must be proven. Author the rollout automation. Don't write files — narrate what you'd create and exactly how you'd prove it works before calling it done.",
+   "assertions": [
+    "Rollback is authored and actually exercised in a test environment (observed reverting to the prior version) before trusting the forward path",
+    "Health gates are objective thresholds evaluated automatically (analysis template / gate script), not a human glance",
+    "Proves the gate HALTS by deliberately making the signal bad in a test environment",
+    "Gate/promotion logic is visible and runnable (analysis config or script), not buried inline",
+    "Deploy is decoupled from release: the pricing flag ships off and is flipped as a separate decision",
+    "No secrets in the config",
+    "Does NOT default to a unit-test suite for deploy scripts (only for substantial threshold logic, if any)"
+   ]
+  }
+ ]
+}

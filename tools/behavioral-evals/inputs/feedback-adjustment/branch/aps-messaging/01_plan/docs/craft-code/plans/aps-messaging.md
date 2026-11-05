@@ -1,0 +1,46 @@
+# Plan: APS messaging
+
+Criteria: docs/craft-code/plans/criteria.md. 42 increments; 1–30 landed.
+
+- [x] 1. messaging increment 1
+- [x] 2. messaging increment 2
+- [x] 3. messaging increment 3
+- [x] 4. messaging increment 4
+- [x] 5. messaging increment 5
+- [x] 6. messaging increment 6
+- [x] 7. messaging increment 7
+- [x] 8. messaging increment 8
+- [x] 9. messaging increment 9
+- [x] 10. messaging increment 10
+- [x] 11. messaging increment 11
+- [x] 12. messaging increment 12
+- [x] 13. messaging increment 13
+- [x] 14. messaging increment 14
+- [x] 15. messaging increment 15
+- [x] 16. messaging increment 16
+- [x] 17. messaging increment 17
+- [x] 18. messaging increment 18
+- [x] 19. messaging increment 19
+- [x] 20. messaging increment 20
+- [x] 21. messaging increment 21
+- [x] 22. messaging increment 22
+- [x] 23. messaging increment 23
+- [x] 24. messaging increment 24
+- [x] 25. messaging increment 25
+- [x] 26. messaging increment 26
+- [x] 27. messaging increment 27
+- [x] 28. messaging increment 28
+- [x] 29. messaging increment 29
+- [x] 30. messaging increment 30
+- [ ] 31. messaging increment 31
+- [ ] 32. messaging increment 32
+- [ ] 33. messaging increment 33
+- [ ] 34. messaging increment 34
+- [ ] 35. messaging increment 35
+- [ ] 36. messaging increment 36
+- [ ] 37. messaging increment 37
+- [ ] 38. messaging increment 38
+- [ ] 39. messaging increment 39
+- [ ] 40. messaging increment 40
+- [ ] 41. messaging increment 41
+- [ ] 42. messaging increment 42

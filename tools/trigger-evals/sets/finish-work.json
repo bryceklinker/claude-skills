@@ -1,0 +1,54 @@
+[
+  {
+    "query": "the change is implemented, reviewed, and verified \u2014 integrate it and clean up the worktree",
+    "should_trigger": true
+  },
+  {
+    "query": "open a PR for this branch with a summary of what changed and how it was verified",
+    "should_trigger": true
+  },
+  {
+    "query": "merge the finished feature into main and remove the sibling worktrees",
+    "should_trigger": true
+  },
+  {
+    "query": "wrap up: settle the commit history and get this landed the way we usually do",
+    "should_trigger": true
+  },
+  {
+    "query": "we're done and green \u2014 land it and tidy up the branches",
+    "should_trigger": true
+  },
+  {
+    "query": "start building the next feature",
+    "should_trigger": false
+  },
+  {
+    "query": "write the failing test for the new behavior",
+    "should_trigger": false
+  },
+  {
+    "query": "review the diff before we finish",
+    "should_trigger": false
+  },
+  {
+    "query": "run it and verify it actually works first",
+    "should_trigger": false
+  },
+  {
+    "query": "how do I squash commits interactively in general?",
+    "should_trigger": false
+  },
+  {
+    "query": "set up the worktree to begin the work",
+    "should_trigger": false
+  },
+  {
+    "query": "resolve this nasty merge conflict in the domain layer",
+    "should_trigger": false
+  },
+  {
+    "query": "clarify the acceptance criteria",
+    "should_trigger": false
+  }
+]

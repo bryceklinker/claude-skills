@@ -1,0 +1,58 @@
+[
+  {
+    "query": "we have the acceptance criteria \u2014 break the checkout feature into small testable increments",
+    "should_trigger": true
+  },
+  {
+    "query": "sequence this refactor into steps, and mark which ones are independent so we can parallelize",
+    "should_trigger": true
+  },
+  {
+    "query": "decompose the SSO integration into thin vertical slices I can TDD one at a time",
+    "should_trigger": true
+  },
+  {
+    "query": "plan the implementation increments for the invoices endpoint before we code",
+    "should_trigger": true
+  },
+  {
+    "query": "which parts of this multi-file change are independent enough to run in parallel worktrees?",
+    "should_trigger": true
+  },
+  {
+    "query": "lay out an ordered plan of increments for the rate limiter, each drivable by one test",
+    "should_trigger": true
+  },
+  {
+    "query": "help me figure out what the requirements even are for this feature",
+    "should_trigger": false
+  },
+  {
+    "query": "write the first failing test for increment 1 and watch it fail",
+    "should_trigger": false
+  },
+  {
+    "query": "clean up the naming in this module per our style guide",
+    "should_trigger": false
+  },
+  {
+    "query": "create the git worktree and branch for this work",
+    "should_trigger": false
+  },
+  {
+    "query": "reproduce the double-charge bug before we plan anything",
+    "should_trigger": false
+  },
+  {
+    "query": "review the finished diff for smells before merge",
+    "should_trigger": false
+  },
+  {
+    "query": "what's the acceptance criteria we agreed on again?",
+    "should_trigger": false
+  },
+  {
+    "query": "give me a project timeline estimate in weeks for the whole epic",
+    "should_trigger": false
+  }
+]
