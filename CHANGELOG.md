@@ -5,6 +5,24 @@ All notable changes to the `craft-code` plugin are recorded here. The format fol
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new skills and agents; the pipeline's core discipline stays stable.
 
+## [0.7.0] — 2026-11-04
+
+The evals had been mismeasuring. Fixed, they showed the descriptions firing
+correctly, and the gate rarely engaging in practice. This release fixes the
+evals, then the gate.
+
+### Added
+- **A SessionStart routing hook.** In a repo with a `.craft-code.yml`, each new session is told to start code changes with `dev-workflow`. Before, the gate only engaged when the model happened to load `dev-workflow` from its description, and in a fresh session that was 1 run in 9, in 0.5.0 and 0.6.0 alike. So a "just quickly" request went straight to an edit on `main`, and a third recurrence of a bug got a third symptom patch. With the hook it loads 10 times in 10, and the follow-up lane stays light. Repos without the file get nothing.
+- **Versioned trigger evals** (`tools/trigger-evals/`). The previous runner shared one `.claude/commands/` across parallel runs, so the model often loaded another run's copy of the skill and got scored as a miss. It also scored a miss whenever the first tool call wasn't the skill, and counted usage limits as misses. The new runner isolates each run and watches the first four turns, and it comes with `ab.sh` and committed eval sets, including new ones for `adversarial-review` and the batched `strict-tdd` cycle. Measured with it, craft-code scores 241/243.
+
+### Changed
+- **`dev-workflow`: there is no quick mode of intake.** An agent following the gate announced "intake in quick mode" and skipped the plan, the worktree, and review. A cold-start change now explicitly gets agreed criteria, a plan, and a worktree before code; the follow-up lane is the only lighter path.
+- **Two descriptions stopped stealing neighbors' requests.** `dependency-maintenance` no longer fires on breaking a migration into increments (planning's job), and `craft-code-conventions` no longer fires on running the suite to gather evidence (verification's). Each went from 13/14 to 14/14.
+- **Behavioral evals measure what they claim.** The grader looks only at commits after the seed (tagged `eval-seed`). Before, a seed shipping a test with its code satisfied `test_before_code` for any run. `gate-refusal`, `followup-lane`, and `feedback-adjustment` now start from the state their prompts describe, the latter two inside a real work-item worktree. Also new: an `increment_tests_first` check, grading of work left on an unmerged branch, and a commit-size check judged by the size of the change.
+
+### Known gaps
+Tracked in #9: deployment-design misses a roll-forward plan on full rollouts, and was doing so before 0.6.0's trim. And whether the gate should override a user's explicit "skip the process" request is still a policy question.
+
 ## [0.6.0] — 2026-10-29
 
 The suite was producing working code with too much in it, through a TDD loop
