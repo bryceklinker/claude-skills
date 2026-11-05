@@ -17,10 +17,11 @@ Both ship from one marketplace (`.claude-plugin/marketplace.json`) but install a
 skills/<name>/SKILL.md          craft-code skills; references/*.md for depth
 agents/craft-code-*.md          craft-code subagents
 craft-ops/skills/, agents/      the same two shapes, for the ops plugin
+hooks/                          craft-code's SessionStart routing hook (only acts where .craft-code.yml exists)
 PRINCIPLES.md                   craft-code's canonical "why" (craft-ops has its own)
 tools/behavioral-evals/         discipline regression guard
 tools/trigger-evals/            does each description fire on the right requests
-tools/hook-tests/               tests for .githooks/commit-msg
+tools/hook-tests/               tests for .githooks/commit-msg and hooks/session-start.sh
 docs/superpowers/specs|plans/   design docs and implementation plans, dated
 ```
 
@@ -31,6 +32,7 @@ Gitignored working areas: `*-workspace/` (trigger-description optimizer, benchma
 ```sh
 git config core.hooksPath .githooks          # once per clone: enable the commit-msg hook
 tools/hook-tests/commit-msg-test.sh          # test the commit-msg hook
+tools/hook-tests/session-start-test.sh       # test the SessionStart routing hook
 
 # behavioral evals: grade a produced repo against a scenario's assertions
 PY=/opt/homebrew/bin/python3.14 tools/behavioral-evals/run.sh <runs-dir>

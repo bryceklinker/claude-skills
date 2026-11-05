@@ -10,6 +10,8 @@ intake → design (architecture / frontend, as needed) → planning → worktree
 
 `dev-workflow` is the orchestrator that routes work through these gates and dispatches parallel work via `subagent-execution`.
 
+In a repo with a `.craft-code.yml`, a SessionStart hook tells each new session to start code changes with `dev-workflow`. Without it, a terse request ("fix it", "just quickly…") in a fresh session usually skipped the pipeline entirely. Repos without the file are untouched.
+
 ## Installation (Claude Code)
 
 `craft-code` is distributed as a Claude Code plugin via a marketplace hosted in this repo. Install it in two steps from the Claude Code prompt:
