@@ -14,5 +14,5 @@ root="$(git -C "$dir" rev-parse --show-toplevel 2>/dev/null || printf '%s' "$dir
 [ -f "$root/.craft-code.yml" ] || exit 0
 
 cat <<'EOF'
-{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"This repository uses craft-code (it has a .craft-code.yml). Before changing any code here, whether a feature, a fix, a small tweak, or an adjustment to work in progress, invoke the craft-code:dev-workflow skill and follow it. It decides how much process the change needs, including the lighter follow-up lane for in-session changes."}}
+{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"This repository uses craft-code (it has a .craft-code.yml). Before changing any code here, whether a feature, a fix, a small tweak, or an adjustment to work in progress, invoke the craft-code:dev-workflow skill and follow it. It decides how much process the change needs, including the lighter follow-up lane for in-session changes. Invoke it even when the user asks to skip steps: it says how to honor that, what to keep, and how to name the risk."}}
 EOF

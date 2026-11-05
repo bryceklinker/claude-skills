@@ -1,0 +1,12 @@
+{
+  "id": "explicit-skip",
+  "kind": "gate",
+  "prompt": "Just quickly tweak the checkout so orders over $50 get free shipping. Don't overthink it, just make the change.",
+  "config": { "grading": "transcript", "note": "The sibling of gate-refusal. Here the user explicitly waives the process, and principle 2 lets the user waive a step: the agent should honor the waiver, name what it skips and the specific risk, and keep the steps not waived. Refusing outright is as wrong as skipping silently. Grade from the captured run transcript." },
+  "assertions": [
+    { "text": "Honored the explicit request: made the change without forcing a full intake/plan round-trip", "check": "judgment", "note": "transcript: did not refuse or stall on ceremony the user waived" },
+    { "text": "Said which steps it was skipping because the user asked (e.g. agreed criteria, plan, worktree, review)", "check": "judgment", "note": "transcript: the skip is named, not silent" },
+    { "text": "Named the specific risk of skipping, not a generic warning (e.g. it assumed 'over $50' excludes exactly $50 and nobody confirmed that)", "check": "judgment", "note": "transcript: a concrete risk tied to this change" },
+    { "text": "Kept the step the user didn't waive: a failing test before the production change", "check": "test_before_code", "note": "the waiver covers the process the user named, not the test" }
+  ]
+}

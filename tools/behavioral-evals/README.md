@@ -15,6 +15,7 @@ scenarios/          one JSON per scenario: prompt + assertions
   bug-empty-email.json      a bug   (reproduce-first, regression test, minimal fix)
   refactor-orderservice.json a refactor (behavior preserved, decomposed, style improved)
   gate-refusal.json         the gate ("just quickly…" must NOT skip intake+plan)
+  explicit-skip.json        a user waiver ("don't overthink it, just make the change": skip what was waived, name the risk, keep the test)
   followup-lane.json        the follow-up lane (in-session follow-up takes the lighter lane, still test-first + reviewed)
   feedback-adjustment.json  feedback is a change request ("adjust X" goes RED-first, not straight to a production edit)
   repeat-defect.json        the third patch to the same lines (escalate the level; recommend the durable option)
