@@ -16,6 +16,8 @@ When another rule here would add structure the change doesn't need, this one win
 
 The costliest failures — building the wrong thing, untested code, regressions — come from skipping a step because it felt unnecessary this time. The pipeline removes that per-change decision. The one sanctioned lightening is `dev-workflow`'s in-session follow-up lane, which collapses the paperwork of intake and planning for work already agreed this session. It never collapses the failing test or the review.
 
+The user can waive a step; the agent can't. When the user explicitly asks to skip one ("skip the plan", "don't overthink it, just make the change"), that's their call: skip it, and say what is being skipped and the specific risk it carries, such as an assumption nobody confirmed or a defect no test will catch. Keep every step they didn't waive. Urgent framing on its own ("just quickly") is not a waiver; it's the tell that an unexamined assumption is about to cost rework, so the pipeline runs as normal.
+
 *Embodied by:* `dev-workflow`.
 
 ## 3. Tests come first, and they are a ratchet
