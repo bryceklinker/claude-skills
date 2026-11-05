@@ -1,0 +1,23 @@
+[
+  {"query": "we're finally setting up CI for our go service — right now people just `docker push` from their machines. how should the whole build-and-deploy pipeline be shaped?", "should_trigger": true},
+  {"query": "our staging and prod each rebuild the image in their own job and prod keeps drifting from what we tested. how should the build/promote flow actually work?", "should_trigger": true},
+  {"query": "CI takes ~35 min and a formatting error only shows up after the e2e suite. how should we reorder things so devs hear sooner?", "should_trigger": true},
+  {"query": "should our monorepo produce one container image or one per service, and how should we tag them so we can promote the exact thing we tested to prod?", "should_trigger": true},
+  {"query": "can you review how our GitHub Actions pipeline is laid out against good CI/CD practice — stage order, what gates what, how we promote across envs?", "should_trigger": true},
+  {"query": "where should the security/dependency scan sit in our pipeline — before or after we build the artifact, and should it block the deploy?", "should_trigger": true},
+  {"query": "deploys feel risky because we're never sure prod runs what staging ran. how should the pipeline be structured so we promote a single tested artifact instead of rebuilding?", "should_trigger": true},
+  {"query": "we want a real staging to prod promotion step with a human approval gate. how should that be shaped in our pipeline without rebuilding for prod?", "should_trigger": true},
+  {"query": "greenfield next.js app on Vercel + a separate worker on Fly. no CI yet. how should I structure the pipeline end to end so it's not a mess later?", "should_trigger": true},
+  {"query": "our build isn't reproducible — two runs of the same commit give different images. how should the build stage be set up so the artifact is deterministic?", "should_trigger": true},
+
+  {"query": "write me the actual `.github/workflows/ci.yml` for the pipeline we agreed on — lint, unit, build, deploy to fly", "should_trigger": false},
+  {"query": "set up the Terraform for our VPC, RDS instance, and security groups on AWS", "should_trigger": false},
+  {"query": "should we roll this release out as blue-green or canary, and over what window?", "should_trigger": false},
+  {"query": "our pagerduty alerts are way too noisy — help me define SLOs and alert only on symptoms", "should_trigger": false},
+  {"query": "the CI run on PR #482 is failing at the integration step with ECONNREFUSED to postgres — what's wrong?", "should_trigger": false},
+  {"query": "add a promo-code field to the checkout flow with validation and an error message", "should_trigger": false},
+  {"query": "this integration test is flaky, passes locally but fails in CI ~1 in 5 — help me fix it", "should_trigger": false},
+  {"query": "bump actions/checkout from v3 to v4 across our workflows and make sure nothing breaks", "should_trigger": false},
+  {"query": "rotate the prod database password and update it wherever it's referenced", "should_trigger": false},
+  {"query": "how do I squash my last 3 commits and force-push the branch?", "should_trigger": false}
+]
