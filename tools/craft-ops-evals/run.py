@@ -42,16 +42,25 @@ def claude(prompt: str, cwd: Path) -> str:
 def run_eval(skill: str, ev: dict, run: int, root: Path, out: Path) -> tuple[str, int, int]:
     stem = out / f"{skill}.{ev['eval_name']}.{run}"
     response, grade = stem.with_name(stem.name + ".out.md"), stem.with_name(stem.name + ".grade.json")
+    # Each run works in its own empty directory. The skills save their note to a
+    # file, so a shared directory lets runs overwrite each other's notes.
+    work = stem.with_name(stem.name + ".work")
     if not response.exists():
+        work.mkdir(exist_ok=True)
         response.write_text(claude(
             f"Read and follow the skill at {root}/craft-ops/skills/{skill}/SKILL.md (its references/ and "
             f"{root}/craft-ops/PRINCIPLES.md as it directs). Don't read anything under tools/ or any "
-            f"*-workspace directory. Then respond to this request:\n\n{ev['prompt']}", out))
+            f"*-workspace directory. Then respond to this request:\n\n{ev['prompt']}", work))
     if not grade.exists():
+        # The deliverable is the note the skill writes, not just the chat summary
+        # of it: grade both, or a complete note behind a short summary fails.
+        written = "".join(f"\n\n--- FILE {p.relative_to(work)} ---\n{p.read_text(errors='replace')}"
+                          for p in sorted(work.rglob("*")) if p.is_file()) if work.exists() else ""
         raw = claude(
-            "You are a strict grader. For each assertion, decide whether the RESPONSE clearly satisfies it. "
+            "You are a strict grader. For each assertion, decide whether the RESPONSE (the chat reply plus any "
+            "files it wrote) clearly satisfies it. "
             'Reply with ONLY a JSON array of {"assertion": str, "passed": bool, "evidence": str}.\n\n'
-            f"ASSERTIONS:\n{json.dumps(ev['assertions'], indent=1)}\n\nRESPONSE:\n{response.read_text()}", out)
+            f"ASSERTIONS:\n{json.dumps(ev['assertions'], indent=1)}\n\nRESPONSE:\n{response.read_text()}{written}", out)
         verdicts = json.loads(raw[raw.find("["): raw.rfind("]") + 1])
         grade.write_text(json.dumps(verdicts, indent=1) + "\n")
     verdicts = json.loads(grade.read_text())

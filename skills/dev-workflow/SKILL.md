@@ -23,7 +23,9 @@ Skip design when the change fits existing structure with no new UI. Skip a new a
 
 ## The gate
 
-Don't write or edit production code until agreed acceptance criteria and a written plan exist. A "just quickly" request with neither starts at phase 1 — the framing is the tell that an unexamined assumption is about to cost rework. It doesn't shorten anything: there is no quick mode of intake, and a cold-start change still gets agreed criteria, a plan, and a worktree before code. The only lighter path is the follow-up lane below, and it never starts cold.
+Don't write or edit production code until agreed acceptance criteria and a written plan exist. A "just quickly" request with neither starts at phase 1 — the framing is the tell that an unexamined assumption is about to cost rework. It doesn't shorten anything: there is no quick mode of intake, and a cold-start change still gets agreed criteria, a plan, and a worktree before code. The only lighter path you can take on your own is the follow-up lane below, and it never starts cold.
+
+An explicit request from the user to skip a step is different: they can waive it. Skip exactly what they waived, say what that is and the specific risk (an unconfirmed assumption, such as which side of a boundary counts; no review to catch a defect), and keep every step they didn't waive, such as the failing test. See principle 2.
 
 At the start of any development request, say which phase you're in and whether its precondition holds ("New feature, no criteria yet — starting at intake"). On a repo with no `.craft-code.yml`, bootstrap one with `craft-code-conventions` before the phases that run commands. Track progress with one task per phase.
 

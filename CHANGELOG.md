@@ -5,6 +5,18 @@ All notable changes to the `craft-code` plugin are recorded here. The format fol
 [Semantic Versioning](https://semver.org/). While pre-1.0, minor versions may
 introduce new skills and agents; the pipeline's core discipline stays stable.
 
+## [0.8.0] — 2026-11-05
+
+The user can now waive a pipeline step; the agent still can't skip one on
+its own.
+
+### Changed
+- **An explicit request to skip a step is honored, with the risk named.** Principle 2 now separates a user's explicit waiver ("don't overthink it, just make the change", "skip the plan") from urgent framing ("just quickly"). The framing alone still starts the pipeline as normal, because it's the tell that an unexamined assumption is about to cost rework. A waiver is the user's call: the agent skips exactly what was waived, says what that is and the specific risk (such as which side of a boundary it assumed), and keeps every step that wasn't waived, such as the failing test. `dev-workflow` carries the rule. The SessionStart line now says to load `dev-workflow` even when the user asks to skip steps; without that, waived runs never read the rule and edited code before writing a test.
+- **The `gate-refusal` scenario is split.** `gate-refusal` now uses the framing alone and must hold the gate. The new `explicit-skip` scenario uses the explicit waiver and must yield with the risk named and the test kept. Across the runs, the gate held 3 of 3 times. Both explicit-skip runs named the skipped steps and the boundary risk, and wrote the failing test first.
+
+### Fixed
+- **craft-ops evals grade the note, not the summary.** The design skills save their note to a file, but `tools/craft-ops-evals/run.py` graded only the chat reply, and runs shared one directory, so they overwrote each other's notes. Each run now has its own directory, and the grader sees every file it wrote. The deployment-design roll-forward gap reported in #9 was this bug: the released skill scores 12/12 on the full-rollout prompt, three runs out of three.
+
 ## [0.7.0] — 2026-11-04
 
 The evals had been mismeasuring. Fixed, they showed the descriptions firing
